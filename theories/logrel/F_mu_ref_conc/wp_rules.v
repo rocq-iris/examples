@@ -15,13 +15,13 @@ Class heapIG Σ := HeapIG {
 }.
 
 Global Instance heapIG_irisG `{heapIG Σ} : irisGS F_mu_ref_conc_lang Σ := {
-  iris_invG := heapI_invG;
+  iris_invGS := heapI_invG;
   num_laters_per_step _ := 0;
   state_interp σ  _ _ _ := gen_heap_interp σ;
   fork_post _ := True%I;
   state_interp_mono _ _ _ _ := fupd_intro _ _
 }.
-Global Opaque iris_invG.
+Global Opaque iris_invGS.
 
 Notation "l ↦ᵢ{ dq } v" := (mapsto (L:=loc) (V:=val) l dq v)
   (at level 20, format "l  ↦ᵢ{ dq }  v") : bi_scope.
