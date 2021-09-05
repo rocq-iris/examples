@@ -21,7 +21,6 @@ Global Instance heapIG_irisG `{heapIG Σ} : irisGS F_mu_ref_conc_lang Σ := {
   fork_post _ := True%I;
   state_interp_mono _ _ _ _ := fupd_intro _ _
 }.
-Global Opaque iris_invGS.
 
 Notation "l ↦ᵢ{ dq } v" := (mapsto (L:=loc) (V:=val) l dq v)
   (at level 20, format "l  ↦ᵢ{ dq }  v") : bi_scope.
