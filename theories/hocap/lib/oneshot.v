@@ -38,7 +38,7 @@ Qed.
 Global Instance pending_fractional `{oneshotG Σ} γ : Fractional (pending γ)%I.
 Proof.
   intros p q. rewrite /pending.
-  rewrite -own_op. f_equiv.
+  rewrite -own_op. by f_equiv.
 Qed.
 Global Instance pending_as_fractional `{oneshotG Σ} γ q:
   AsFractional (pending γ q) (pending γ)%I q.
