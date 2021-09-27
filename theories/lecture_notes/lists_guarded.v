@@ -72,7 +72,7 @@ Notation iProp := (iPropO Σ).
 
   
   Definition is_list_def: val → list val → iProp := fixpoint is_list_pre.
-  Definition is_list_aux: seal (@is_list_def). by eexists. Qed.
+  Definition is_list_aux: seal (@is_list_def). Proof. by eexists. Qed.
   Definition is_list := unseal (@is_list_aux).
   Definition is_list_eq : @is_list = @is_list_def := seal_eq is_list_aux.
 
