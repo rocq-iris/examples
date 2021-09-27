@@ -249,11 +249,7 @@ Section stack_works.
      end%I.
 
   Local Instance is_list_contr (P : val → iProp Σ) : Contractive (is_list_pre P).
-  Proof.
-    rewrite /is_list_pre => n f f' Hf v.
-    repeat (f_contractive || f_equiv).
-    apply Hf.
-  Qed.
+  Proof. solve_contractive. Qed.
 
   Definition is_list_def (P : val -> iProp Σ) := fixpoint (is_list_pre P).
   Definition is_list_aux P : seal (@is_list_def P). Proof. by eexists. Qed.
