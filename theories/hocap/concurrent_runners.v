@@ -22,7 +22,7 @@ Definition FIN `{saG Σ} γ (v: val) := own γ (Cinr (Cinr (to_agree v))).
 Global Instance INIT_fractional `{saG Σ} γ : Fractional (INIT γ)%I.
 Proof.
   intros p q. rewrite /INIT.
-  rewrite -own_op. f_equiv.
+  rewrite -own_op. by f_equiv.
 Qed.
 Global Instance INIT_as_fractional `{saG Σ} γ q:
   AsFractional (INIT γ q) (INIT γ)%I q.
@@ -32,7 +32,7 @@ Qed.
 Global Instance SET_RES_fractional `{saG Σ} γ v : Fractional (fun q => SET_RES γ q v)%I.
 Proof.
   intros p q. rewrite /SET_RES.
-  rewrite -own_op -Cinr_op -Cinl_op -pair_op agree_idemp. f_equiv.
+  rewrite -own_op -Cinr_op -Cinl_op -pair_op agree_idemp. by f_equiv.
 Qed.
 Global Instance SET_RES_as_fractional `{saG Σ} γ q v:
   AsFractional (SET_RES γ q v) (fun q => SET_RES γ q v)%I q.
