@@ -10,6 +10,9 @@ Definition log_typed `{irisGS stlc_lang Σ}
 Notation "Γ ⊨ e : τ" := (log_typed Γ e τ) (at level 74, e, τ at next level).
 
 Section typed_interp.
+  (** STLC is somewhat unusual in that we quantify over an arbitrary [irisGS] --
+  almost all languages need to have a specific [irisGS] instance to fix their
+  specific [state_interp], but STLC has no state so it does not care. *)
   Context `{irisGS stlc_lang Σ}.
 
   Local Tactic Notation "smart_wp_bind" uconstr(ctx) ident(v) constr(Hv) constr(Hp) :=
