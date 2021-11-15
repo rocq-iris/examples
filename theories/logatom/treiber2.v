@@ -128,7 +128,7 @@ Definition stack_cont (γ : gname) (xs : list val) : iProp :=
 (** * Useful lemmas and typeclass instances *********************************)
 
 (** Injectivity of [to_val]. *)
-Instance to_val_inj : Inj (=) (=) to_val.
+Local Instance to_val_inj : Inj (=) (=) to_val.
 Proof.
   intros l1 l2 H. case l1, l2; try done. inversion H. reflexivity.
 Qed.

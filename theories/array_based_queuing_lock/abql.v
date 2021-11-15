@@ -131,15 +131,15 @@ Section algebra.
 
   Canonical Structure sumRAC := leibnizO addb.
 
-  Instance addb_op : Op addb := λ a b, Addb (addb_proj a ⋅ addb_proj b).
+  Local Instance addb_op : Op addb := λ a b, Addb (addb_proj a ⋅ addb_proj b).
 
   (* The definition of validity matches the intuition that if there exists n
      invitations in totoal then one can at most have n invitations. *)
-  Instance addb_valid : Valid addb :=
+  Local Instance addb_valid : Valid addb :=
     λ a, match a with Addb (x, MinNat n) => x ≤ n end.
 
   (* Invitations should not be duplicable. *)
-  Instance addb_pcore : PCore addb := λ _, None.
+  Local Instance addb_pcore : PCore addb := λ _, None.
 
   (* We need these auxiliary lemmas in the proof below. *)
   Lemma sumRA_op_second a b (n : min_nat) : Addb (a, n) ⋅ Addb (b, n) = Addb (a + b, n).
@@ -165,7 +165,7 @@ Section algebra.
   Class sumG Σ := SumG { sum_inG :> inG Σ sumRA }.
   Definition sumΣ : gFunctors := #[GFunctor sumRA].
 
-  Instance subG_sumΣ {Σ} : subG sumΣ Σ → sumG Σ.
+  Global Instance subG_sumΣ {Σ} : subG sumΣ Σ → sumG Σ.
   Proof. solve_inG. Qed.
 
 End algebra.

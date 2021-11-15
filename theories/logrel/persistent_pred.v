@@ -13,9 +13,9 @@ Section persistent_pred.
   Local Arguments PersPred _%I {_}.
   Global Existing Instances pers_pred_persistent.
 
-  Instance persistent_pred_equiv : Equiv persistent_pred :=
+  Local Instance persistent_pred_equiv : Equiv persistent_pred :=
     λ Φ Φ', ∀ x, Φ x ≡ Φ' x.
-  Instance persistent_pred_dist : Dist persistent_pred :=
+  Local Instance persistent_pred_dist : Dist persistent_pred :=
     λ n Φ Φ', ∀ x, Φ x ≡{n}≡ Φ' x.
   Definition persistent_pred_ofe_mixin : OfeMixin persistent_pred.
   Proof. by apply (iso_ofe_mixin (pers_pred_car : _ → A -d> _)). Qed.

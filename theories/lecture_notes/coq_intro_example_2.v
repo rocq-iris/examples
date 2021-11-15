@@ -73,7 +73,7 @@ Section monotone_counter.
      defined in the standard way, except we use the typeclass Op so we can reuse
      a lot of the notation mechanism (we can write x ⋅ y for the operation), and
      some other infrastucture and generic lemmas. *)
-  Instance mcounterRAop : Op mcounterRAT :=
+  Local Instance mcounterRAop : Op mcounterRAT :=
     λ '(MCounter x n) '(MCounter y m),
     match x with
       Bot => MCounter y (max n m)
@@ -88,7 +88,7 @@ Section monotone_counter.
      thus we make our definition an instance of it. This will enable the Coq
      typeclass search and various interactive proof mode tactics automatically
      deal with many boring use cases. *)
-  Instance mcounterRAValid : Valid mcounterRAT :=
+  Local Instance mcounterRAValid : Valid mcounterRAT :=
     λ x, match x with
            MCounter Bot _ => True
          | MCounter (NBT_incl x) m => x ≥ m
@@ -99,7 +99,7 @@ Section monotone_counter.
      for a partial function, which in Coq is encoded as a function from A →
      option A. Again, PCore is a typeclass for better automation support, and
      thus our definition is an instance. *)
-  Instance mcounterRACore : PCore mcounterRAT :=
+  Local Instance mcounterRACore : PCore mcounterRAT :=
     λ '(MCounter _ n), Some (MCounter Bot n).
 
   (* We can then package these definitions up into an RA structure, used by the
@@ -171,7 +171,7 @@ Section monotone_counter.
   (* Some tactics and lemmas only apply for discrete CMRAs (what we called RAs).
      To be able to use these we need to register our CMRA as a discrete one, to
      make this information available to typeclass search. *) 
-  Instance mcounterRA_cmra_discrete : CmraDiscrete mcounterRA.
+  Local Instance mcounterRA_cmra_discrete : CmraDiscrete mcounterRA.
   Proof. apply discrete_cmra_discrete. Qed.
 
   (* A total CMRA (or RA) is the one where the core operation is a total
@@ -179,7 +179,7 @@ Section monotone_counter.
      lemmas only apply for such CMRAs, and so we register the fact that our CMRA
      is of this form.
    *)
-  Instance mcounterRA_cmra_total : CmraTotal mcounterRA.
+  Local Instance mcounterRA_cmra_total : CmraTotal mcounterRA.
   Proof. intros [[]]; eauto. Qed.
 
   (* We define some abbreviation. We only define it as notation in this section
@@ -194,7 +194,7 @@ Section monotone_counter.
    *)
   (* CoreId x states that the core of x is x, which is one of the properties we claimed for the
      fragments. CoreId is a typeclass. *)
-  Instance mcounterRA_frag_core (n : nat): CoreId (◯ n).
+  Local Instance mcounterRA_frag_core (n : nat): CoreId (◯ n).
   Proof.
     rewrite /CoreId; reflexivity.
   Qed.
@@ -220,7 +220,7 @@ Section monotone_counter.
   Class mcounterG Σ := MCounterG { mcounter_inG :> inG Σ mcounterRA }.
   Definition mcounterΣ : gFunctors := #[GFunctor mcounterRA].
   
-  Instance subG_mcounterΣ {Σ} : subG mcounterΣ Σ → mcounterG Σ.
+  Global Instance subG_mcounterΣ {Σ} : subG mcounterΣ Σ → mcounterG Σ.
   Proof. solve_inG. Qed.
 
   (* We can now verify the programs. *)
@@ -244,7 +244,7 @@ Section monotone_counter.
      This way Coq will be able to infer automatically whenever it needs the fact
      that ownership of fragments is persistent.
    *)
-  Instance ownFrac_persistent γ n: Persistent (own γ (◯ n)).
+  Local Instance ownFrac_persistent γ n: Persistent (own γ (◯ n)).
   Proof.
    apply own_core_persistent, _.
   Qed.
@@ -255,7 +255,7 @@ Section monotone_counter.
      quantification over a persistent predicate is persistent, and it knows that
      invariants are persistent. The final part it needs is that own γ (◯ n) is
      persistent, and we have just taught it that in the preceding lemma. *)
-  Instance isCounter_persistent ℓ n: Persistent (isCounter ℓ n).
+  Global Instance isCounter_persistent ℓ n: Persistent (isCounter ℓ n).
   Proof.
     apply _.
   Qed.
@@ -343,6 +343,11 @@ Section monotone_counter.
   Qed.
 End monotone_counter.
 
+(* Finally, we make the [isCounter] predicate opaque to typeclass search, which
+avoids expensive unfolding of abstract predicates in users of our specification.
+*)
+Global Typeclasses Opaque isCounter.
+
 (* In the preceding section we spent a lot of time defining our own resource
    algebra and proving it satisfies all the needed properties. The same patterns
    appear often in proof development, and thus the iris Coq library provides
@@ -407,17 +412,19 @@ Section monotone_counter'.
   Class mcounterG' Σ := MCounterG' { mcounter_inG' :> inG Σ (authR max_natUR)}.
   Definition mcounterΣ' : gFunctors := #[GFunctor (authR max_natUR)].
 
-  Instance subG_mcounterΣ' {Σ} : subG mcounterΣ' Σ → mcounterG' Σ.
+  Global Instance subG_mcounterΣ' {Σ} : subG mcounterΣ' Σ → mcounterG' Σ.
   Proof. solve_inG. Qed.
 
   (* We now prove the same three properties we claim were required from the resource
      algebra in Section 7.7.  *)
-  Instance mcounterRA_frag_core' (n : max_natUR): CoreId (◯ n).
+  Local Instance mcounterRA_frag_core' (n : max_natUR): CoreId (◯ n).
   Proof.
     apply _.
     (* CoreID is a typeclass, so typeclass search can automatically deduce what
        we want. Concretely, the proof follows by lemmas auth_frag_core_id and
-       max_nat_core_id proved in the Iris Coq library. *)
+       max_nat_core_id proved in the Iris Coq library.
+       In fact, we would not even need this instance, typeclass search would
+       deduce it automatically. *)
   Qed.
 
   Lemma mcounterRA_valid_auth_frag' (m n : max_natUR): ✓ (● m ⋅ ◯ n) ↔ (max_nat_car n ≤ max_nat_car m)%nat.
@@ -544,7 +551,7 @@ Section ccounter.
   Class ccounterG Σ := CCounterG { ccounter_inG :> inG Σ (frac_authR natR) }.
   Definition ccounterΣ : gFunctors := #[GFunctor (frac_authR natR)].
 
-  Instance subG_ccounterΣ {Σ} : subG ccounterΣ Σ → ccounterG Σ.
+  Global Instance subG_ccounterΣ {Σ} : subG ccounterΣ Σ → ccounterG Σ.
   Proof. solve_inG. Qed.
 
 

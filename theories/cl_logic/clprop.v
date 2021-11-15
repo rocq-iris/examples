@@ -22,8 +22,8 @@ Bind Scope clProp_scope with clProp.
 
 Section cofe.
   Record clProp_equiv' (P Q : clProp) :=  ClProp_equiv { _ : P ↔ Q }.
-  Instance clProp_equiv : Equiv clProp := clProp_equiv'.
-  Instance clProp_equivalence : Equivalence (≡@{clProp}).
+  Local Instance clProp_equiv : Equiv clProp := clProp_equiv'.
+  Local Instance clProp_equivalence : Equivalence (≡@{clProp}).
   Proof. split; repeat destruct 1; constructor; tauto. Qed.
   Canonical Structure clPropO : ofe := discreteO clProp.
   Global Instance clProp_cofe : Cofe clPropO := discrete_cofe _.

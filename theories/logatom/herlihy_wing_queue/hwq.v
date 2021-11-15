@@ -280,7 +280,7 @@ Inductive state :=
   (** The enqueue operation known it has been committed. *)
   | Done :         state.
 
-Instance state_inhabited : Inhabited state.
+Local Instance state_inhabited : Inhabited state.
 Proof. constructor. refine Done. Qed.
 
 (** Data associated to each slot. The four components are:
@@ -951,8 +951,7 @@ Inductive cont_status :=
   | WithCont : nat → nat → cont_status
   | NoCont   : blocks    → cont_status.
 
-Global
-Instance cont_status_inhabited : Inhabited cont_status.
+Local Instance cont_status_inhabited : Inhabited cont_status.
 Proof. constructor. refine (NoCont []). Qed.
 
 Lemma initial_block_valid b pvs :
@@ -1280,21 +1279,21 @@ Definition is_hwq sz γe v : iProp :=
 
 (** * Some useful instances *************************************************)
 
-Instance blocks_match_persistent (bs : blocks) γc i1 :
+Local Instance blocks_match_persistent (bs : blocks) γc i1 :
   Persistent (match bs with
               | []           => True
               | (i2, _) :: _ => contra γc i1 i2
               end)%I.
 Proof. destruct bs as [|[i2 _] _]; apply _. Qed.
 
-Instance cont_match_persistent cont γc :
+Local Instance cont_match_persistent cont γc :
   Persistent (match cont with
               | NoCont _       => True
               | WithCont i1 i2 => contra γc i1 i2
               end)%I.
 Proof. destruct cont as [i1 i2|_]; apply _. Qed.
 
-Instance contra_timeless cont γc :
+Local Instance contra_timeless cont γc :
   Timeless (match cont with
             | NoCont _       => no_contra γc
             | WithCont i1 i2 => contra γc i1 i2

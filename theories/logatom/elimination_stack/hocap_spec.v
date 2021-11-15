@@ -222,7 +222,7 @@ Section tada_hocap_pred.
     (∃ γs, stack.(tada.is_stack) (N .@ "stack") γs v ∗
      inv (N .@ "wrapper") (∃ l, stack.(tada.stack_content) γs l ∗ P l))%I.
 
-  Instance hocap_pred_is_stack_ne N v n :
+  Global Instance hocap_pred_is_stack_ne N v n :
     Proper (pointwise_relation _ (dist n) ==> dist n) (hocap_pred_is_stack N v).
   Proof. solve_proper. Qed.
 

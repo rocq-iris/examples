@@ -39,7 +39,7 @@ Definition send (l : loc) (P : iProp Σ) : iProp Σ :=
   (∃ γ, inv N (barrier_inv l γ P))%I.
 
 (** Setoids *)
-Instance barrier_inv_ne l γ : NonExpansive (barrier_inv l γ).
+Local Instance barrier_inv_ne l γ : NonExpansive (barrier_inv l γ).
 Proof. solve_proper. Qed.
 Global Instance send_ne l : NonExpansive (send l).
 Proof. solve_proper. Qed.
