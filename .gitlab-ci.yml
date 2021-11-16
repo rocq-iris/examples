@@ -46,6 +46,13 @@ build-coq.dev:
   variables:
     OPAM_PINS: "coq version dev"
 
+build-coq.8.14.0:
+  <<: *template
+  variables:
+    OPAM_PINS: "coq version 8.14.0"
+    DENY_WARNINGS: "1"
+    MANGLE_NAMES: "1"
+
 build-coq.8.13.2:
   <<: *template
   variables:
@@ -65,11 +72,6 @@ build-coq.8.13.2-mr:
     OPAM_PINS: "coq version 8.13.2"
     MANGLE_NAMES: "1"
     DENY_WARNINGS: "1"
-
-build-coq.8.12.2:
-  <<: *template
-  variables:
-    OPAM_PINS: "coq version 8.12.2"
 
 trigger-iris.timing:
   <<: *template
