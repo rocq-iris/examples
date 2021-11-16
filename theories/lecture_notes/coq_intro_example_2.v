@@ -346,7 +346,7 @@ End monotone_counter.
 (* Finally, we make the [isCounter] predicate opaque to typeclass search, which
 avoids expensive unfolding of abstract predicates in users of our specification.
 *)
-Global Typeclasses Opaque isCounter.
+Typeclasses Opaque isCounter.
 
 (* In the preceding section we spent a lot of time defining our own resource
    algebra and proving it satisfies all the needed properties. The same patterns
