@@ -4,7 +4,7 @@ set -e
 
 FILE="$1"
 
-if egrep -n '^\s*((Existing\s+|Program\s+|Declare\s+|)Instance|Arguments|Remove|Hint\s+(Extern|Constructors|Resolve|Immediate|Mode|Opaque|Transparent|Unfold)|(Open|Close)\s+Scope|Opaque|Transparent)\b' "$FILE"; then
+if egrep -n '^\s*((Existing\s+|Program\s+|Declare\s+)?Instance|Arguments|Remove|Hint\s+(Extern|Constructors|Resolve|Immediate|Mode|Opaque|Transparent|Unfold)|(Open|Close)\s+Scope|Opaque|Transparent)\b' "$FILE"; then
     echo "ERROR: $FILE contains 'Instance'/'Arguments'/'Hint' or another side-effect without locality (see above)."
     echo "Please add 'Global' or 'Local' as appropriate."
     echo
