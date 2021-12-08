@@ -46,17 +46,10 @@ build-coq.dev:
   variables:
     OPAM_PINS: "coq version dev"
 
-build-coq.8.14.0:
+build-coq.8.14.1:
   <<: *template
   variables:
-    OPAM_PINS: "coq version 8.14.0"
-    DENY_WARNINGS: "1"
-    MANGLE_NAMES: "1"
-
-build-coq.8.13.2:
-  <<: *template
-  variables:
-    OPAM_PINS: "coq version 8.13.2"
+    OPAM_PINS: "coq version 8.14.1"
     DENY_WARNINGS: "1"
     MANGLE_NAMES: "1"
     # Coq bench needs an opam package
@@ -64,19 +57,18 @@ build-coq.8.13.2:
   tags:
   - fp-timing
 
-# Separate MR job that does not run on fp-timing.
-build-coq.8.13.2-mr:
+build-coq.8.13.2:
   <<: *template
-  <<: *only_mr
+  <<: *branches_and_mr
   variables:
     OPAM_PINS: "coq version 8.13.2"
-    MANGLE_NAMES: "1"
     DENY_WARNINGS: "1"
+    MANGLE_NAMES: "1"
 
 trigger-iris.timing:
   <<: *template
   variables:
-    OPAM_PINS: "coq version 8.13.2   git+https://gitlab.mpi-sws.org/$IRIS_REPO#$IRIS_REV"
+    OPAM_PINS: "coq version 8.14.1   git+https://gitlab.mpi-sws.org/$IRIS_REPO#$IRIS_REV"
   tags:
   - fp-timing
   only:
