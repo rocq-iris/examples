@@ -54,4 +54,4 @@ Definition eager_coin_spec_instance `{!heapGS Σ} :
      eager_coin_spec.read_coin_spec := read_eager_coin_spec;
      eager_coin_spec.coin_exclusive := eager_coin_exclusive |}.
 
-Typeclasses Opaque eager_coin.
+Global Typeclasses Opaque eager_coin.

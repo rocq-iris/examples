@@ -80,4 +80,4 @@ Definition lazy_coin_spec_instance `{!heapGS Σ} :
      eager_coin_spec.read_coin_spec := read_lazy_coin_spec;
      eager_coin_spec.coin_exclusive := lazy_coin_exclusive |}.
 
-Typeclasses Opaque lazy_coin.
+Global Typeclasses Opaque lazy_coin.

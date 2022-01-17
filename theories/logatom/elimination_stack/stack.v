@@ -370,4 +370,4 @@ Definition elimination_stack `{!heapGS Σ, stackG Σ} {aheap: atomic_heap Σ} :
      spec.pop_spec := pop_spec;
      spec.stack_content_exclusive := stack_content_exclusive |}.
 
-Typeclasses Opaque stack_content is_stack.
+Global Typeclasses Opaque stack_content is_stack.

@@ -227,7 +227,7 @@ Section proof.
   Qed.
 End proof.
 
-Typeclasses Opaque bag_contents is_bag.
+Global Typeclasses Opaque bag_contents is_bag.
 
 Definition cg_bag `{!heapGS Σ, !bagG Σ} : bag Σ :=
   {| abstract_bag.is_bag := is_bag;

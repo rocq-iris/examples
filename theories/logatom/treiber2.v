@@ -357,4 +357,4 @@ End treiber_stack.
 
 (** Make the exported Iris terms "Typeclass Opaque", so that clients using the
     library won't look into these definitions. *)
-Typeclasses Opaque is_stack stack_cont.
+Global Typeclasses Opaque is_stack stack_cont.

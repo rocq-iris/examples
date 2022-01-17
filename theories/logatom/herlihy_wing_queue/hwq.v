@@ -2774,4 +2774,4 @@ Definition atomic_cinc `{!heapGS Σ, !savedPropG Σ, !hwqG Σ} :
      spec.dequeue_spec := dequeue_spec;
      spec.hwq_content_exclusive := hwq_cont_exclusive |}.
 
-Typeclasses Opaque hwq_content is_hwq.
+Global Typeclasses Opaque hwq_content is_hwq.

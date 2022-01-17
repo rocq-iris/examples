@@ -407,4 +407,4 @@ Program Definition atomic_snapshot `{!heapGS Σ, atomic_snapshotG Σ} :
      spec.read_with_spec := read_with_spec;
      spec.snapshot_content_exclusive := snapshot_content_exclusive |}.
 
-Typeclasses Opaque snapshot_content is_snapshot.
+Global Typeclasses Opaque snapshot_content is_snapshot.

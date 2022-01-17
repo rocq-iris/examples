@@ -328,9 +328,9 @@ Section FG_stack.
 
 End FG_stack.
 
-Hint Rewrite FG_push_subst : autosubst.
-Hint Rewrite FG_pop_subst : autosubst.
-Hint Rewrite FG_iter_subst : autosubst.
-Hint Rewrite FG_read_iter_subst : autosubst.
-Hint Rewrite FG_stack_body_subst : autosubst.
-Hint Rewrite FG_stack_closed : autosubst.
+Global Hint Rewrite FG_push_subst : autosubst.
+Global Hint Rewrite FG_pop_subst : autosubst.
+Global Hint Rewrite FG_iter_subst : autosubst.
+Global Hint Rewrite FG_read_iter_subst : autosubst.
+Global Hint Rewrite FG_stack_body_subst : autosubst.
+Global Hint Rewrite FG_stack_closed : autosubst.

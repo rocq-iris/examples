@@ -685,4 +685,4 @@ Definition atomic_rdcss `{!heapGS Σ, !rdcssG Σ} :
      spec.get_spec := get_spec;
      spec.rdcss_state_exclusive := rdcss_state_exclusive |}.
 
-Typeclasses Opaque rdcss_state is_rdcss.
+Global Typeclasses Opaque rdcss_state is_rdcss.

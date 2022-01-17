@@ -37,20 +37,20 @@ Proof. trivial. Qed.
 Lemma with_lock_of_val e l : of_val (with_lockV e l) = with_lock e l.
 Proof. trivial. Qed.
 
-Typeclasses Opaque with_lockV.
+Global Typeclasses Opaque with_lockV.
 Global Opaque with_lockV.
 
 Lemma newlock_closed f : newlock.[f] = newlock.
 Proof. by asimpl. Qed.
-Hint Rewrite newlock_closed : autosubst.
+Global Hint Rewrite newlock_closed : autosubst.
 
 Lemma acquire_closed f : acquire.[f] = acquire.
 Proof. by asimpl. Qed.
-Hint Rewrite acquire_closed : autosubst.
+Global Hint Rewrite acquire_closed : autosubst.
 
 Lemma release_closed f : release.[f] = release.
 Proof. by asimpl. Qed.
-Hint Rewrite release_closed : autosubst.
+Global Hint Rewrite release_closed : autosubst.
 
 Lemma with_lock_subst (e l : expr) f :
   (with_lock e l).[f] = with_lock e.[f] l.[f].
@@ -161,7 +161,7 @@ Section proof.
   Global Opaque with_lock.
 End proof.
 
-Hint Rewrite newlock_closed : autosubst.
-Hint Rewrite acquire_closed : autosubst.
-Hint Rewrite release_closed : autosubst.
-Hint Rewrite with_lock_subst : autosubst.
+Global Hint Rewrite newlock_closed : autosubst.
+Global Hint Rewrite acquire_closed : autosubst.
+Global Hint Rewrite release_closed : autosubst.
+Global Hint Rewrite with_lock_subst : autosubst.

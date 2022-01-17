@@ -207,7 +207,7 @@ Section logrel.
   Qed.
 End logrel.
 
-Typeclasses Opaque interp_env.
+Global Typeclasses Opaque interp_env.
 Notation "⟦ τ ⟧" := (interp τ).
 Notation "⟦ τ ⟧ₑ" := (interp_expr τ).
 Notation "⟦ Γ ⟧*" := (interp_env Γ).

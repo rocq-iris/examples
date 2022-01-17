@@ -244,7 +244,7 @@ Section lock_spec.
   Qed.
 End lock_spec.
 
-Typeclasses Opaque locked.
+Global Typeclasses Opaque locked.
 Global Opaque locked.
-Typeclasses Opaque is_lock.
+Global Typeclasses Opaque is_lock.
 Global Opaque is_lock.

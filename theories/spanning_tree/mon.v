@@ -174,7 +174,7 @@ End definitions.
 
 Notation "l [↦] v" := ({[l := Excl v]}) (at level 70, format "l  [↦]  v").
 
-Typeclasses Opaque graph_ctx graph_inv own_graph.
+Global Typeclasses Opaque graph_ctx graph_inv own_graph.
 
 Section graph_ctx_alloc.
   Context `{heapGS Σ, cinvG Σ, inG Σ (authR markingUR), inG Σ (authR graphUR)}.

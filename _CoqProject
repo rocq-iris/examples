@@ -4,8 +4,6 @@
 # Cannot use non-canonical projections as it causes massive unification failures
 # (https://github.com/coq/coq/issues/6294).
 -arg -w -arg -redundant-canonical-projection
-# 'Global Hint Rewrite' not supported before Coq 8.14.
--arg -w -arg -deprecated-hint-rewrite-without-locality
 
 theories/barrier/proof.v
 theories/barrier/specification.v

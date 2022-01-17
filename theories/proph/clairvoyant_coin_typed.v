@@ -87,4 +87,4 @@ Definition clairvoyant_coin_spec_instance `{!heapGS Σ} :
      clairvoyant_coin_spec.toss_coin_spec := toss_coin_spec;
      clairvoyant_coin_spec.coin_exclusive := coin_exclusive |}.
 
-Typeclasses Opaque coin.
+Global Typeclasses Opaque coin.

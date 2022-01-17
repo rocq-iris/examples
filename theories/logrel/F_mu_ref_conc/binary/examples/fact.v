@@ -32,7 +32,7 @@ Proof. repeat econstructor. Qed.
 Lemma fact_acc_body_subst f : fact_acc_body.[f] = fact_acc_body.
 Proof. by asimpl. Qed.
 
-Hint Rewrite fact_acc_body_subst : autosubst.
+Global Hint Rewrite fact_acc_body_subst : autosubst.
 
 Lemma fact_acc_body_unfold :
   fact_acc_body =
@@ -50,7 +50,7 @@ Lemma fact_acc_body_unfold :
       ).
 Proof. trivial. Qed.
 
-Typeclasses Opaque fact_acc_body.
+Global Typeclasses Opaque fact_acc_body.
 Global Opaque fact_acc_body.
 
 Definition fact_acc : expr :=

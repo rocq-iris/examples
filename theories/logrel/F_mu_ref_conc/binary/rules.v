@@ -47,7 +47,7 @@ Section definitionsS.
   Global Instance spec_ctx_persistent : Persistent spec_ctx.
   Proof. apply _. Qed.
 End definitionsS.
-Typeclasses Opaque heapS_mapsto tpool_mapsto.
+Global Typeclasses Opaque heapS_mapsto tpool_mapsto.
 
 Notation "l ↦ₛ{ q } v" := (heapS_mapsto l q v)
   (at level 20, q at level 50, format "l  ↦ₛ{ q }  v") : bi_scope.

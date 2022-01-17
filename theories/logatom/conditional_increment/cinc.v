@@ -551,4 +551,4 @@ Definition atomic_cinc `{!heapGS Σ, !cincG Σ} :
      spec.get_spec := get_spec;
      spec.counter_content_exclusive := counter_content_exclusive |}.
 
-Typeclasses Opaque counter_content is_counter.
+Global Typeclasses Opaque counter_content is_counter.
