@@ -55,7 +55,7 @@ This repository contains the following case studies:
       concurrent stack implementations.
   - If you are looking for a well-explained logical relation for Iris's HeapLang,
     take a look at our [POPL20 tutorial](https://gitlab.mpi-sws.org/iris/tutorial-popl20/).
-* [logatom](theories/logrel_heaplang): Proofs of various logically atomic specifications:
+* [logatom](theories/logatom): Proofs of various logically atomic specifications:
   - Elimination Stack (by Ralf Jung).
   - Conditional increment (inspired by [this paper](https://people.mpi-sws.org/~dreyer/papers/relcon/paper.pdf))
     and RDCSS (as in [this paper](https://timharris.uk/papers/2002-disc.pdf))
