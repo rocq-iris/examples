@@ -13,7 +13,7 @@ Section wp_span.
             inG Σ (authR graphUR), spawnG Σ}.
 
   Lemma wp_span g (markings : gmap loc loc) (x : val) (l : loc) :
-    l ∈ dom (gset loc) g → maximal g → connected g l →
+    l ∈ dom g → maximal g → connected g l →
     ([∗ map] l ↦ v ∈ g,
        ∃ (m : loc), ⌜markings !! l = Some m⌝ ∗ l ↦ (#m, children_to_val v)
          ∗ m ↦ #false) ⊢
@@ -22,7 +22,7 @@ Section wp_span.
               ([∗ map] l ↦ v ∈ g',
                 ∃ m : loc, ⌜markings !! l = Some m⌝ ∗ l ↦ (#m, children_to_val v)
                   ∗ m ↦ #true)
-             ∗ ⌜dom (gset loc) g = dom (gset loc) g'⌝
+             ∗ ⌜dom g = dom g'⌝
              ∗ ⌜strict_subgraph g g'⌝ ∗ ⌜tree g' l⌝
       }}.
   Proof using Type*.
@@ -50,7 +50,7 @@ Section wp_span.
         [by iFrame|].
       iDestruct (own_graph_valid with "Hl1") as %Hvl.
       iExists (Gmon_graph G').
-      assert (dom (gset loc) g = dom (gset loc) (Gmon_graph G')).
+      assert (dom g = dom (Gmon_graph G')).
       { erewrite front_t_t_dom; eauto.
         - by rewrite Gmon_graph_dom.
         - eapply front_mono; rewrite Gmon_graph_dom; eauto. }

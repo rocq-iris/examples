@@ -101,7 +101,7 @@ Section atomic_snapshot.
       l1 ↦ #l1' ∗ l1' ↦□ (x, #t) ∗
          own γ1 (● Excl' x) ∗ own γ2 (● gmap_to_UR T) ∗
          ⌜T !! t = Some x⌝ ∗
-         ⌜∀ (t' : Z), t' ∈ dom (gset Z) T → (t' ≤ t)%Z⌝)%I.
+         ⌜∀ (t' : Z), t' ∈ dom T → (t' ≤ t)%Z⌝)%I.
 
   Definition is_snapshot (γs: gname * gname) (p : val) :=
     (∃ (l1 : loc), ⌜p = #l1%V⌝ ∗ inv N (snapshot_inv γs.1 γs.2 l1))%I.
@@ -242,7 +242,7 @@ Section atomic_snapshot.
         iMod ("Hclose" with "Hx◯") as "HΦ".
       (* update timestamp *)
       iMod (timestamp_update _ T (v'' + 1)%Z x2 with "[Ht●]") as "Ht".
-      { eapply (not_elem_of_dom (D:=gset Z) T). intros Hd. specialize (Hvt _ Hd). lia. }
+      { eapply (not_elem_of_dom T). intros Hd. specialize (Hvt _ Hd). lia. }
       { done. }
       (* close invariant *)
       iModIntro. iSplitR "HΦ".
@@ -253,7 +253,7 @@ Section atomic_snapshot.
         iPureIntro. split.
         * apply: lookup_insert.
         * intros t' Hv. destruct (decide (t' = (v'' + 1)%Z)) as [-> | Hn]; first done.
-          assert (dom (gset Z) T' = {[(v'' + 1)%Z]} ∪ dom (gset Z) T) as Hd. {
+          assert (dom T' = {[(v'' + 1)%Z]} ∪ dom T) as Hd. {
             apply leibniz_equiv. rewrite dom_insert. done.
           }
           rewrite Hd in Hv. clear Hd. apply elem_of_union in Hv.

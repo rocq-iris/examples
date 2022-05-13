@@ -36,7 +36,7 @@ Definition span : val :=
 Section Helpers.
   Context `{heapGS Σ, cinvG Σ, graphG Σ, spawnG Σ} (κ : gname).
 
-  Lemma wp_try_mark g Mrk k q (x : loc) : x ∈ dom (gset _) g →
+  Lemma wp_try_mark g Mrk k q (x : loc) : x ∈ dom g →
     graph_ctx κ g Mrk ∗ own_graph q ∅ ∗ cinv_own κ k
     ⊢ WP (try_mark #x) {{ v,
          (⌜v = #true⌝ ∗ (∃ u, ⌜(g !! x) = Some u⌝ ∗ own_graph q (x [↦] u))
@@ -124,7 +124,7 @@ Section Helpers.
               ∗ own_graph q (x [↦] w) ∗ cinv_own κ k }}.
   Proof.
     iIntros (Hgx) "(#Hgr & Hx & key)".
-    assert (Hgx' : x ∈ dom (gset _) g).
+    assert (Hgx' : x ∈ dom g).
     { rewrite elem_of_dom Hgx; eauto. }
     unfold graph_ctx.
     iMod (cinv_acc _ graphN with "Hgr key")
@@ -162,7 +162,7 @@ Section Helpers.
         {{ v, own_graph q (x [↦] w') ∗ cinv_own κ k }}.
   Proof.
     iIntros (Hagree Hmrk Hgx) "(#Hgr & Hx & key)".
-    assert (Hgx' : x ∈ dom (gset _) g).
+    assert (Hgx' : x ∈ dom g).
     { rewrite elem_of_dom Hgx; eauto. }
     unfold graph_ctx. wp_pures.
     iMod (cinv_acc _ graphN with "Hgr key")
@@ -239,8 +239,8 @@ Section Helpers.
   Qed.
 
   Lemma front_op (g : graph loc) (G G' : Gmon) (t : gset loc) :
-    front g (dom (gset _) G) t → front g (dom (gset _) G') t →
-    front g (dom (gset _) (G ⋅ G')) t.
+    front g (dom G) t → front g (dom G') t →
+    front g (dom (G ⋅ G')) t.
   Proof.
     rewrite dom_op. intros [HGd HGf] [HGd' HGf']; split.
     - intros x; rewrite elem_of_union; intuition.
@@ -250,7 +250,7 @@ Section Helpers.
     g !! l = Some (u1, u2) →
     match u1 with |Some l1 => l1 ∈ t | None => True end →
     match u2 with |Some l2 => l2 ∈ t | None => True end →
-    front g (dom (gset loc) (l [↦] w : gmap loc _)) t.
+    front g (dom (l [↦] w : gmap loc _)) t.
   Proof.
     intros Hgl Hu1 Hu2.
     split => [x |x y]; rewrite ?dom_singleton ?elem_of_singleton => ?; subst.
@@ -268,11 +268,11 @@ Section Helpers.
 
   Lemma front_marked (g : graph loc) (l : loc) u1 u2 w mr1 mr2 (G1 G2 : Gmon) :
     g !! l = Some (u1, u2) →
-    (front g (dom (gset _) G1) mr1) → (front g (dom (gset _) G2) mr2) →
+    (front g (dom G1) mr1) → (front g (dom G2) mr2) →
     ([∗ set] l ∈ mr1, is_marked l) ∗ ([∗ set] l ∈ mr2, is_marked l) ∗
     match u1 with |Some l1 => is_marked l1 | None => True end ∗
     match u2 with |Some l2 => is_marked l2 | None => True end ⊢
-    ∃ (mr : gset loc), ⌜front g (dom (gset loc) ((l [↦] w) ⋅ (G1 ⋅ G2))) mr⌝
+    ∃ (mr : gset loc), ⌜front g (dom ((l [↦] w) ⋅ (G1 ⋅ G2))) mr⌝
       ∗ ([∗ set] l ∈ mr, is_marked l).
   Proof.
     iIntros (Hgl Hfr1 Hfr2) "(Hmr1 & Hmr2 & Hu1 & Hu2)".
@@ -292,15 +292,15 @@ Section Helpers.
   Lemma rec_wp_span g markings k q (x : val) :
     maximal g →
     (x = NONEV ∨ ∃ l : loc,
-        x = SOMEV #l ∧ l ∈ dom (gset _) g) →
+        x = SOMEV #l ∧ l ∈ dom g) →
     (graph_ctx κ g markings ∗ own_graph q ∅ ∗ cinv_own κ k)
       ⊢
       WP (span x)
       {{ v, ((⌜v = # true⌝ ∗
              (∃ l : loc, ⌜x = SOMEV #l⌝ ∗
                (∃ (G : Gmon) mr (tr : tree (Gmon_graph G) l),
-                  own_graph q G ∗ ⌜l ∈ dom (gset _) G⌝ ∗
-                  ⌜maximal (Gmon_graph G)⌝ ∗ ⌜front g (dom (gset _) G) mr⌝ ∗
+                  own_graph q G ∗ ⌜l ∈ dom G⌝ ∗
+                  ⌜maximal (Gmon_graph G)⌝ ∗ ⌜front g (dom G) mr⌝ ∗
                    ([∗ set] l ∈ mr , is_marked l)) ∗ is_marked l)) ∨
              (⌜v = # false⌝ ∗
               (⌜x = NONEV⌝ ∨ (∃ l : loc, ⌜x = SOMEV #l⌝ ∗ is_marked l))

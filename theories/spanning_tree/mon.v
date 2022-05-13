@@ -76,7 +76,7 @@ Definition excl_chlC_chl (ch : exclR chlO) : option (option loc * option loc) :=
 Definition Gmon_graph (G : Gmon) : graph loc := omap excl_chlC_chl G.
 
 Definition Gmon_graph_dom (G : Gmon) :
-  ✓ G → dom (gset loc) (Gmon_graph G) = dom (gset _) G.
+  ✓ G → dom (Gmon_graph G) = dom G.
 Proof.
   intros Hvl; apply set_eq=> i. rewrite !elem_of_dom lookup_omap.
   specialize (Hvl i). split.
@@ -114,7 +114,7 @@ Global Instance Gmon_graph_proper : Proper ((≡) ==> (=)) Gmon_graph.
 Proof. solve_proper. Qed.
 
 Lemma new_Gmon_dom (G : Gmon) x w :
-  dom (gset loc) (G ⋅ {[x := w]}) = dom (gset loc) G ∪ {[x]}.
+  dom (G ⋅ {[x := w]}) = dom G ∪ {[x]}.
 Proof. by rewrite dom_op dom_singleton_L. Qed.
 
 Definition of_graph_empty (g : graph loc) :
@@ -125,11 +125,11 @@ Proof.
 Qed.
 
 Lemma of_graph_dom_eq g G :
-  ✓ G → dom (gset loc) g = dom (gset loc) (Gmon_graph G) →
+  ✓ G → dom g = dom (Gmon_graph G) →
   of_graph g G = fmap (λ x, (true, x) )(Gmon_graph G).
 Proof.
   intros HGvl. rewrite Gmon_graph_dom // => Hd. apply map_eq => i.
-  assert (Hd' : i ∈ dom (gset _) g ↔ i ∈ dom (gset _) G) by (by rewrite Hd).
+  assert (Hd' : i ∈ dom g ↔ i ∈ dom G) by (by rewrite Hd).
   revert Hd'; clear Hd. specialize (HGvl i); revert HGvl.
   rewrite /of_graph /of_graph_elem /Gmon_graph map_lookup_imap lookup_fmap
     lookup_omap ?elem_of_dom.
@@ -157,7 +157,7 @@ Section definitions.
 
   Definition graph_inv (g : graph loc) (markings : gmap loc loc) : iProp Σ :=
     (∃ (G : Gmon), own graph_name (● Some (1%Qp, G))
-      ∗ own graph_marking_name (● dom (gset _) G)
+      ∗ own graph_marking_name (● dom G)
       ∗ heap_owns (of_graph g G) markings ∗ ⌜strict_subgraph g (Gmon_graph G)⌝
     )%I.
 
@@ -226,7 +226,7 @@ Lemma mark_update_lookup_ne_base (G : Gmon) x i v :
   i ≠ x → ({[x := Excl v]} ⋅ G) !! i = G !! i.
 Proof. intros H. by rewrite lookup_op lookup_singleton_ne //= left_id_L. Qed.
 
-Lemma of_graph_dom g G : dom (gset loc) (of_graph g G) = dom (gset _) g.
+Lemma of_graph_dom g G : dom (of_graph g G) = dom g.
 Proof.
   apply set_eq=>i.
   rewrite ?elem_of_dom map_lookup_imap /of_graph_elem lookup_omap.
@@ -235,7 +235,7 @@ Proof.
 Qed.
 
 Lemma in_dom_of_graph (g : graph loc) (G : Gmon) x (b : bool) v :
-  ✓ G → of_graph g G !! x = Some (b, v) → b ↔ x ∈ dom (gset _) G.
+  ✓ G → of_graph g G !! x = Some (b, v) → b ↔ x ∈ dom G.
 Proof.
   rewrite /of_graph /of_graph_elem map_lookup_imap lookup_omap elem_of_dom.
   intros Hvl; specialize (Hvl x); revert Hvl;
@@ -250,7 +250,7 @@ Proof. solve_proper. Qed.
 
 
 Lemma mark_update_lookup (g : graph loc) (G : Gmon) x v :
-  x ∈ dom (gset loc) g →
+  x ∈ dom g →
   ✓ ((x [↦] v) ⋅ G) → of_graph g ((x [↦] v) ⋅ G) !! x = Some (true, v).
 Proof.
   rewrite elem_of_dom /is_Some. intros [w H1] H2.
@@ -361,7 +361,7 @@ Section graph.
   Qed.
 
   Lemma graph_open (g :graph loc) (markings : gmap loc loc) (G : Gmon) x
-  : x ∈ dom (gset _) g →
+  : x ∈ dom g →
     own graph_name (● Some (1%Qp, G)) ∗ heap_owns (of_graph g G) markings ⊢
     own graph_name (● Some (1%Qp, G))
     ∗ heap_owns (delete x (of_graph g G)) markings
@@ -370,7 +370,7 @@ Section graph.
            ∗ m ↦ #(u.1)).
   Proof.
     iIntros (Hx) "(Hg & Ha)".
-    assert (Hid : x ∈ dom (gset _) (of_graph g G)) by (by rewrite of_graph_dom).
+    assert (Hid : x ∈ dom (of_graph g G)) by (by rewrite of_graph_dom).
     revert Hid; rewrite elem_of_dom /is_Some. intros [y Hy].
     rewrite /heap_owns -{1}(insert_id _ _ _ Hy) -insert_delete_insert.
     rewrite big_sepM_insert; [|apply lookup_delete_None; auto].
@@ -422,7 +422,7 @@ Proof.
     by rewrite lookup_op lookup_singleton_ne //= left_id_L.
 Qed.
 
-Lemma in_dom_conv (G G' : Gmon) x : ✓ (G ⋅ G') → x ∈ dom (gset loc) (Gmon_graph G)
+Lemma in_dom_conv (G G' : Gmon) x : ✓ (G ⋅ G') → x ∈ dom (Gmon_graph G)
   → (Gmon_graph (G ⋅ G')) !! x = (Gmon_graph G) !! x.
 Proof.
   intros HGG. specialize (HGG x). revert HGG.
@@ -430,53 +430,53 @@ Proof.
   case _ : (G !! x) => [[]|]; case _ : (G' !! x) => [[]|]; do 2 inversion 1;
     simpl in *; auto; congruence.
 Qed.
-Lemma in_dom_conv' (G G' : Gmon) x: ✓(G ⋅ G') → x ∈ dom (gset loc) (Gmon_graph G')
+Lemma in_dom_conv' (G G' : Gmon) x: ✓(G ⋅ G') → x ∈ dom (Gmon_graph G')
   → (Gmon_graph (G ⋅ G')) !! x = (Gmon_graph G') !! x.
 Proof. rewrite comm; apply in_dom_conv. Qed.
 Lemma get_left_conv (G G' : Gmon) x xl : ✓ (G ⋅ G') →
-  x ∈ dom (gset _) (Gmon_graph G) → get_left (Gmon_graph (G ⋅ G')) x = Some xl
+  x ∈ dom (Gmon_graph G) → get_left (Gmon_graph (G ⋅ G')) x = Some xl
   ↔ get_left (Gmon_graph G) x = Some xl.
 Proof. intros. rewrite /get_left in_dom_conv; auto. Qed.
 Lemma get_left_conv' (G G' : Gmon) x xl : ✓ (G ⋅ G') →
-  x ∈ dom (gset _) (Gmon_graph G') → get_left (Gmon_graph (G ⋅ G')) x = Some xl
+  x ∈ dom (Gmon_graph G') → get_left (Gmon_graph (G ⋅ G')) x = Some xl
   ↔ get_left (Gmon_graph G') x = Some xl.
 Proof. rewrite comm; apply get_left_conv. Qed.
 Lemma get_right_conv (G G' : Gmon) x xl : ✓ (G ⋅ G') →
-  x ∈ dom (gset _) (Gmon_graph G) → get_right (Gmon_graph (G ⋅ G')) x = Some xl
+  x ∈ dom (Gmon_graph G) → get_right (Gmon_graph (G ⋅ G')) x = Some xl
   ↔ get_right (Gmon_graph G) x = Some xl.
 Proof. intros. rewrite /get_right in_dom_conv; auto. Qed.
 Lemma get_right_conv' (G G' : Gmon) x xl : ✓ (G ⋅ G') →
-  x ∈ dom (gset _) (Gmon_graph G') → get_right (Gmon_graph (G ⋅ G')) x = Some xl
+  x ∈ dom (Gmon_graph G') → get_right (Gmon_graph (G ⋅ G')) x = Some xl
   ↔ get_right (Gmon_graph G') x = Some xl.
 Proof. rewrite comm; apply get_right_conv. Qed.
 
 Lemma in_op_dom (G G' : Gmon) y : ✓(G ⋅ G') →
-  y ∈ dom (gset loc) (Gmon_graph G) → y ∈ dom (gset loc) (Gmon_graph (G ⋅ G')).
+  y ∈ dom (Gmon_graph G) → y ∈ dom (Gmon_graph (G ⋅ G')).
 Proof. refine (λ H x, _ x); rewrite ?elem_of_dom ?in_dom_conv ; eauto. Qed.
 Lemma in_op_dom' (G G' : Gmon) y : ✓(G ⋅ G') →
-  y ∈ dom (gset loc) (Gmon_graph G') → y ∈ dom (gset loc) (Gmon_graph (G ⋅ G')).
+  y ∈ dom (Gmon_graph G') → y ∈ dom (Gmon_graph (G ⋅ G')).
 Proof. rewrite comm; apply in_op_dom. Qed.
 
 Local Hint Resolve cmra_valid_op_l cmra_valid_op_r in_op_dom in_op_dom' : core.
 
 Lemma in_op_dom_alt (G G' : Gmon) y : ✓(G ⋅ G') →
-  y ∈ dom (gset loc) G → y ∈ dom (gset loc) (G ⋅ G').
+  y ∈ dom G → y ∈ dom (G ⋅ G').
 Proof. intros HGG; rewrite -?Gmon_graph_dom; eauto. Qed.
 Lemma in_op_dom_alt' (G G' : Gmon) y : ✓(G ⋅ G') →
-  y ∈ dom (gset loc) G' → y ∈ dom (gset loc) (G ⋅ G').
+  y ∈ dom G' → y ∈ dom (G ⋅ G').
 Proof. intros HGG; rewrite -?Gmon_graph_dom; eauto. Qed.
 
 Local Hint Resolve in_op_dom_alt in_op_dom_alt' : core.
 Local Hint Extern 1 => eapply get_left_conv + eapply get_left_conv' +
   eapply get_right_conv + eapply get_right_conv' : core.
 
-Local Hint Extern 1 (_ ∈ dom (gset loc) (Gmon_graph _)) =>
+Local Hint Extern 1 (_ ∈ dom (Gmon_graph _)) =>
   erewrite Gmon_graph_dom : core.
 
 Local Hint Resolve path_start path_end : core.
 
 Lemma path_conv (G G' : Gmon) x y p :
-  ✓ (G ⋅ G') → maximal (Gmon_graph G) → x ∈ dom (gset _) G →
+  ✓ (G ⋅ G') → maximal (Gmon_graph G) → x ∈ dom G →
   valid_path (Gmon_graph (G ⋅ G')) x y p → valid_path (Gmon_graph G) x y p.
 Proof.
   intros Hv Hm. rewrite -Gmon_graph_dom //=; eauto. revert x y.
@@ -484,18 +484,18 @@ Proof.
     try eapply IHp; try eapply Hm; eauto.
 Qed.
 Lemma path_conv_back (G G' : Gmon) x y p :
-  ✓ (G ⋅ G') → x ∈ dom (gset _) G →
+  ✓ (G ⋅ G') → x ∈ dom G →
   valid_path (Gmon_graph G) x y p → valid_path (Gmon_graph (G ⋅ G')) x y p.
 Proof.
   intros Hv. rewrite -Gmon_graph_dom //=; eauto. revert x y.
   induction p as [|[] p]; inversion 2; subst; econstructor; eauto.
 Qed.
 Lemma path_conv' (G G' : Gmon) x y p :
-  ✓ (G ⋅ G') → maximal (Gmon_graph G') → x ∈ dom (gset _) G' →
+  ✓ (G ⋅ G') → maximal (Gmon_graph G') → x ∈ dom G' →
   valid_path (Gmon_graph (G ⋅ G')) x y p → valid_path (Gmon_graph G') x y p.
 Proof. rewrite comm; eapply path_conv. Qed.
 Lemma path_conv_back' (G G' : Gmon) x y p :
-  ✓ (G ⋅ G') → x ∈ dom (gset _) G' →
+  ✓ (G ⋅ G') → x ∈ dom G' →
   valid_path (Gmon_graph G') x y p → valid_path (Gmon_graph (G ⋅ G')) x y p.
 Proof. rewrite comm; apply path_conv_back. Qed.
 
@@ -511,27 +511,27 @@ Lemma get_right_singleton x vl vr :
 Proof. rewrite /get_right /Gmon_graph lookup_omap lookup_singleton; done. Qed.
 
 Lemma graph_in_dom_op (G G' : Gmon) x :
-  ✓ (G ⋅ G') → x ∈ dom (gset loc) G → x ∉ dom (gset _) G'.
+  ✓ (G ⋅ G') → x ∈ dom G → x ∉ dom G'.
 Proof.
   intros HGG. specialize (HGG x). revert HGG. rewrite ?elem_of_dom lookup_op.
   case _ : (G !! x) => [[]|]; case _ : (G' !! x) => [[]|]; inversion 1;
   do 2 (intros [? Heq]; inversion Heq; clear Heq).
 Qed.
 Lemma graph_in_dom_op' (G G' : Gmon) x :
-  ✓ (G ⋅ G') → x ∈ dom (gset loc) G' → x ∉ dom (gset _) G.
+  ✓ (G ⋅ G') → x ∈ dom G' → x ∉ dom G.
 Proof. rewrite comm; apply graph_in_dom_op. Qed.
 Lemma graph_op_path (G G' : Gmon) x z p :
-  ✓ (G ⋅ G') → x ∈ dom (gset _) G → valid_path (Gmon_graph G') z x p → False.
+  ✓ (G ⋅ G') → x ∈ dom G → valid_path (Gmon_graph G') z x p → False.
 Proof.
   intros ?? Hp%path_end; rewrite Gmon_graph_dom in Hp; eauto.
   eapply graph_in_dom_op; eauto.
 Qed.
 Lemma graph_op_path' (G G' : Gmon) x z p :
-  ✓ (G ⋅ G') → x ∈ dom (gset _) G' → valid_path (Gmon_graph G) z x p → False.
+  ✓ (G ⋅ G') → x ∈ dom G' → valid_path (Gmon_graph G) z x p → False.
 Proof. rewrite comm; apply graph_op_path. Qed.
 
 Lemma in_dom_singleton (x : loc) (w : chlO) :
-  x ∈ dom (gset loc) (x [↦] w : gmap loc _).
+  x ∈ dom (x [↦] w : gmap loc _).
 Proof. by rewrite dom_singleton elem_of_singleton. Qed.
 
 
@@ -549,8 +549,8 @@ Qed.
 
 Lemma maximal_op_singleton (G : Gmon) x vl vr :
   ✓ ((x [↦] (vl, vr)) ⋅ G) → maximal(Gmon_graph G) →
-  match vl with | Some xl => xl ∈ dom (gset _) G | None => True end →
-  match vr with | Some xr => xr ∈ dom (gset _) G | None => True end →
+  match vl with | Some xl => xl ∈ dom G | None => True end →
+  match vr with | Some xr => xr ∈ dom G | None => True end →
   maximal (Gmon_graph ((x [↦] (vl, vr)) ⋅ G)).
 Proof.
   intros HGG [_ Hmx] Hvl Hvr; split; trivial => z v. in_dom_Gmon_graph.
@@ -567,8 +567,8 @@ Local Hint Resolve maximal_op_singleton maximal_op get_left_singleton
 
 Lemma maximally_marked_tree_both (G G' : Gmon) x xl xr :
   ✓ ((x [↦] (Some xl, Some xr)) ⋅ (G ⋅ G')) →
-  xl ∈ dom (gset _) G → tree (Gmon_graph G) xl → maximal (Gmon_graph G) →
-  xr ∈ dom (gset _) G' → tree (Gmon_graph G') xr → maximal (Gmon_graph G') →
+  xl ∈ dom G → tree (Gmon_graph G) xl → maximal (Gmon_graph G) →
+  xr ∈ dom G' → tree (Gmon_graph G') xr → maximal (Gmon_graph G') →
   tree (Gmon_graph ((x [↦] (Some xl, Some xr)) ⋅ (G ⋅ G'))) x ∧
   maximal (Gmon_graph ((x [↦] (Some xl, Some xr)) ⋅ (G ⋅ G'))).
 Proof.
@@ -613,7 +613,7 @@ Qed.
 
 Lemma maximally_marked_tree_left (G : Gmon) x xl :
   ✓ ((x [↦] (Some xl, None)) ⋅ G) →
-  xl ∈ dom (gset _) G → tree (Gmon_graph G) xl → maximal (Gmon_graph G) →
+  xl ∈ dom G → tree (Gmon_graph G) xl → maximal (Gmon_graph G) →
   tree (Gmon_graph ((x [↦] (Some xl, None)) ⋅ G)) x ∧
   maximal (Gmon_graph ((x [↦] (Some xl, None)) ⋅ G)).
 Proof.
@@ -644,7 +644,7 @@ Qed.
 
 Lemma maximally_marked_tree_right (G : Gmon) x xr :
   ✓ ((x [↦] (None, Some xr)) ⋅ G) →
-  xr ∈ dom (gset _) G → tree (Gmon_graph G) xr → maximal (Gmon_graph G) →
+  xr ∈ dom G → tree (Gmon_graph G) xr → maximal (Gmon_graph G) →
   tree (Gmon_graph ((x [↦] (None, Some xr)) ⋅ G)) x ∧
   maximal (Gmon_graph ((x [↦] (None, Some xr)) ⋅ G)).
 Proof.
@@ -734,7 +734,7 @@ Proof.
        eauto using strict_sub_children_None.
 Qed.
 Lemma strinct_subgraph_singleton (g : graph loc) x v :
-  x ∈ dom (gset loc) g → (∀ w, g !! x = Some w → strict_sub_children w v)
+  x ∈ dom g → (∀ w, g !! x = Some w → strict_sub_children w v)
   ↔ strict_subgraph g (Gmon_graph (x [↦] v)).
 Proof.
   rewrite elem_of_dom; intros [u Hu]; split.
@@ -748,7 +748,7 @@ Proof.
     by rewrite get_left_singleton get_right_singleton /get_left /get_right Hu.
 Qed.
 Lemma mark_strict_subgraph (g : graph loc) (G : Gmon) x v :
-  ✓ ((x [↦] v) ⋅ G) → x ∈ dom (gset loc) g →
+  ✓ ((x [↦] v) ⋅ G) → x ∈ dom g →
   of_graph g G !! x = Some (false, v) → strict_subgraph g (Gmon_graph G) →
   strict_subgraph g (Gmon_graph ((x [↦] v) ⋅ G)).
 Proof.
@@ -757,7 +757,7 @@ Proof.
   inversion 1; auto using strict_sub_children_refl.
 Qed.
 Lemma update_strict_subgraph (g : graph loc) (G : Gmon) x v w :
-  ✓ ((x [↦] v) ⋅ G) → x ∈ dom (gset loc) g →
+  ✓ ((x [↦] v) ⋅ G) → x ∈ dom g →
   strict_subgraph g (Gmon_graph ((x [↦] w) ⋅ G)) →
   strict_sub_children w v →
   strict_subgraph g (Gmon_graph ((x [↦] v) ⋅ G)).

@@ -34,28 +34,28 @@ Section Graphs.
   Identity Coercion path_to_list : path >-> list.
 
   Inductive valid_path (g : graph) (x y : T) : path → Prop :=
-  | valid_path_E : x ∈ dom (gset _) g → x = y → valid_path g x y []
+  | valid_path_E : x ∈ dom g → x = y → valid_path g x y []
   | valid_path_l (xl : T) p : get_left g x = Some xl → valid_path g xl y p →
       valid_path g x y (true :: p)
   | valid_path_r (xr : T) p : get_right g x = Some xr → valid_path g xr y p →
       valid_path g x y (false :: p).
 
   Definition connected (g : graph) (x : T) :=
-    ∀ z, z ∈ dom (gset _) g → ∃ p, valid_path g x z p.
+    ∀ z, z ∈ dom g → ∃ p, valid_path g x z p.
 
-  Definition front (g : graph) (t t' : gset T) := t ⊆ dom (gset _) g ∧
+  Definition front (g : graph) (t t' : gset T) := t ⊆ dom g ∧
     ∀ x v, x ∈ t → (get_left g x = Some v) ∨ (get_right g x = Some v) →
        v ∈ t'.
 
-  Definition maximal (g : graph) := front g (dom (gset _) g) (dom (gset _) g).
+  Definition maximal (g : graph) := front g (dom g) (dom g).
 
   Definition tree (g : graph) (x : T) :=
-    ∀ z, z ∈ dom (gset _) g → exists !p, valid_path g x z p.
+    ∀ z, z ∈ dom g → exists !p, valid_path g x z p.
 
   (* graph facts *)
 
   Lemma front_t_t_dom g z t :
-    z ∈ t → connected g z → front g t t → t = dom (gset _) g.
+    z ∈ t → connected g z → front g t t → t = dom g.
   Proof.
     intros Hz Hc [Hsb Hdt].
     apply set_eq_subseteq; split; trivial.
@@ -94,20 +94,20 @@ Section Graphs.
     by destruct (g !! i) as [[[] []]|].
   Qed.
 
-  Lemma get_left_dom g x y : get_left g x = Some y → x ∈ dom (gset _) g.
+  Lemma get_left_dom g x y : get_left g x = Some y → x ∈ dom g.
   Proof.
     rewrite /get_left elem_of_dom. case _ : (g !! x); inversion 1; eauto.
   Qed.
 
-  Lemma get_right_dom g x y : get_right g x = Some y → x ∈ dom (gset _) g.
+  Lemma get_right_dom g x y : get_right g x = Some y → x ∈ dom g.
   Proof.
     rewrite /get_right elem_of_dom. case _ : (g !! x); inversion 1; eauto.
   Qed.
 
-  Lemma path_start g x y p : valid_path g x y p → x ∈ dom (gset _) g.
+  Lemma path_start g x y p : valid_path g x y p → x ∈ dom g.
   Proof. inversion 1; subst; eauto using get_left_dom, get_right_dom. Qed.
 
-  Lemma path_end g x y p : valid_path g x y p → y ∈ dom (gset _) g.
+  Lemma path_end g x y p : valid_path g x y p → y ∈ dom g.
   Proof. induction 1; subst; eauto. Qed.
 
 End Graphs.

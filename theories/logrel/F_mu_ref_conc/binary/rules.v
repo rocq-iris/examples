@@ -275,7 +275,7 @@ Section cfg.
     iIntros (??) "[#Hinv Hj]". iDestruct "Hinv" as (ρ) "Hinv".
     rewrite /spec_ctx /tpool_mapsto.
     iInv specN as (tp σ) ">[Hown %]" "Hclose".
-    destruct (exist_fresh (dom (gset positive) σ)) as [l Hl%not_elem_of_dom].
+    destruct (exist_fresh (dom (D:=gset _) σ)) as [l Hl%not_elem_of_dom].
     iDestruct (own_valid_2 with "Hown Hj")
       as %[[?%tpool_singleton_included' _]%prod_included ?]
           %auth_both_valid_discrete.
