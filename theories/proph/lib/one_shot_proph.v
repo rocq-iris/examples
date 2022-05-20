@@ -49,6 +49,16 @@ Section one_shot.
     iApply wp_mono; last done. iIntros (v0) "H". iIntros (pvs ->) "Hp".
     by iApply "H".
   Qed.
+
+  Lemma wp_resolve_proph1 s E (p : proph_id) (v w : val) :
+    {{{ proph1 p v }}}
+      resolve_proph: #p to: w @ s; E
+    {{{ RET #(); ⌜v = w⌝ }}}.
+  Proof.
+    iIntros (Φ) "Hp HΦ".
+    wp_apply (wp_resolve1 with "Hp"); first done.
+    wp_pures. done.
+  Qed.
 End one_shot.
 
 (** Alternative specification. *)
