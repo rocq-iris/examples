@@ -144,7 +144,7 @@ Section stack.
     | Some (v, st_loc) =>
       ∃ P Q γo, inv offerN (offer_inv st_loc γo P Q) ∗
                 (* The persistent part of the Laterable AU *)
-                □ (▷ P -∗ ◇ AU << ∀ l, stack_content γs l >> @ ⊤∖↑N, ∅
+                □ (▷ P -∗ ◇ AU << ∃∃ l, stack_content γs l >> @ ⊤∖↑N, ∅
                                << stack_content γs (v::l), COMM Q >>)
     end%I.
 
@@ -184,7 +184,7 @@ Section stack.
 
   Lemma push_spec γs s (v : val) :
     is_stack γs s -∗
-    <<< ∀ l : list val, stack_content γs l >>>
+    <<< ∀∀ l : list val, stack_content γs l >>>
       push s v @ ↑N
     <<< stack_content γs (v::l), RET #() >>>.
   Proof.
@@ -267,7 +267,7 @@ Section stack.
 
   Lemma pop_spec γs (s : val) :
     is_stack γs s -∗
-    <<< ∀ l, stack_content γs l >>>
+    <<< ∀∀ l, stack_content γs l >>>
       pop s @ ↑N
     <<< stack_content γs (tail l),
         RET match l with [] => NONEV | v :: _ => SOMEV v end >>>.

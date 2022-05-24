@@ -184,7 +184,7 @@ Section conditional_counter.
        ∨ own γ_s (Cinr $ to_agree ()) ∗ done_state Q l l_ghost_winner γ_t))%I.
 
   Definition pau P Q γs f :=
-    (▷ P -∗ ◇ AU << ∀ (b : bool) (n : Z), counter_content γs n ∗ f ↦_(λ _, True) #b >>
+    (▷ P -∗ ◇ AU << ∃∃ (b : bool) (n : Z), counter_content γs n ∗ f ↦_(λ _, True) #b >>
                  @ ⊤∖(↑N ∪ ↑inv_heapN), ∅
                  << counter_content γs (if b then n + 1 else n)%Z ∗ f ↦_(λ _, True) #b, COMM Q >>)%I.
 
@@ -432,7 +432,7 @@ Section conditional_counter.
 
   Lemma cinc_spec γs v (f: loc) :
     is_counter γs v -∗
-    <<< ∀ (b : bool) (n : Z), counter_content γs n ∗ f ↦_(λ _, True) #b >>>
+    <<< ∀∀ (b : bool) (n : Z), counter_content γs n ∗ f ↦_(λ _, True) #b >>>
         cinc v #f @ (↑N ∪ ↑inv_heapN)
     <<< counter_content γs (if b then n + 1 else n)%Z ∗ f ↦_(λ _, True) #b, RET #() >>>.
   Proof.
@@ -516,7 +516,7 @@ Section conditional_counter.
 
   Lemma get_spec γs v :
     is_counter γs v -∗
-    <<< ∀ (n : Z), counter_content γs n >>>
+    <<< ∀∀ (n : Z), counter_content γs n >>>
         get v @ (↑N ∪ ↑inv_heapN)
     <<< counter_content γs n, RET #n >>>.
   Proof.

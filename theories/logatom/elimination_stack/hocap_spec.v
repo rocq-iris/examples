@@ -170,7 +170,7 @@ Section hocap_auth_tada.
 
   Lemma tada_push N γs s (v : val) :
     stack.(hocap_auth.is_stack) N γs s -∗
-    <<< ∀ l : list val, stack.(hocap_auth.stack_content_frag) γs l >>>
+    <<< ∀∀ l : list val, stack.(hocap_auth.stack_content_frag) γs l >>>
       stack.(hocap_auth.push) s v @ ↑N
     <<< stack.(hocap_auth.stack_content_frag) γs (v::l), RET #() >>>.
   Proof.
@@ -185,7 +185,7 @@ Section hocap_auth_tada.
 
   Lemma tada_pop N γs (s : val) :
     stack.(hocap_auth.is_stack) N γs s -∗
-    <<< ∀ l : list val, stack.(hocap_auth.stack_content_frag) γs l >>>
+    <<< ∀∀ l : list val, stack.(hocap_auth.stack_content_frag) γs l >>>
       stack.(hocap_auth.pop) s @ ↑N
     <<< stack.(hocap_auth.stack_content_frag) γs (tail l),
         RET match l with [] => NONEV | v :: _ => SOMEV v end >>>.

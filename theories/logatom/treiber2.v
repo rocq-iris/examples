@@ -238,7 +238,7 @@ Qed.
     the possibility of accessing the precondition again, unlike with abort. *)
 Lemma push_stack_spec (ℓ : loc) (γ : gname) (v : val) :
   is_stack ℓ γ -∗
-  <<< ∀ (xs : list val), stack_cont γ xs >>>
+  <<< ∀∀ (xs : list val), stack_cont γ xs >>>
     push_stack v #ℓ @ ↑N
   <<< stack_cont γ (v :: xs) , RET #() >>>.
 Proof.
@@ -290,7 +290,7 @@ Qed.
     the postcondition also depends on the emptiness of the stack. *)
 Lemma pop_stack_spec (ℓ : loc) (γ : gname) :
   is_stack ℓ γ -∗
-  <<< ∀ (xs : list val), stack_cont γ xs >>>
+  <<< ∀∀ (xs : list val), stack_cont γ xs >>>
     pop_stack #ℓ @ ↑N
   <<< stack_cont γ (match xs with [] => [] | _::xs => xs end)
     , RET (match xs with [] => NONEV | v::_ => SOMEV v end) >>>.

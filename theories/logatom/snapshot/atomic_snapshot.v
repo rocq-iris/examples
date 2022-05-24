@@ -208,7 +208,7 @@ Section atomic_snapshot.
 
   Lemma write_spec γ (x2: val) p :
       is_snapshot γ p  -∗
-      <<< ∀ x : val, snapshot_content γ x >>>
+      <<< ∀∀ x : val, snapshot_content γ x >>>
         write p x2 @ ↑N
       <<< snapshot_content γ x2, RET #() >>>.
   Proof.
@@ -267,7 +267,7 @@ Section atomic_snapshot.
 
   Lemma read_spec γ p :
     is_snapshot γ p -∗
-    <<< ∀ v : val, snapshot_content γ v >>>
+    <<< ∀∀ v : val, snapshot_content γ v >>>
       read p @ ↑N
     <<< snapshot_content γ v, RET v >>>.
   Proof.
@@ -295,7 +295,7 @@ Section atomic_snapshot.
 
   Lemma read_with_spec γ p (l : loc) :
     is_snapshot γ p -∗
-    <<< ∀ v1 v2 : val, snapshot_content γ v1 ∗ l ↦ v2 >>>
+    <<< ∀∀ v1 v2 : val, snapshot_content γ v1 ∗ l ↦ v2 >>>
        read_with_proph p #l @ ↑N
     <<< snapshot_content γ v1 ∗ l ↦ v2, RET (v1, v2) >>>.
   Proof.

@@ -29,7 +29,7 @@ Section atomic_sync.
   (* TODO: Provide better masks. ∅ as inner mask is pretty weak. *)
   Definition atomic_synced (ϕ: A → iProp Σ) γ (f f': val) :=
     (□ ∀ α β (x: val), atomic_seq_spec ϕ α β f x →
-       <<< ∀ g, gHalf γ g ∗ □ α g >>> f' x @ ∅ <<< ∃ v, ∃ g', gHalf γ g' ∗ β g g' v, RET v >>>)%I.
+       <<< ∀∀ g, gHalf γ g ∗ □ α g >>> f' x @ ∅ <<< ∃∃ v g', gHalf γ g' ∗ β g g' v, RET v >>>)%I.
 
   (* TODO: Use our usual style with a generic post-condition. *)
   (* TODO: We could get rid of the x, and hard-code a unit. That would
@@ -79,7 +79,7 @@ Section atomic_sync.
     { iApply own_update; last by iAssumption.
       apply cmra_update_exclusive. by rewrite -pair_op agree_idemp. }
     iMod ("Hvs2" with "[Hg1 Hβ]").
-    { iExists g'. iFrame. }
+    { iFrame. }
     iModIntro. iSplitL "Hg2 Hϕ'"; last done.
     iExists g'. by iFrame.
   Qed.
