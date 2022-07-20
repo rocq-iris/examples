@@ -32,7 +32,7 @@ Class lockG Σ := lock_G :> inG Σ (exclR unitR).
 
 Section lock_model.
 (* In order to do the proof we need to assume certain things about the
-   instantiation of Iris. The particular, even the heap is handled in an
+   instantiation of Iris. In particular, even the heap is handled in an
    analogous way as other ghost state. This line states that we assume the Iris
    instantiation has sufficient structure to manipulate the heap, e.g., it
    allows us to use the points-to predicate, and that the ghost state includes
@@ -42,7 +42,7 @@ Section lock_model.
   Context `{heapGS Σ, lockG Σ}.
 
   (* We use a ghost name with a token to model whether the lock is locked or not.
-     The the token is just exclusive ownerwhip of unit value. *)
+     The token is just exclusive ownership of unit value. *)
   Definition locked γ := own γ (Excl ()).
 
   (* The name of a lock. *)
