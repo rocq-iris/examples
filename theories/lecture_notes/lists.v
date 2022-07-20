@@ -298,7 +298,7 @@ Proof.
 Qed.
 
 (* The following specifications for foldr are non-trivial because the code is higher-order
-   and hence the specifications involved nested triples.
+   and hence the specifications involve nested triples.
    The specifications are explained in the Iris Lecture Notes. *)
 
 

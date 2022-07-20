@@ -34,12 +34,12 @@ From iris.prelude Require Import options.
    on. The complete list of notations can be found in
    theories/heap_lang/notations.v file in the iris-coq repository.
    The # in the notation is used to embed literals, e.g., variables, numbers, as
-   values of the programmin language. *)
+   values of the programming language. *)
 Definition incr (ℓ : loc) : expr := #ℓ <- !#ℓ + #1.
 
 Section proof.
   (* In order to do the proof we need to assume certain things about the
-     instantiation of Iris. The particular, even the heap is handled in an
+     instantiation of Iris. In particular, even the heap is handled in an
      analogous way as other ghost state. This line states that we assume the
      Iris instantiation has sufficient structure to manipulate the heap, e.g.,
      it allows us to use the points-to predicate. *)
@@ -85,7 +85,7 @@ Section proof.
        of the lecture notes. *)
     iIntros (Φ) "Hpt HΦ".
     (* As in the paper proof we now allocate an invariant (in namespace N) and
-       transfer the points to predicate into it. This is achieved by using the
+       transfer the points-to predicate into it. This is achieved by using the
        rule/lemma inv_alloc. But since the allocation of invariants involves the
        fancy update modality we use the iMod tactic around the lemma. This
        tactic knows about the structural rules of the update modalities, and the
@@ -144,7 +144,7 @@ Section proof.
          called wp_par. The two arguments are the conclusions of the two
          parallel threads. Here they are simply True, as in the paper proof when
          we used the ht-par rule.
-         The term needs a bit of reduction to fir the [wp_par] lemma, so we use
+         The term needs a bit of reduction to fit the [wp_par] lemma, so we use
          [wp_smart_apply].*)
       wp_smart_apply (wp_par (λ _ , ⌜True⌝)%I (λ _ , ⌜True⌝)%I).
       (* We now have three subgoals. The first two are proofs that each thread
@@ -169,7 +169,7 @@ Section proof.
         (* After this we can read the value, since we have the resources. The
            tactic wp_load implements the rule for reading a memory location. But
            first, we need to eliminate the existential "H" (the incr_inv
-           assertion) to get a points to predicate. This we do using the
+           assertion) to get a points-to predicate. This we do using the
            iDestruct tactic. The pattern this time is quite advanced. The
            assertion named H is ▷∃ m, ⌜m ≥ n⌝ ∗ ℓ ↦ m. The assertion ∃m, ⌜m ≥ n⌝
            ∗ ℓ ↦ m is timeless. Hence because the conclusion is the weakest
@@ -181,11 +181,11 @@ Section proof.
            to the pure Coq context (the % character), and it states that the
            second part should be named Hpt. *)
         iDestruct "H" as (m) ">[% Hpt]".
-        (* Now we have a points to assertion in context, so we can use wp_load rule. *)
+        (* Now we have a points-to assertion in context, so we can use wp_load rule. *)
         wp_load.
         (* After reading we must again close the invariant. For this we have the
            "Hclose" assertion, which we got when opening the invariant.
-           We close the invariant by transferring the points to predicate back.
+           We close the invariant by transferring the points-to predicate back.
            And since closing involves manipulation of fancy updates we use the
            iMod tactic. The as "_" pattern states to ignore the conclusion of
            "Hclose" assertion. The interesting part of Hclose is the change of
@@ -236,7 +236,7 @@ Section proof.
            argument. Here we do not care about the variable names so we give ?
            as the pattern, which lets Coq generate a variable name for us. *)
         iIntros (? ?) "_".
-        (* To be able to use the wp_tactics the goal needs to be of the form ▷
+        (* To be able to use the wp_tactics the goal needs to be of the form WP
            ..., thus we first remove the later modality using the later
            introduction rule, implemented by the iNext tactic. After that we
            have to deal with the application of a function with a dummy argument,

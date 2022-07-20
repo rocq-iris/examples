@@ -1,7 +1,7 @@
 (* In this file we explain how to do prove the counter specifications from
    Section 7.7 of the notes. This involves construction and manipulation of
    resource algebras, the explanation of which is the focus of this file. We
-   assume the reader has experimented with coq-intro-example-1.v example, and
+   assume the reader has experimented with coq_intro_example_1.v example, and
    thus we do not explain the features we have explained therein already. *)
 
 From iris.program_logic Require Export weakestpre.
