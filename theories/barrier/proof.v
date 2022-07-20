@@ -26,14 +26,14 @@ Definition barrier_inv (l : loc) (γ : gname) (P : iProp Σ) : iProp Σ :=
     l ↦ #b ∗
     own γ (● (GSet γsps)) ∗
     ((if b then True else P) -∗
-      ([∗ set] γsp ∈ γsps, ∃ R, saved_prop_own γsp R ∗ ▷ R)))%I.
+      ([∗ set] γsp ∈ γsps, ∃ R, saved_prop_own γsp DfracDiscarded R ∗ ▷ R)))%I.
 
 Definition recv (l : loc) (R : iProp Σ) : iProp Σ :=
   (∃ γ P R' γsp,
     inv N (barrier_inv l γ P) ∗
     ▷ (R' -∗ R) ∗
     own γ (◯ GSet {[ γsp ]}) ∗
-    saved_prop_own γsp R')%I.
+    saved_prop_own γsp DfracDiscarded R')%I.
 
 Definition send (l : loc) (P : iProp Σ) : iProp Σ :=
   (∃ γ, inv N (barrier_inv l γ P))%I.
@@ -52,7 +52,7 @@ Lemma newbarrier_spec (P : iProp Σ) :
 Proof.
   iIntros (Φ) "_ HΦ". wp_lam. wp_alloc l as "Hl".
   iApply ("HΦ" with "[> -]").
-  iMod (saved_prop_alloc P) as (γsp) "#Hsp".
+  iMod (saved_prop_alloc P) as (γsp) "#Hsp"; first done.
   iMod (own_alloc (● GSet {[ γsp ]} ⋅ ◯ GSet {[ γsp ]})) as (γ) "[H● H◯]".
   { by apply auth_both_valid_discrete. }
   iMod (inv_alloc N _ (barrier_inv l γ P) with "[Hl H●]") as "#Hinv".
@@ -112,9 +112,9 @@ Proof.
   { apply (auth_update_dealloc _ _ (GSet (γsps ∖ {[ γsp ]}))).
     apply gset_disj_dealloc_local_update. }
   set (γsps' := γsps ∖ {[γsp]}).
-  iMod (saved_prop_alloc_cofinite γsps' R1) as (γsp1 Hγsp1) "#Hsp1".
+  iMod (saved_prop_alloc_cofinite γsps' R1) as (γsp1 Hγsp1) "#Hsp1"; first done.
   iMod (saved_prop_alloc_cofinite (γsps' ∪ {[ γsp1 ]}) R2)
-    as (γsp2 [? ?%not_elem_of_singleton_1]%not_elem_of_union) "#Hsp2".
+    as (γsp2 [? ?%not_elem_of_singleton_1]%not_elem_of_union) "#Hsp2"; first done.
   iMod (own_update _ _ (● _ ⋅ (◯ GSet {[ γsp1 ]} ⋅ ◯ (GSet {[ γsp2 ]})))
     with "H●") as "(H● & H◯1 & H◯2)".
   { rewrite -auth_frag_op gset_disj_union; last set_solver.

@@ -428,7 +428,7 @@ Proof.
   iIntros (Hi) "H". iMod (alloc_slot _ _ _ _ Hi with "H") as "[$ Hi]".
   repeat rewrite -own_op. repeat rewrite -auth_frag_op.
   repeat rewrite -insert_op. repeat rewrite left_id.
-  by rewrite insert_empty. 
+  by rewrite insert_empty.
 Qed.
 
 Lemma use_val_wit γs slots i l :
@@ -1224,8 +1224,8 @@ Definition per_slot_own γe γs i d :=
   (if was_written d then slot_written_wit γs i else True) ∗
   match state_of d with
   | Pend γ => slot_pending_tok γs i ∗
-              ∃ Q, saved_prop_own γ Q ∗ enqueue_AU γe (val_of d) Q
-  | Help γ => slot_committed_wit γs i ∗ ∃ Q, saved_prop_own γ Q ∗ ▷ Q
+              ∃ Q, saved_prop_own γ DfracDiscarded Q ∗ enqueue_AU γe (val_of d) Q
+  | Help γ => slot_committed_wit γs i ∗ ∃ Q, saved_prop_own γ DfracDiscarded Q ∗ ▷ Q
   | Done   => slot_committed_wit γs i ∗ slot_token γs i
   end)%I.
 
@@ -2137,7 +2137,7 @@ Proof.
             ** rewrite /update_slot Hslots_i insert_delete_insert.
                rewrite lookup_insert_ne; last done. apply Hb2, Hk. }
   + (* We are not the first non-done element, we will give away our AU. *)
-    iMod (saved_prop_alloc (Φ #())) as (γs_i) "#Hγs_i".
+    iMod (saved_prop_alloc (Φ #())) as (γs_i) "#Hγs_i"; first done.
     iMod (alloc_pend_slot γs slots i l γs_i Hi_free with "Hs●")
       as "[Hs● [Htok_i [#val_wit_i [Hpend_tok_i [Hname_tok_i Hwriting_tok_i]]]]]".
     (* We close the invariant, storing our AU. *)
