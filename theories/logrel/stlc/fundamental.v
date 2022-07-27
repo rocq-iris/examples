@@ -35,12 +35,12 @@ Section typed_interp.
       iApply wp_value; eauto 10.
     - (* fst *)
       smart_wp_bind (FstCtx) v "# Hv" "IH"; cbn.
-      iDestruct "Hv" as (w1 w2) "#[% [H2 H3]]"; subst.
-      iApply wp_pure_step_later; auto. by iApply wp_value.
+      iDestruct "Hv" as (w1 w2) "#[-> [H2 H3]] /=".
+      iApply wp_pure_step_later; auto. iIntros "!> _". by iApply wp_value.
     - (* snd *)
       smart_wp_bind (SndCtx) v "# Hv" "IH"; cbn.
-      iDestruct "Hv" as (w1 w2) "#[% [H2 H3]]"; subst.
-      iApply wp_pure_step_later; auto. by iApply wp_value.
+      iDestruct "Hv" as (w1 w2) "#[-> [H2 H3]] /=".
+      iApply wp_pure_step_later; auto. iIntros "!> _". by iApply wp_value.
     - (* injl *)
       smart_wp_bind (InjLCtx) v "# Hv" "IH". by iApply wp_value; eauto.
     - (* injr *)
@@ -48,19 +48,18 @@ Section typed_interp.
     - (* case *)
       iDestruct (interp_env_length with "[]") as %Hlen; auto.
       smart_wp_bind (CaseCtx _ _) v "# Hv" "IH"; cbn.
-      iDestruct "Hv" as "[Hv|Hv]"; iDestruct "Hv" as (w) "[% Hw]"; subst.
+      iDestruct "Hv" as "[Hv|Hv]"; iDestruct "Hv" as (w) "[-> Hw] /=".
       + simpl. iApply wp_pure_step_later; auto. asimpl.
-        iApply ("IH1" $! (w::vs)).
-        iNext. iApply interp_env_cons; by iSplit.
+        iIntros "!> _". iApply ("IH1" $! (w::vs)).
+        iApply interp_env_cons; by iSplit.
       + simpl. iApply wp_pure_step_later; auto. asimpl.
-        iApply ("IH2" $! (w::vs)).
-        iNext. iApply interp_env_cons; by iSplit.
+        iIntros "!> _". iApply ("IH2" $! (w::vs)).
+        iApply interp_env_cons; by iSplit.
     - (* lam *)
       iDestruct (interp_env_length with "[]") as %Hlen; auto.
       iApply wp_value. simpl. iModIntro; iIntros (w) "#Hw".
-      iApply wp_pure_step_later; auto.
-      asimpl.
-      iNext; iApply ("IH" $! (w :: vs)). iApply interp_env_cons; by iSplit.
+      iApply wp_pure_step_later; auto. iIntros "!> _". asimpl.
+      iApply ("IH" $! (w :: vs)). iApply interp_env_cons; by iSplit.
     - (* app *)
       smart_wp_bind (AppLCtx (_.[env_subst vs])) v "#Hv" "IH".
       smart_wp_bind (AppRCtx v) w "#Hw" "IH1".

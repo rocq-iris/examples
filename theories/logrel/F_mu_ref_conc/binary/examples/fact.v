@@ -86,7 +86,7 @@ Section fact_equiv.
     generalize 1 as l => l.
     iInduction n as [|n] "IH" forall (l).
     - iApply wp_pure_step_later; auto.
-      iNext; simpl; asimpl.
+      iIntros "!> _"; simpl; asimpl.
       rewrite fact_acc_body_unfold.
       iMod (do_step_pure _ _ (AppLCtx _ :: _) with "[$Hj]") as "Hj"; auto.
       rewrite -fact_acc_body_unfold.
@@ -94,18 +94,18 @@ Section fact_equiv.
       iMod (do_step_pure with "[$Hj]") as "Hj"; auto.
       iApply (wp_bind (fill [IfCtx _ _])).
       iApply wp_pure_step_later; auto.
-      iNext; simpl.
+      iIntros "!> _"; simpl.
       iApply wp_value. simpl.
       iMod (do_step_pure _ _ (IfCtx _ _ :: _) with "[$Hj]") as "Hj"; auto.
       simpl.
       iApply wp_pure_step_later; auto.
-      iNext; simpl.
+      iIntros "!> _"; simpl.
       iMod (do_step_pure with "[$Hj]") as "Hj"; auto.
       iApply wp_value.
       iExists 1. replace (l * 1) with l by lia.
       auto.
     - iApply wp_pure_step_later; auto.
-      iNext; simpl; asimpl.
+      iIntros "!> _"; simpl; asimpl.
       rewrite fact_acc_body_unfold.
       iMod (do_step_pure _ _ (AppLCtx _ :: _) with "[$Hj]") as "Hj"; auto.
       rewrite -fact_acc_body_unfold.
@@ -113,18 +113,18 @@ Section fact_equiv.
       iMod (do_step_pure with "[$Hj]") as "Hj"; auto.
       iApply (wp_bind (fill [IfCtx _ _])).
       iApply wp_pure_step_later; auto.
-      iNext; simpl.
+      iIntros "!> _"; simpl.
       iApply wp_value. simpl.
       iMod (do_step_pure _ _ (IfCtx _ _ :: _) with "[$Hj]") as "Hj"; auto.
       simpl.
       iApply wp_pure_step_later; auto.
-      iNext; simpl.
+      iIntros "!> _"; simpl.
       iMod (do_step_pure with "[$Hj]") as "Hj"; auto.
       asimpl.
       iApply (wp_bind (fill [BinOpRCtx _ (#nv _)])).
       iApply (wp_bind (fill [AppRCtx (RecV _)])).
       iApply wp_pure_step_later; auto.
-      iNext; simpl; iApply wp_value; simpl.
+      iIntros "!> _"; simpl; iApply wp_value; simpl.
       iMod (do_step_pure _ _ (LetInCtx _ :: _) with "[$Hj]") as "Hj"; auto.
       simpl.
       iMod (do_step_pure with "[$Hj]") as "Hj"; auto.
@@ -137,7 +137,7 @@ Section fact_equiv.
       iApply wp_wand_r; iSplitL; first iApply ("IH" with "[Hj]"); eauto.
       iIntros (v). iDestruct 1 as (m) "[H %]"; simplify_eq.
       iApply wp_pure_step_later; auto.
-      iNext; simpl; iApply wp_value.
+      iIntros "!> _"; simpl; iApply wp_value.
       iExists ((S n) * m); simpl.
       replace (l * (m + n * m)) with ((l + n * l) * m)
         by lia.
@@ -156,7 +156,7 @@ Section fact_equiv.
     clear j K.
     iIntros (j K) "Hj"; simpl.
     iApply wp_pure_step_later; auto.
-    iNext; asimpl.
+    iIntros "!> _"; asimpl.
     rewrite -/fact.
     iApply (wp_mono _ _ _ (λ v, ∃ m, j ⤇ fill K (#n m) ∗ ⌜v = #nv (1 * m)⌝))%I.
     { iIntros (?). iDestruct 1 as (m) "[? %]"; simplify_eq.
@@ -168,20 +168,20 @@ Section fact_equiv.
       iApply (wp_bind (fill [AppLCtx _])).
       iApply wp_pure_step_later; auto.
       rewrite -fact_acc_body_unfold.
-      iNext; simpl; asimpl.
+      iIntros "!> _"; simpl; asimpl.
       iApply wp_value; simpl.
       iApply wp_pure_step_later; auto.
-      iNext; simpl; asimpl.
+      iIntros "!> _"; simpl; asimpl.
       iMod (do_step_pure with "[$Hj]") as "Hj"; auto.
       simpl; asimpl.
       iMod (do_step_pure _ _ (IfCtx _ _ :: _) with "[$Hj]") as "Hj"; auto.
       iApply (wp_bind (fill [IfCtx _ _])).
       iApply wp_pure_step_later; auto.
-      iNext; simpl.
+      iIntros "!> _"; simpl.
       iApply wp_value. simpl.
       iMod (do_step_pure with "[$Hj]") as "Hj"; auto.
       iApply wp_pure_step_later; auto.
-      iNext; simpl.
+      iIntros "!> _"; simpl.
       iApply wp_value.
       iExists 1.
       replace (l * 1) with l by lia; auto.
@@ -189,34 +189,34 @@ Section fact_equiv.
       iApply (wp_bind (fill [AppLCtx _])).
       iApply wp_pure_step_later; auto.
       rewrite -fact_acc_body_unfold.
-      iNext; simpl; asimpl.
+      iIntros "!> _"; simpl; asimpl.
       iApply wp_value; simpl.
       iApply wp_pure_step_later; auto.
-      iNext; simpl; asimpl.
+      iIntros "!> _"; simpl; asimpl.
       iMod (do_step_pure with "[$Hj]") as "Hj"; auto.
       simpl.
       iApply (wp_bind (fill [IfCtx _ _])).
       iApply wp_pure_step_later; auto.
-      iNext; simpl.
+      iIntros "!> _"; simpl.
       iApply wp_value. simpl.
       iMod (do_step_pure _ _ (IfCtx _ _ :: _) with "[$Hj]") as "Hj"; auto.
       simpl.
       iApply wp_pure_step_later; auto.
-      iNext; simpl.
+      iIntros "!> _"; simpl.
       iMod (do_step_pure with "[$Hj]") as "Hj"; auto.
       iMod (do_step_pure _ _ (AppRCtx (RecV _):: BinOpRCtx _ (#nv _) :: _)
               with "[$Hj]") as "Hj"; eauto.
       simpl.
       iApply (wp_bind (fill [LetInCtx _])).
       iApply wp_pure_step_later; auto.
-      iNext; simpl; iApply wp_value; simpl.
+      iIntros "!> _"; simpl; iApply wp_value; simpl.
       iApply wp_pure_step_later; auto.
-      iNext; simpl. asimpl.
+      iIntros "!> _"; simpl. asimpl.
       iApply (wp_bind (fill [LetInCtx _])).
       iApply wp_pure_step_later; auto.
-      iNext; simpl; iApply wp_value; simpl.
+      iIntros "!> _"; simpl; iApply wp_value; simpl.
       iApply wp_pure_step_later; auto.
-      iNext; simpl. asimpl.
+      iIntros "!> _"; simpl. asimpl.
       replace (n -0) with n by lia.
       iApply wp_fupd.
       iApply wp_wand_r; iSplitL;

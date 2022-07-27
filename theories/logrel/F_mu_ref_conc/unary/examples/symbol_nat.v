@@ -60,11 +60,11 @@ Section symbol_nat_sem_typ.
     iApply wp_value.
     iModIntro.
     iIntros (? ?); simplify_eq; simpl.
-    iApply wp_pure_step_later; auto. iNext. asimpl.
+    iApply wp_pure_step_later; auto. iIntros "!> _". asimpl.
     iApply (wp_bind (fill [LetInCtx _])).
     iApply wp_alloc; first done.
     iNext. iIntros (l) "Hl".
-    iApply wp_pure_step_later; auto. iNext. asimpl.
+    iApply wp_pure_step_later; auto. iIntros "!> _". asimpl.
     iMod Token_init as (γ) "Hmt".
     iMod (inv_alloc (nroot .@ "tk") _ (∃ t, l ↦ᵢ (#nv t) ∗ Max_token γ t)
             with "[Hl Hmt]") as "#Hinv".
@@ -77,7 +77,7 @@ Section symbol_nat_sem_typ.
     iSplit.
     - iModIntro.
       iIntros (? ?); simplify_eq; simpl.
-      iApply wp_pure_step_later; auto. iNext. asimpl.
+      iApply wp_pure_step_later; auto. iIntros "!> _". asimpl.
       iApply wp_atomic.
       iInv (nroot.@"tk") as (t) "[Hl Hmt]" "Hcl".
       iModIntro.
@@ -88,7 +88,7 @@ Section symbol_nat_sem_typ.
       iNext; iExists _; iFrame.
     - iModIntro.
       iIntros (w). iDestruct 1 as (m ?) "Htk"; simplify_eq.
-      iApply wp_pure_step_later; auto. iNext. asimpl.
+      iApply wp_pure_step_later; auto. iIntros "!> _". asimpl.
       iApply (wp_bind (fill [IfCtx _ _])).
       iApply (wp_bind (fill [BinOpRCtx _ (#nv _)])).
       iApply wp_atomic.
@@ -101,10 +101,10 @@ Section symbol_nat_sem_typ.
       { iNext; iExists _; iFrame. }
       iModIntro.
       simpl.
-      iApply wp_pure_step_later; auto. iNext.
+      iApply wp_pure_step_later; auto. iIntros "!> _".
       simpl. destruct lt_dec; last done. simpl.
       iApply wp_value.
-      iApply wp_pure_step_later; auto. iNext.
+      iApply wp_pure_step_later; auto. iIntros "!> _".
       iApply wp_value; eauto.
   Qed.
 

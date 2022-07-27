@@ -273,7 +273,7 @@ Section CG_Counter.
     iApply fupd_wp.
     iMod (inv_alloc counterN with "[Hinv]") as "#Hinv"; [iNext; iExact "Hinv"|].
     (* splitting increment and read *)
-    iApply wp_pure_step_later; trivial. iModIntro. iNext. iAsimpl.
+    iApply wp_pure_step_later; trivial. iIntros "!> !> _". iAsimpl.
     iApply wp_value; auto.
     iExists (PairV (CG_locked_incrementV _ _) (counter_readV _)); simpl.
     rewrite CG_locked_increment_of_val counter_read_of_val.
@@ -284,7 +284,7 @@ Section CG_Counter.
       rewrite CG_locked_increment_of_val /=.
       destruct v; iDestruct "Heq" as "[% %]"; simplify_eq/=.
       iLöb as "Hlat".
-      iApply wp_pure_step_later; trivial. iAsimpl. iNext.
+      iApply wp_pure_step_later; trivial. iAsimpl. iIntros "!> _".
       (* fine-grained reads the counter *)
       iApply (wp_bind (fill [LetInCtx _]));
         iApply wp_wand_l; iSplitR; [iIntros (v) "Hv"; iExact "Hv"|].
@@ -294,12 +294,11 @@ Section CG_Counter.
       iModIntro. iNext. iIntros "Hcnt".
       iMod ("Hclose" with "[Hl Hcnt Hcnt']").
       { iNext. iExists _. iFrame "Hl Hcnt Hcnt'". }
-      iApply wp_pure_step_later; trivial. iAsimpl. iModIntro. iNext.
+      iApply wp_pure_step_later; trivial. iAsimpl. iIntros "!> !> _".
       (* fine-grained performs increment *)
       iApply (wp_bind (fill [CasRCtx (LocV _) (NatV _); IfCtx _ _]));
         iApply wp_wand_l; iSplitR; [iIntros (v) "Hv"; iExact "Hv"|].
-      iApply wp_pure_step_later; auto. iApply wp_value.
-      iNext.
+      iApply wp_pure_step_later; auto. iIntros "!> _". iApply wp_value.
       iApply (wp_bind (fill [IfCtx _ _]));
         iApply wp_wand_l; iSplitR; [iIntros (v) "Hv"; iExact "Hv"|].
       iApply wp_atomic; eauto.
@@ -317,7 +316,7 @@ Section CG_Counter.
         { iNext. iExists _. iFrame "Hl Hcnt Hcnt'"; trivial. }
         simpl.
         iApply wp_pure_step_later; trivial.
-        iModIntro. iNext. iApply wp_value; trivial.
+        iIntros "!> !> _". iApply wp_value; trivial.
         iExists UnitV; iFrame; auto.
       + (* CAS fails *)
         (* In this case, we perform a recursive call *)
@@ -326,7 +325,7 @@ Section CG_Counter.
         iModIntro. iNext. iIntros "Hcnt".
         iMod ("Hclose" with "[Hl Hcnt Hcnt']").
         { iNext. iExists _; iFrame "Hl Hcnt Hcnt'". }
-        iApply wp_pure_step_later; trivial. iModIntro. iNext. by iApply "Hlat".
+        iApply wp_pure_step_later; trivial. iIntros "!> !> _". by iApply "Hlat".
     - (* refinement of read *)
       iModIntro. clear j K. iIntros (v) "#Heq". iIntros (j K) "Hj".
       rewrite ?counter_read_of_val.
@@ -334,8 +333,7 @@ Section CG_Counter.
       Local Transparent counter_read. (* HACK *)
       unfold counter_read.
       iApply wp_pure_step_later; trivial. simpl.
-      iNext.
-      iApply wp_atomic; eauto.
+      iIntros "!> _". iApply wp_atomic; eauto.
       iInv counterN as (n) ">[Hl [Hcnt Hcnt']]" "Hclose".
       iMod (steps_counter_read with "[Hj Hcnt']") as "[Hj Hcnt']"; first by solve_ndisj.
       { by iFrame "Hspec Hcnt' Hj". }

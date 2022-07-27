@@ -95,7 +95,7 @@ Section fundamental.
     smart_wp_bind (FstCtx) v v' "[Hv #Hiv]"
       (bin_log_related_alt _ _ j (FstCtx :: K) with "[IH]"); cbn.
     iDestruct "Hiv" as ([w1 w1'] [w2 w2']) "#[% [Hw1 Hw2]]"; simplify_eq.
-    iApply wp_pure_step_later; eauto. iNext.
+    iApply wp_pure_step_later; eauto. iIntros "!> _".
     iMod (step_fst with "[Hs Hv]") as "Hw"; eauto.
     iApply wp_value; eauto.
   Qed.
@@ -107,7 +107,7 @@ Section fundamental.
     smart_wp_bind (SndCtx) v v' "[Hv #Hiv]"
       (bin_log_related_alt _ _ j (SndCtx :: K) with "IH"); cbn.
     iDestruct "Hiv" as ([w1 w1'] [w2 w2']) "#[% [Hw1 Hw2]]"; simplify_eq.
-    iApply wp_pure_step_later; eauto. iNext.
+    iApply wp_pure_step_later; eauto. iIntros "!> _".
     iMod (step_snd with "[Hs Hv]") as "Hw"; eauto.
     iApply wp_value; eauto.
   Qed.
@@ -146,14 +146,14 @@ Section fundamental.
     iDestruct "Hiv" as ([w w']) "[% Hw]"; simplify_eq.
     - iApply fupd_wp.
       iMod (step_case_inl with "[Hs Hv]") as "Hz"; eauto.
-      iApply wp_pure_step_later; auto. fold of_val. iModIntro. iNext.
+      iApply wp_pure_step_later; auto. fold of_val. iIntros "!> !> _".
       asimpl.
       iApply (bin_log_related_alt _ ((w,w') :: vvs) with "IH2").
       repeat iSplit; eauto.
       iApply interp_env_cons; auto.
     - iApply fupd_wp.
       iMod (step_case_inr with "[Hs Hv]") as "Hz"; eauto.
-      iApply wp_pure_step_later; auto. fold of_val. iModIntro. iNext.
+      iApply wp_pure_step_later; auto. fold of_val. iIntros "!> !> _".
       asimpl.
       iApply (bin_log_related_alt _ ((w,w') :: vvs) with "IH3").
       repeat iSplit; eauto.
@@ -171,11 +171,10 @@ Section fundamental.
       (bin_log_related_alt _ _ j ((IfCtx _ _) :: K) with "IH1"); cbn.
     iDestruct "Hiv" as ([]) "[% %]"; simplify_eq/=; iApply fupd_wp.
     - iMod (step_if_true _ j K with "[-]") as "Hz"; eauto.
-      iApply wp_pure_step_later; auto. iModIntro. iNext.
+      iApply wp_pure_step_later; auto. iIntros "!> !> _".
       iApply (bin_log_related_alt with "IH2"); eauto.
     - iMod (step_if_false _ j K with "[-]") as "Hz"; eauto.
-      iApply wp_pure_step_later; auto.
-      iModIntro. iNext.
+      iApply wp_pure_step_later; auto. iIntros "!> !> _".
       iApply (bin_log_related_alt with "IH3"); eauto.
   Qed.
 
@@ -193,7 +192,7 @@ Section fundamental.
     iDestruct "Hiw" as (n') "[% %]"; simplify_eq/=.
     iApply fupd_wp.
     iMod (step_nat_binop _ j K with "[-]") as "Hz"; eauto.
-    iApply wp_pure_step_later; auto. iModIntro. iNext.
+    iApply wp_pure_step_later; auto. iIntros "!> !> _".
     iApply wp_value. iExists _; iSplitL; eauto.
     destruct op; simpl; try destruct eq_nat_dec; try destruct le_dec;
       try destruct lt_dec; eauto.
@@ -207,7 +206,7 @@ Section fundamental.
     iApply wp_value. iExists (RecV _). iIntros "{$Hj} !#".
     iLöb as "IHL". iIntros ([v v']) "#Hiv". iIntros (j' K') "Hj".
     iDestruct (interp_env_length with "HΓ") as %?.
-    iApply wp_pure_step_later; auto 1 using to_of_val. iNext.
+    iApply wp_pure_step_later; auto 1 using to_of_val. iIntros "!> _".
     iApply fupd_wp.
     iMod (step_rec _ j' K' _ (of_val v') v' with "[-]") as "Hz"; eauto.
     asimpl. change (Rec ?e) with (of_val (RecV e)).
@@ -225,7 +224,7 @@ Section fundamental.
     iApply wp_value. iExists (LamV _). iIntros "{$Hj} !#".
     iIntros ([v v']) "#Hiv". iIntros (j' K') "Hj".
     iDestruct (interp_env_length with "HΓ") as %?.
-    iApply wp_pure_step_later; auto 1 using to_of_val. iNext.
+    iApply wp_pure_step_later; auto 1 using to_of_val. iIntros "!> _".
     iApply fupd_wp.
     iMod (step_lam _ j' K' _ (of_val v') v' with "[-]") as "Hz"; eauto.
     asimpl. iFrame "#". change (Lam ?e) with (of_val (LamV e)).
@@ -245,7 +244,7 @@ Section fundamental.
     smart_wp_bind (LetInCtx _) v v' "[Hv #Hiv]"
       (bin_log_related_alt _ _ j ((LetInCtx _) :: K) with "IH1"); cbn.
     iMod (step_letin _ j K with "[-]") as "Hz"; eauto.
-    iApply wp_pure_step_later; auto. iModIntro.
+    iApply wp_pure_step_later; auto. iIntros "!> _".
     asimpl.
     iApply (bin_log_related_alt _ ((v, v') :: vvs) with "IH2").
     repeat iSplit; eauto.
@@ -262,7 +261,7 @@ Section fundamental.
     smart_wp_bind (SeqCtx _) v v' "[Hv #Hiv]"
       (bin_log_related_alt _ _ j ((SeqCtx _) :: K) with "IH1"); cbn.
     iMod (step_seq _ j K with "[-]") as "Hz"; eauto.
-    iApply wp_pure_step_later; auto. iModIntro.
+    iApply wp_pure_step_later; auto. iIntros "!> _".
     asimpl.
     iApply (bin_log_related_alt with "IH2"); repeat iSplit; eauto.
   Qed.
@@ -288,7 +287,7 @@ Section fundamental.
     iIntros "#IH" (Δ vvs) "!# #(Hs & HΓ)"; iIntros (j K) "Hj /=".
     iApply wp_value. iExists (TLamV _).
     iIntros "{$Hj} /= !#"; iIntros (τi j' K') "Hv /=".
-    iApply wp_pure_step_later; auto. iNext.
+    iApply wp_pure_step_later; auto. iIntros "!> _".
     iApply fupd_wp.
     iMod (step_tlam _ j' K' (e'.[env_subst (vvs.*2)]) with "[-]") as "Hz"; eauto.
     iApply (bin_log_related_alt with "IH"); repeat iSplit; eauto.
@@ -332,7 +331,7 @@ Section fundamental.
       (bin_log_related_alt _ _ j (UnpackInCtx _ :: K) with "IH1"); cbn.
     rewrite -/interp.
     iDestruct "Hv" as (τi (v1, v2) Hvv) "#Hvv"; simplify_eq /=.
-    iApply wp_pure_step_later; auto. iNext.
+    iApply wp_pure_step_later; auto. iIntros "!> _".
     iApply fupd_wp.
     iMod (step_pack with "[Hj]") as "Hj"; eauto.
     asimpl.
@@ -373,9 +372,8 @@ Section fundamental.
     iDestruct "Hiw" as ([w w']) "#[% Hiz]"; simplify_eq/=.
     iApply fupd_wp.
     iMod (step_fold _ j K (of_val w') w' with "[-]") as "Hz"; eauto.
-    iApply wp_pure_step_later; auto.
-    iModIntro. iApply wp_value. iNext; iExists _; iFrame "Hz".
-      by rewrite -interp_subst.
+    iApply wp_pure_step_later; auto. iIntros "!> !> _".
+    iApply wp_value. iExists _; iFrame "Hz". by rewrite -interp_subst.
   Qed.
 
   Lemma bin_log_related_fork Γ e e' :

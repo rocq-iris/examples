@@ -44,7 +44,7 @@ Section typed_interp.
     smart_wp_bind (BinOpLCtx _ e2.[env_subst vs]) v "#Hv" "IH1".
     smart_wp_bind (BinOpRCtx _ v) v' "# Hv'" "IH2".
     iDestruct "Hv" as (n) "%"; iDestruct "Hv'" as (n') "%"; simplify_eq/=.
-    iApply wp_pure_step_later; auto. iNext. iApply wp_value.
+    iApply wp_pure_step_later; [done|]; iIntros "!> _". iApply wp_value.
     destruct op; simpl; try destruct eq_nat_dec;
       try destruct le_dec; try destruct lt_dec; eauto 10.
   Qed.
@@ -64,7 +64,7 @@ Section typed_interp.
     iIntros "#IH" (Δ vs) "!# #HΓ"; simpl.
     smart_wp_bind (FstCtx) v "# Hv" "IH"; cbn.
     iDestruct "Hv" as (w1 w2) "#[% [H2 H3]]"; subst.
-    iApply wp_pure_step_later; auto. by iApply wp_value.
+    iApply wp_pure_step_later; [done|]; iIntros "!> _". by iApply wp_value.
   Qed.
 
   Lemma sem_typed_snd Γ e τ1 τ2 :
@@ -73,7 +73,7 @@ Section typed_interp.
     iIntros "#IH" (Δ vs) "!# #HΓ"; simpl.
     smart_wp_bind (SndCtx) v "# Hv" "IH"; cbn.
     iDestruct "Hv" as (w1 w2) "#[% [H2 H3]]"; subst.
-    iApply wp_pure_step_later; auto. by iApply wp_value.
+    iApply wp_pure_step_later; [done|]; iIntros "!> _". by iApply wp_value.
   Qed.
 
   Lemma sem_typed_injl Γ e τ1 τ2 : Γ ⊨ e : τ1 -∗ Γ ⊨ InjL e : (TSum τ1 τ2).
@@ -100,9 +100,9 @@ Section typed_interp.
     smart_wp_bind (CaseCtx _ _) v "#Hv" "IH1"; cbn.
     iDestruct (interp_env_length with "HΓ") as %?.
     iDestruct "Hv" as "[Hv|Hv]"; iDestruct "Hv" as (w) "[% Hw]"; simplify_eq/=.
-    + iApply wp_pure_step_later; auto 1 using to_of_val; asimpl. iNext.
+    + iApply wp_pure_step_later; auto 1 using to_of_val; asimpl. iIntros "!> _".
       iApply ("IH2" $! Δ (w :: vs)). iApply interp_env_cons; auto.
-    + iApply wp_pure_step_later; auto 1 using to_of_val; asimpl. iNext.
+    + iApply wp_pure_step_later; auto 1 using to_of_val; asimpl. iIntros "!> _".
       iApply ("IH3" $! Δ (w :: vs)). iApply interp_env_cons; auto.
   Qed.
 
@@ -112,7 +112,7 @@ Section typed_interp.
     iIntros "#IH1 #IH2 #IH3" (Δ vs) "!# #HΓ"; simpl.
     smart_wp_bind (IfCtx _ _) v "#Hv" "IH1"; cbn.
     iDestruct "Hv" as ([]) "%"; subst; simpl;
-      [iApply wp_pure_step_later .. ]; auto; iNext;
+      [iApply wp_pure_step_later .. ]; auto; iIntros "!> _";
         [iApply "IH2"| iApply "IH3"]; auto.
   Qed.
 
@@ -122,7 +122,7 @@ Section typed_interp.
     iIntros "#IH" (Δ vs) "!# #HΓ"; simpl.
     iApply wp_value. simpl. iModIntro. iLöb as "IHL". iIntros (w) "#Hw".
     iDestruct (interp_env_length with "HΓ") as %?.
-    iApply wp_pure_step_later; auto 1 using to_of_val. iNext.
+    iApply wp_pure_step_later; auto 1 using to_of_val. iIntros "!> _".
     asimpl. change (Rec _) with (of_val (RecV e.[upn 2 (env_subst vs)])) at 2.
     iApply ("IH" $! Δ (_ :: w :: vs)).
     iApply interp_env_cons; iSplit; [|iApply interp_env_cons]; auto.
@@ -133,7 +133,7 @@ Section typed_interp.
     iIntros "#IH" (Δ vs) "!# #HΓ"; simpl.
     iApply wp_value. simpl. iModIntro. iIntros (w) "#Hw".
     iDestruct (interp_env_length with "HΓ") as %?.
-    iApply wp_pure_step_later; auto 1 using to_of_val. iNext.
+    iApply wp_pure_step_later; auto 1 using to_of_val. iIntros "!> _".
     asimpl.
     iApply ("IH" $! Δ (w :: vs)); auto.
     iApply interp_env_cons; iSplit; auto.
@@ -145,7 +145,7 @@ Section typed_interp.
     iIntros "#IH1 #IH2" (Δ vs) "!# #HΓ"; simpl.
     smart_wp_bind (LetInCtx _) v "#Hv" "IH1"; cbn.
     iDestruct (interp_env_length with "HΓ") as %?.
-    iApply wp_pure_step_later; auto 1 using to_of_val. iNext.
+    iApply wp_pure_step_later; auto 1 using to_of_val. iIntros "!> _".
     asimpl. iApply ("IH2" $! Δ (v :: vs)).
     iApply interp_env_cons; iSplit; eauto.
   Qed.
@@ -155,7 +155,7 @@ Section typed_interp.
   Proof.
     iIntros "#IH1 #IH2" (Δ vs) "!# #HΓ"; simpl.
     smart_wp_bind (SeqCtx _) v "#Hv" "IH1"; cbn.
-    iApply wp_pure_step_later; auto 1 using to_of_val. iNext.
+    iApply wp_pure_step_later; auto 1 using to_of_val. iIntros "!> _".
     iApply "IH2"; done.
   Qed.
 
@@ -173,7 +173,7 @@ Section typed_interp.
   Proof.
     iIntros "#IH" (Δ vs) "!# #HΓ /=".
     iApply wp_value; simpl.
-    iModIntro; iIntros (τi). iApply wp_pure_step_later; auto; iNext.
+    iModIntro; iIntros (τi). iApply wp_pure_step_later; auto. iIntros "!> _".
     iApply "IH". by iApply interp_env_ren.
   Qed.
 
@@ -202,7 +202,7 @@ Section typed_interp.
     iIntros "#IH1 #IH2" (Δ vs) "!# #HΓ /=".
     smart_wp_bind (UnpackInCtx _) v "#Hv" "IH1".
     iDestruct "Hv" as (τi w ->) "#Hw"; simpl.
-    iApply wp_pure_step_later; auto 1 using to_of_val. iNext.
+    iApply wp_pure_step_later; auto 1 using to_of_val. iIntros "!> _".
     asimpl.
     iApply wp_wand_r; iSplitL.
     { iApply ("IH2" $! (τi :: Δ) (w :: vs) with "[]").
@@ -228,7 +228,7 @@ Section typed_interp.
     change (fixpoint _) with (⟦ TRec τ ⟧ Δ); simpl.
     iDestruct "Hv" as (w) "#[% Hw]"; subst.
     iApply wp_pure_step_later; cbn; auto using to_of_val.
-    iNext. iApply wp_value. by iApply interp_subst.
+    iIntros "!> _". iApply wp_value. by iApply interp_subst.
   Qed.
 
   Lemma sem_typed_fork Γ e : Γ ⊨ e : TUnit -∗ Γ ⊨ Fork e : TUnit.
