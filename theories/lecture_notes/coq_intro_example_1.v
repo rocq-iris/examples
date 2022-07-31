@@ -1,5 +1,5 @@
 (* In this file we explain how to do the "parallel increment" example (Example
-   7.5) from the lecture notes in Iris in Coq. *)
+   8.4) from the lecture notes in Iris in Coq. *)
 
 (* Contains definitions of the weakest precondition assertion, and its basic
    rules. *)
