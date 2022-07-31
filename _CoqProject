@@ -26,6 +26,7 @@ theories/lecture_notes/modular_incr.v
 theories/lecture_notes/recursion_through_the_store.v
 theories/lecture_notes/stack.v
 theories/lecture_notes/ccounter.v
+theories/lecture_notes/sfra.v
 
 theories/spanning_tree/graph.v
 theories/spanning_tree/mon.v
