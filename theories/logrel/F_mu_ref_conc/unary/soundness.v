@@ -16,7 +16,7 @@ Proof.
   intros Hlog ??.
   cut (adequate NotStuck e σ (λ _ _, True));
     first by intros [_ Hsafe]; eapply Hsafe; eauto.
-  eapply (wp_adequacy_lc Σ _). iIntros (Hinv ??).
+  eapply (wp_adequacy Σ _). iIntros (Hinv ?).
   iMod (gen_heap_init σ) as (Hheap) "[Hh _]".
   iModIntro. iExists (λ σ _, gen_heap_interp σ), (λ _, True%I); iFrame.
   set (HeapΣ := (HeapIG Σ Hinv Hheap)).

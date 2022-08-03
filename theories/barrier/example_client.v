@@ -62,7 +62,7 @@ Section ClosedProofs.
 Let Σ : gFunctors := #[ heapΣ ; barrierΣ ; spawnΣ ].
 
 Lemma client_adequate σ : adequate NotStuck client σ (λ _ _, True).
-Proof. apply (heap_adequacy Σ)=> ??. iIntros "_". iApply client_safe. Qed.
+Proof. apply (heap_adequacy Σ)=>?. iIntros "_". iApply client_safe. Qed.
 
 End ClosedProofs.
 

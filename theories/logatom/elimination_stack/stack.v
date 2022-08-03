@@ -23,7 +23,7 @@ Global Instance subG_stackΣ {Σ} : subG stackΣ Σ → stackG Σ.
 Proof. solve_inG. Qed.
 
 Section stack.
-  Context `{!heapGS Σ, stackG Σ} {aheap: atomic_heap Σ} (N : namespace).
+  Context `{!heapGS Σ, !stackG Σ, !atomic_heap} (N : namespace).
   Notation iProp := (iProp Σ).
 
   Let offerN := N .@ "offer".
@@ -363,7 +363,7 @@ Section stack.
 
 End stack.
 
-Definition elimination_stack `{!heapGS Σ, stackG Σ} {aheap: atomic_heap Σ} :
+Definition elimination_stack `{!heapGS Σ, !stackG Σ, !atomic_heap} :
   atomic_stack Σ :=
   {| spec.new_stack_spec := new_stack_spec;
      spec.push_spec := push_spec;
