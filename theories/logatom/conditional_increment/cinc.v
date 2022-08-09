@@ -183,10 +183,10 @@ Section conditional_counter.
         ∨ accepted_state Q (val_to_some_loc vs) l_ghost_winner ))
        ∨ own γ_s (Cinr $ to_agree ()) ∗ done_state Q l l_ghost_winner γ_t))%I.
 
-  Definition pau P Q γs f :=
-    (▷ P -∗ ◇ AU << ∃∃ (b : bool) (n : Z), counter_content γs n ∗ f ↦_(λ _, True) #b >>
-                 @ ⊤∖(↑N ∪ ↑inv_heapN), ∅
-                 << counter_content γs (if b then n + 1 else n)%Z ∗ f ↦_(λ _, True) #b, COMM Q >>)%I.
+  Local Definition cinc_au Q γs f :=
+    (AU << ∃∃ (b : bool) (n : Z), counter_content γs n ∗ f ↦_(λ _, True) #b >>
+           @ ⊤∖(↑N ∪ ↑inv_heapN), ∅
+        << counter_content γs (if b then n + 1 else n)%Z ∗ f ↦_(λ _, True) #b, COMM Q >>)%I.
 
   Definition counter_inv γ_n c :=
     (∃ (l : loc) (q : Qp) (s : abstract_state),
@@ -196,13 +196,13 @@ Section conditional_counter.
        match s with
         | Quiescent n => c ↦{#1/2} #l ∗ own γ_n (● Excl' n)
         | Updating f n p =>
-           ∃ P Q l_ghost_winner γ_t γ_s,
+           ∃ Q l_ghost_winner γ_t γ_s,
              (* There are two pieces of per-[state]-protocol ghost state:
              - [γ_t] is a token owned by whoever created this protocol and used
                to get out the [Q] in the end.
              - [γ_s] reflects whether the protocol is [done] yet or not. *)
-             inv stateN (state_inv P Q p n c l l_ghost_winner γ_n γ_t γ_s) ∗
-             □ pau P Q γ_n f ∗ f ↦_(λ _, True) □
+             inv stateN (state_inv (cinc_au Q γ_n f) Q p n c l l_ghost_winner γ_n γ_t γ_s) ∗
+             f ↦_(λ _, True) □
        end)%I.
 
   Local Hint Extern 0 (environments.envs_entails _ (counter_inv _ _)) => unfold counter_inv : core.
@@ -356,20 +356,20 @@ Section conditional_counter.
      this request, then you get [Q].  But we also try to complete other
      thread's requests, which is why we cannot ask for the token
      as a precondition. *)
-  Lemma complete_spec (c f l : loc) (n : Z) (p : proph_id) γ_n γ_t γ_s l_ghost_inv P Q :
+  Lemma complete_spec (c f l : loc) (n : Z) (p : proph_id) γ_n γ_t γ_s l_ghost_inv Q :
     N ## inv_heapN →
     inv_heap_inv -∗
     inv counterN (counter_inv γ_n c) -∗
-    inv stateN (state_inv P Q p n c l l_ghost_inv γ_n γ_t γ_s) -∗
-    □ pau P Q γ_n f -∗
+    inv stateN (state_inv (cinc_au Q γ_n f) Q p n c l l_ghost_inv γ_n γ_t γ_s) -∗
     f ↦_(λ _, True) □ -∗
     {{{ True }}}
        complete #c #f #l #n #p
     {{{ RET #(); □ (own_token γ_t ={⊤}=∗ ▷Q) }}}.
   Proof.
-    iIntros (?) "#GC #InvC #InvS #PAU #isGC".
+    iIntros (?) "#GC #InvC #InvS #isGC".
     iModIntro. iIntros (Φ) "_ HQ". wp_lam. wp_pures.
-    wp_alloc l_ghost as "[Hl_ghost' Hl_ghost'2]". wp_pures.
+    wp_alloc l_ghost as "[Hl_ghost' Hl_ghost'2]".
+    wp_pure credit:"Hlc". wp_pures.
     wp_bind (! _)%E. simpl.
     (* open outer invariant *)
     iInv counterN as (l' q s) "(>Hc & >Hl' & Hrest)".
@@ -379,8 +379,8 @@ Section conditional_counter.
       (* we need to move from [pending] to [accepted]. *)
       iInv stateN as (vs) "(>Hp & [(>Hs & >Hc' & [Pending | Accepted]) | [#Hs Done]])".
       + (* Pending: update to accepted *)
-        iDestruct "Pending" as "[P >[Hvs Hn●]]".
-        iDestruct ("PAU" with "P") as ">AU".
+        iDestruct "Pending" as "[AU >[Hvs Hn●]]".
+        iMod (lc_fupd_elim_later with "Hlc AU") as "AU".
         iMod (inv_mapsto_own_acc_strong with "GC") as "Hgc"; first solve_ndisj.
         (* open and *COMMIT* AU, sync flag and counter *)
         iMod "AU" as (b n2) "[[Hn◯ Hf] [_ Hclose]]".
@@ -460,15 +460,14 @@ Section conditional_counter.
         iDestruct (inv_mapsto_own_inv with "Hf") as "#Hgc".
         iMod ("Hclose" with "[CC Hf]") as "AU"; first by iFrame.
         (* Initialize new [state] protocol .*)
-        iDestruct (laterable with "AU") as (AU_later) "[AU #AU_back]".
         iMod (own_alloc (Excl ())) as (γ_t) "Token"; first done.
         iMod (own_alloc (Cinl $ Excl ())) as (γ_s) "Hs"; first done.
         iDestruct "Hc" as "[Hc Hc']".
         set (winner := default ly (val_to_some_loc l_ghost)).
-        iMod (inv_alloc stateN _ (state_inv AU_later _ _ _ _ _ winner _ _ _)
+        iMod (inv_alloc stateN _ (state_inv _ _ _ _ _ _ winner _ _ _)
                with "[AU Hs Hp' Hc' Hn●]") as "#Hinv".
         { iNext. iExists _. iFrame "Hp'". iLeft. iFrame. iLeft.
-          iFrame. destruct (val_to_some_loc l_ghost); simpl; done. }
+          iFrame. destruct (val_to_some_loc l_ghost); simpl; (iSplit; last done); iExact "AU". }
         iModIntro. iDestruct "Hly" as "[Hly1 Hly2]". iSplitR "Hl' Token". {
           (* close invariant *)
           iNext. iExists _, _, (Updating f n p'). eauto 10 with iFrame.
@@ -483,7 +482,7 @@ Section conditional_counter.
     - (* l' ↦ injR *)
       iModIntro.
       (* extract state invariant *)
-      iDestruct "Hrest" as (P Q l_ghost γ_t γ_s) "(#InvS & #P_AU & #Hgc)".
+      iDestruct "Hrest" as (Q l_ghost γ_t γ_s) "(#InvS & #Hgc)".
       iSplitR "Hl' AU".
       (* close invariant *)
       { iModIntro. iExists _, _, (Updating f' n' p'). iFrame. eauto 10 with iFrame. }
@@ -533,7 +532,7 @@ Section conditional_counter.
         iNext. iExists c, (q/2)%Qp, (Quiescent au_n). iFrame.
       }
       wp_let. wp_load. wp_match. iApply "HΦ".
-    - iDestruct "Hrest" as (P Q l_ghost γ_t γ_s) "(#InvS & #PAU & #Hgc)".
+    - iDestruct "Hrest" as (Q l_ghost γ_t γ_s) "(#InvS & #Hgc)".
       iModIntro. iSplitR "AU Hl'". {
         iNext. iExists c, (q/2)%Qp, (Updating _ _ p). eauto 10 with iFrame.
       }
