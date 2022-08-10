@@ -284,11 +284,11 @@ Section rdcss.
 
   Local Hint Extern 0 (environments.envs_entails _ (descr_inv _ _ _ _ _ _ _ _ _ _)) => unfold descr_inv : core.
 
-  Definition pau P Q l_n l_m m1 n1 n2 :=
-    (▷ P -∗ ◇ AU << ∃∃ (m n : val), (l_m ↦_(λ _, True) m) ∗ rdcss_state l_n n >>
-                 @ ⊤∖(↑N ∪ ↑inv_heapN), ∅
-                 << (l_m ↦_(λ _, True) m) ∗ (rdcss_state l_n (if (decide ((m = m1) ∧ (n = n1))) then n2 else n)),
-                    COMM Q n >>)%I.
+  Definition rdcss_au Q l_n l_m m1 n1 n2 :=
+    (AU << ∃∃ (m n : val), (l_m ↦_(λ _, True) m) ∗ rdcss_state l_n n >>
+         @ ⊤∖(↑N ∪ ↑inv_heapN), ∅
+        << (l_m ↦_(λ _, True) m) ∗ (rdcss_state l_n (if (decide ((m = m1) ∧ (n = n1))) then n2 else n)),
+           COMM Q n >>)%I.
 
   Definition rdcss_inv l_n :=
     (∃ (s : abstract_state),
@@ -300,7 +300,7 @@ Section rdcss.
               [complete] fails always.*)
            l_n ↦{# 1/2} (InjLV n) ∗ rdcss_state_auth l_n n
         | Updating l_descr l_m m1 n1 n2 p =>
-           ∃ q P Q tid_ghost_winner γ_t γ_s γ_a,
+           ∃ q Q tid_ghost_winner γ_t γ_s γ_a,
              (* (InjRV #l_descr) = state_to_val (Updating l_descr l_m m1 n1 n2 p) *)
              (* There are three pieces of per-[descr]-protocol ghost state:
              - [γ_t] is a token owned by whoever created this protocol and used
@@ -312,8 +312,8 @@ Section rdcss.
               be the [l_descr] of any [descr] protocol in the [done] state. *)
              ⌜val_is_unboxed m1⌝ ∗
              l_descr ↦{# 1/2 + q} (#l_m, m1, n1, n2, #p)%V ∗
-             inv descrN (descr_inv P Q p n1 l_n l_descr tid_ghost_winner γ_t γ_s γ_a) ∗
-             □ pau P Q l_n l_m m1 n1 n2 ∗ l_m ↦_(λ _, True) □
+             inv descrN (descr_inv (rdcss_au Q l_n l_m m1 n1 n2) Q p n1 l_n l_descr tid_ghost_winner γ_t γ_s γ_a) ∗
+             l_m ↦_(λ _, True) □
        end)%I.
 
   Local Hint Extern 0 (environments.envs_entails _ (rdcss_inv _)) => unfold rdcss_inv : core.
@@ -392,7 +392,7 @@ Section rdcss.
     { simpl. iDestruct (mapsto_agree with "Hln Hln'") as %Heq. inversion Heq. }
     iDestruct (mapsto_agree with "Hln Hln'") as %[= ->].
     simpl.
-    iDestruct "Hrest" as (q P' Q' tid_ghost' γ_t' γ_s' γ_a') "(_ & [>Hld >Hld'] & Hrest)".
+    iDestruct "Hrest" as (q Q' tid_ghost' γ_t' γ_s' γ_a') "(_ & [>Hld >Hld'] & Hrest)".
     (* We perform the CmpXchg. *)
     iCombine "Hln Hln'" as "Hln".
     wp_apply (wp_resolve with "Hp"); first done. wp_cmpxchg_suc.
@@ -453,7 +453,7 @@ Section rdcss.
          of the [rdcss] instance?  Impossible, now we will own more than the whole descriptor location! *)
         iDestruct "Done" as "(_ & _ & >Hld & _)".
         iDestruct "Hld" as (v') "Hld".
-        iDestruct "Hrest" as (q P' Q' tid_ghost' γ_t' γ_s' γ_a') "(_ & >[Hld' Hld''] & Hrest)".
+        iDestruct "Hrest" as (q Q' tid_ghost' γ_t' γ_s' γ_a') "(_ & >[Hld' Hld''] & Hrest)".
         iDestruct (mapsto_combine with "Hld Hld'") as "[Hld _]".
         rewrite dfrac_op_own Qp_half_half.
         by iDestruct (mapsto_ne with "Hld Hld''") as %[].
@@ -472,21 +472,22 @@ Section rdcss.
      this request, then you get [Q].  But we also try to complete other
      thread's requests, which is why we cannot ask for the token
      as a precondition. *)
-  Lemma complete_spec l_n l_m l_descr (m1 n1 n2 : val) p γ_t γ_s γ_a tid_ghost_inv P Q q :
+  Lemma complete_spec l_n l_m l_descr (m1 n1 n2 : val) p γ_t γ_s γ_a tid_ghost_inv Q q :
     val_is_unboxed m1 →
     N ## inv_heapN →
     inv rdcssN (rdcss_inv l_n) -∗
-    inv descrN (descr_inv P Q p n1 l_n l_descr tid_ghost_inv γ_t γ_s γ_a) -∗
-    □ pau P Q l_n l_m m1 n1 n2 -∗
+    inv descrN (descr_inv (rdcss_au Q l_n l_m m1 n1 n2) Q p n1 l_n l_descr tid_ghost_inv γ_t γ_s γ_a) -∗
     l_m ↦_(λ _, True) □ -∗
     inv_heap_inv -∗
     {{{ l_descr ↦{q} (#l_m, m1, n1, n2, #p) }}}
        complete #l_descr #l_n
     {{{ RET #(); □ (own_token γ_t ={⊤}=∗ ▷(Q n1)) }}}.
   Proof.
-    iIntros (Hm_unbox Hdisj) "#InvC #InvS #PAU #isGC #InvGC !>".
+    iIntros (Hm_unbox Hdisj) "#InvC #InvS #isGC #InvGC !>".
     iIntros (Φ) "Hld HQ".  wp_lam. wp_let. wp_bind (! _)%E.
-    wp_load. iClear "Hld". wp_pures. wp_apply wp_new_proph; first done.
+    wp_load. iClear "Hld".
+    wp_pure credit:"Hlc". wp_pures.
+    wp_apply wp_new_proph; first done.
     iIntros (vs_ghost tid_ghost) "Htid_ghost". wp_pures. wp_bind (! _)%E.
     (* open outer invariant *)
     iInv rdcssN as (s) "(>Hln & Hrest)"=>//.
@@ -496,8 +497,8 @@ Section rdcss.
       (* we need to move from [pending] to [accepted]. *)
       iInv descrN as (vs) "(>Hp & [(>Hs & >Hln' & [Pending | Accepted]) | [#Hs Done]])".
       + (* Pending: update to accepted *)
-        iDestruct "Pending" as "[P >(Hvs & Hn● & Token_a)]".
-        iDestruct ("PAU" with "P") as ">AU".
+        iDestruct "Pending" as "[AU >(Hvs & Hn● & Token_a)]".
+        iMod (lc_fupd_elim_later with "Hlc AU") as "AU".
         iMod (inv_mapsto_own_acc_strong with "InvGC") as "Hgc"; first solve_ndisj.
         (* open and *COMMIT* AU, sync B location l_n and A location l_m *)
         iMod "AU" as (m' n') "[CC [_ Hclose]]".
@@ -582,23 +583,22 @@ Section rdcss.
         iDestruct (inv_mapsto_own_inv with "Hf") as "#Hgc".
         iMod ("Hclose" with "[Hf CC]") as "AU"; first by iFrame.
         (* Initialize new [descr] protocol .*)
-        iDestruct (laterable with "AU") as (AU_later) "[AU #AU_back]".
         iMod (own_alloc (Excl ())) as (γ_t) "Token_t"; first done.
         iMod (own_alloc (Excl ())) as (γ_a) "Token_a"; first done.
         iMod (own_alloc (Cinl $ Excl ())) as (γ_s) "Hs"; first done.
         iDestruct "Hln" as "[Hln Hln']".
         set (winner := default p (proph_extract_winner proph_values)).
-        iMod (inv_alloc descrN _ (descr_inv AU_later _ _ _ _ _ winner _ _ _)
+        iMod (inv_alloc descrN _ (descr_inv _ _ _ _ _ _ winner _ _ _)
               with "[AU Hs Hp Hln' Hn● Token_a]") as "#Hinv".
         { iNext. iExists _. iFrame "Hp". iLeft. iFrame. iLeft.
-          iFrame. destruct (proph_extract_winner proph_values); simpl; done. }
+          iFrame. destruct (proph_extract_winner proph_values); simpl; (iSplit; last done); iExact "AU". }
         iModIntro. iDestruct "Hld" as "[Hld1 [Hld2 Hld3]]". iSplitR "Hld2 Token_t".
         { (* close outer invariant *)
           iNext. iCombine "Hld1 Hld3" as "Hld1".
           iExists (Updating l_descr l_m m1 n n2 p).
           eauto 15 with iFrame. }
         wp_pures.
-        wp_apply (complete_spec with "[] [] [] [] [] [$Hld2]");[ done..|].
+        wp_apply (complete_spec with "[] [] [] [] [$Hld2]");[ done..|].
         iIntros "Ht". iMod ("Ht" with "Token_t") as "Φ". by wp_seq.
       + (* values do not match -> CmpXchg fails
            we can commit here *)
@@ -617,14 +617,14 @@ Section rdcss.
       wp_cmpxchg_fail.
       iModIntro.
       (* extract descr invariant *)
-      iDestruct "Hrest" as (q P Q tid_ghost γ_t γ_s γ_a)
-                              "(#Hm1'_unbox & [Hld1 [Hld2 Hld3]] & #InvS & #P_AU & #P_GC)".
+      iDestruct "Hrest" as (q Q tid_ghost γ_t γ_s γ_a)
+                            "(#Hm1'_unbox & [Hld1 [Hld2 Hld3]] & #InvS & #P_GC)".
       iDestruct "Hm1'_unbox" as %Hm1'_unbox.
       iSplitR "AU Hld2 Hld Hp".
       (* close invariant, retain some permission to l_descr', so it can be read later *)
       { iModIntro. iExists (Updating l_descr' l_m' m1' n1' n2' p'). eauto 15 with iFrame. }
       wp_pures.
-      wp_apply (complete_spec with "[] [] [] [] [] [$Hld2]"); [done..|].
+      wp_apply (complete_spec with "[] [] [] [] [$Hld2]"); [done..|].
       iIntros "_". wp_seq. wp_pures.
       iApply ("IH" with "AU Hp Hld").
   Qed.
@@ -667,12 +667,12 @@ Section rdcss.
       iMod ("Hclose" with "Hn◯") as "HΦ".
       iModIntro. iSplitR "HΦ". { iExists (Quiescent au_n). iFrame. }
       wp_match. iApply "HΦ".
-    - iDestruct "Hrest" as (q P Q tid_ghost γ_t γ_s γ_a)
-        "(% & [Hld [Hld' Hld'']] & #InvS & #PAU & #GC)".
+    - iDestruct "Hrest" as (q Q tid_ghost γ_t γ_s γ_a)
+        "(% & [Hld [Hld' Hld'']] & #InvS & #GC)".
       iModIntro. iSplitR "AU Hld'".
       { iExists (Updating l_descr l_m m1 n1 n2 p). eauto 15 with iFrame. }
       wp_match.
-      wp_apply (complete_spec with "[] [] [] [] [] [$Hld']"); [done..|].
+      wp_apply (complete_spec with "[] [] [] [] [$Hld']"); [done..|].
       iIntros "Ht". wp_seq. iApply "IH". iApply "AU".
   Qed.
 

@@ -138,14 +138,14 @@ Section stack.
 
   Local Hint Extern 0 (environments.envs_entails _ (offer_inv _ _ _ _)) => unfold offer_inv : core.
 
+  Definition stack_push_au γs v Q : iProp :=
+    AU << ∃∃ l, stack_content γs l >> @ ⊤∖↑N, ∅ << stack_content γs (v::l), COMM Q >>.
+
   Definition is_offer (γs : gname) (offer_rep : option (val * loc)) :=
     match offer_rep with
     | None => True
     | Some (v, st_loc) =>
-      ∃ P Q γo, inv offerN (offer_inv st_loc γo P Q) ∗
-                (* The persistent part of the Laterable AU *)
-                □ (▷ P -∗ ◇ AU << ∃∃ l, stack_content γs l >> @ ⊤∖↑N, ∅
-                               << stack_content γs (v::l), COMM Q >>)
+      ∃ Q γo, inv offerN (offer_inv st_loc γo (stack_push_au γs v Q) Q)
     end%I.
 
   Local Instance is_offer_persistent γs offer_rep : Persistent (is_offer γs offer_rep).
@@ -228,12 +228,11 @@ Section stack.
       iInv stackN as (stack_rep offer_rep l) "(Hs● & >H↦ & Hlist & >Hoffer↦ & Hoffer)".
       iAaccIntro with "Hoffer↦"; first by eauto 10 with iFrame.
       iMod (own_alloc (Excl ())) as (γo) "Htok"; first done.
-      iDestruct (laterable with "AU") as (AU_later) "[AU #AU_back]".
-      iMod (inv_alloc offerN _ (offer_inv st_loc γo AU_later _)  with "[AU Hoffer_st]") as "#Hoinv".
-      { iNext. iExists OfferPending. iFrame. }
+      iMod (inv_alloc offerN _ (offer_inv st_loc γo _ _)  with "[AU Hoffer_st]") as "#Hoinv".
+      { iNext. iExists OfferPending. iFrame "Hoffer_st". iExact "AU". }
       iIntros "?". iSplitR "Htok".
       { iClear "Hoffer". iExists _, (Some (v, st_loc)), _. iFrame.
-        rewrite /is_offer /=. iExists _, _, _. iFrame "AU_back Hoinv". done. }
+        rewrite /is_offer /=. iExists _, _. iFrame "Hoinv". done. }
       clear stack_rep offer_rep l. iIntros "!>".
       (* Retract the offer. *)
       wp_pures. awp_apply store_spec.
@@ -241,7 +240,8 @@ Section stack.
       iAaccIntro with "Hoffer↦"; first by eauto 10 with iFrame.
       iIntros "?". iSplitR "Htok".
       { iClear "Hoffer". iExists _, None, _. iFrame. done. }
-      iIntros "!>". wp_seq.
+      iIntros "!>".
+      wp_pure credit:"Hlc". wp_pures.
       clear stack_rep offer_rep l.
       (* See if someone took it. *)
       awp_apply cas_spec; [done|].
@@ -249,9 +249,9 @@ Section stack.
       iAaccIntro with "Hst↦"; first by eauto 10 with iFrame.
       iIntros "Hst↦". destruct offer_st; simpl.
       + (* Offer was still pending, and we revoked it. Loop around and try again. *)
-        iModIntro. iSplitR "Hst".
+        iModIntro. iSplitR "Hst Hlc".
         { iNext. iExists OfferRevoked. iFrame. }
-        iDestruct ("AU_back" with "Hst") as ">AU {AU_back Hoinv}". clear AU_later.
+        iMod (lc_fupd_elim_later with "Hlc Hst") as "AU".
         wp_if. iApply ("IH" with "AU").
       + (* Offer revoked by someone else? Impossible! *)
         iDestruct "Hst" as ">Hst".
@@ -329,10 +329,11 @@ Section stack.
         iIntros "Hoff↦". iSplitR "AU"; first by eauto 10 with iFrame.
         iIntros "!>". destruct offer_rep as [[v offer_st_loc]|]; last first.
         { (* No offer, just loop. *) wp_match. iApply ("IH" with "AU"). }
-        clear l stack_rep. wp_match. wp_proj.
+        clear l stack_rep.
+        wp_pure credit:"Hlc". wp_pures.
         (* CAS to accept the offer. *)
         awp_apply cas_spec; [done|]. simpl.
-        iDestruct "Hoff" as (Poff Qoff γo) "[#Hoinv #AUoff]".
+        iDestruct "Hoff" as (Qoff γo) "#Hoinv".
         iInv offerN as (offer_st) "[>Hoff↦ Hoff]".
         iAaccIntro with "Hoff↦"; first by eauto 10 with iFrame.
         iIntros "Hoff↦".
@@ -342,7 +343,7 @@ Section stack.
           iIntros "!>". wp_if. iApply ("IH" with "AU"). }
         (* CAS succeeded! We accept and complete the offer. *)
         destruct offer_st; try done; []. clear Heq.
-        iMod ("AUoff" with "Hoff") as "{AUoff IH} AUoff".
+        iMod (lc_fupd_elim_later with "Hlc Hoff") as "AUoff".
         iInv stackN as (stack_rep offer_rep l) "(>Hs● & >H↦ & Hlist & Hoff)".
         iMod "AUoff" as (l') "[Hl' [_ Hclose]]".
         iDestruct (own_valid_2 with "Hs● Hl'") as

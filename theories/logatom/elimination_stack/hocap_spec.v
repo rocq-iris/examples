@@ -58,13 +58,9 @@ view shifts are always persistent). This does not change the meaning of the
 spec, it just makes it easier to use in Coq.
 We might call this "Iris-adjusted HoCAP-style specs".
 
-There are two differences to the [abstract_bag] spec:
+There is one differences to the [abstract_bag] spec:
 - We split [bag_contents] into an authoritative part and a fragment as this
   slightly strengthens the spec ([stack_content_frag_exclusive] is added),
-- We also slightly weaken the spec by adding [make_laterable], which is needed
-  because Iris' TaDA-style logically atomic triples can only capture laterable
-  resources, which is needed when implementing e.g. the elimination stack on top
-  of an abstract logically atomic heap.
 
 This spec uses the "authoritative" variant of HoCAP specs.
 See below for the "predicate"-based alternative *)
@@ -101,11 +97,11 @@ Record stack {Σ} `{!heapGS Σ} := AtomicStack {
     {{{ True }}} new_stack #() {{{ γs s, RET s; is_stack N γs s ∗ stack_content_frag γs [] }}};
   push_spec N γs s (v : val) (Φ : val → iProp Σ) :
     is_stack N γs s -∗
-    make_laterable (∀ l, stack_content_auth γs l ={⊤∖↑N}=∗ stack_content_auth γs (v::l) ∗ Φ #()) -∗
+    (∀ l, stack_content_auth γs l ={⊤∖↑N}=∗ stack_content_auth γs (v::l) ∗ Φ #()) -∗
     WP push s v {{ Φ }};
   pop_spec N γs s (Φ : val → iProp Σ) :
     is_stack N γs s -∗
-    make_laterable (∀ l, stack_content_auth γs l ={⊤∖↑N}=∗
+    (∀ l, stack_content_auth γs l ={⊤∖↑N}=∗
           match l with [] => stack_content_auth γs [] ∗ Φ NONEV
                 | v :: l' => stack_content_auth γs l' ∗ Φ (SOMEV v) end) -∗
     WP pop s {{ Φ }};
@@ -137,11 +133,11 @@ Record stack {Σ} `{!heapGS Σ} := AtomicStack {
     {{{ ▷ P [] }}} new_stack #() {{{ s, RET s; is_stack N s P }}};
   push_spec N s P (v : val) (Φ : val → iProp Σ) :
     is_stack N s P -∗
-    make_laterable (∀ l, ▷ P l ={⊤∖↑N}=∗ ▷ P (v::l) ∗ Φ #()) -∗
+    (∀ l, ▷ P l ={⊤∖↑N}=∗ ▷ P (v::l) ∗ Φ #()) -∗
     WP push s v {{ Φ }};
   pop_spec N s P (Φ : val → iProp Σ) :
     is_stack N s P -∗
-    make_laterable (∀ l, ▷ P l ={⊤∖↑N}=∗
+    (∀ l, ▷ P l ={⊤∖↑N}=∗
           match l with [] => ▷ P [] ∗ Φ NONEV
                 | v :: l' => ▷ P l' ∗ Φ (SOMEV v) end) -∗
     WP pop s {{ Φ }};
@@ -176,7 +172,7 @@ Section hocap_auth_tada.
   Proof.
     iIntros "Hstack". iIntros (Φ) "HΦ".
     iApply (hocap_auth.push_spec with "Hstack").
-    iApply (make_laterable_intro with "[] HΦ"). iIntros "!# HΦ" (l) "Hauth".
+    iIntros (l) "Hauth".
     iMod "HΦ" as (l') "[Hfrag [_ Hclose]]".
     iDestruct (hocap_auth.stack_content_agree with "Hfrag Hauth") as %->.
     iMod (hocap_auth.stack_content_update with "Hfrag Hauth") as "[Hfrag $]".
@@ -192,7 +188,7 @@ Section hocap_auth_tada.
   Proof.
     iIntros "Hstack". iIntros (Φ) "HΦ".
     iApply (hocap_auth.pop_spec with "Hstack").
-    iApply (make_laterable_intro with "[] HΦ"). iIntros "!# HΦ" (l) "Hauth".
+    iIntros (l) "Hauth".
     iMod "HΦ" as (l') "[Hfrag [_ Hclose]]".
     iDestruct (hocap_auth.stack_content_agree with "Hfrag Hauth") as %->.
     destruct l;
@@ -239,7 +235,7 @@ Section tada_hocap_pred.
 
   Lemma hocap_pred_push N s P (v : val) (Φ : val → iProp Σ) :
     hocap_pred_is_stack N s P -∗
-    make_laterable (∀ l, ▷ P l ={⊤∖↑N}=∗ ▷ P (v::l) ∗ Φ #()) -∗
+    (∀ l, ▷ P l ={⊤∖↑N}=∗ ▷ P (v::l) ∗ Φ #()) -∗
     WP stack.(tada.push) s v {{ Φ }}.
   Proof.
     iIntros "#Hstack Hupd". iDestruct "Hstack" as (γs) "[Hstack Hinv]".
@@ -248,7 +244,6 @@ Section tada_hocap_pred.
     iAaccIntro with "Hcont"; first by eauto 10 with iFrame.
     iIntros "Hcont".
     iMod (fupd_mask_subseteq (⊤ ∖ ↑N)) as "Hclose"; first solve_ndisj.
-    iMod (make_laterable_elim with "Hupd") as "Hupd".
     iMod ("Hupd" with "HP") as "[HP HΦ]".
     iMod "Hclose" as "_". iIntros "!>".
     eauto with iFrame.
@@ -256,7 +251,7 @@ Section tada_hocap_pred.
 
   Lemma hocap_pred_pop N s P (Φ : val → iProp Σ) :
     hocap_pred_is_stack N s P -∗
-    make_laterable (∀ l, ▷ P l ={⊤∖↑N}=∗
+    (∀ l, ▷ P l ={⊤∖↑N}=∗
           match l with [] => ▷ P [] ∗ Φ NONEV
                 | v :: l' => ▷ P l' ∗ Φ (SOMEV v) end) -∗
     WP stack.(tada.pop) s {{ Φ }}.
@@ -267,11 +262,9 @@ Section tada_hocap_pred.
     iAaccIntro with "Hcont"; first by eauto 10 with iFrame.
     iIntros "Hcont". destruct l.
     - iMod (fupd_mask_subseteq (⊤ ∖ ↑N)) as "Hclose"; first solve_ndisj.
-      iMod (make_laterable_elim with "Hupd") as "Hupd".
       iMod ("Hupd" with "HP") as "[HP HΦ]".
       iMod "Hclose" as "_". iIntros "!>"; eauto with iFrame.
     - iMod (fupd_mask_subseteq (⊤ ∖ ↑N))  as "Hclose"; first solve_ndisj.
-      iMod (make_laterable_elim with "Hupd") as "Hupd".
       iMod ("Hupd" with "HP") as "[HP HΦ]".
       iMod "Hclose" as "_". iIntros "!>"; eauto with iFrame.
   Qed.
@@ -329,30 +322,24 @@ Section hocap_pred_auth.
 
   Lemma hocap_auth_push N γs s (v : val) (Φ : val → iProp Σ) :
     hocap_auth_is_stack N γs s -∗
-    make_laterable (∀ l, hocap_auth_stack_content_auth γs l ={⊤∖↑N}=∗
+    (∀ l, hocap_auth_stack_content_auth γs l ={⊤∖↑N}=∗
       hocap_auth_stack_content_auth γs (v::l) ∗ Φ #()) -∗
     WP stack.(hocap_pred.push) s v {{ Φ }}.
   Proof.
     iIntros "#Hstack Hupd". iApply (hocap_pred.push_spec with "Hstack").
-    (* FIXME can we have proof mode support for make_laterable_intro? *)
-    iApply (laterable.make_laterable_intro with "[] Hupd"); iIntros "!# Hupd".
     iIntros (l) ">Hs".
-    (* FIXME can we have proof mode support for make_laterable_elim? *)
-    iDestruct (make_laterable_elim with "Hupd") as ">Hupd".
     iMod ("Hupd" with "Hs") as "[Hs $]". done.
   Qed.
 
   Lemma hocap_auth_pop N γs s (Φ : val → iProp Σ) :
     hocap_auth_is_stack N γs s -∗
-    make_laterable (∀ l, hocap_auth_stack_content_auth γs l ={⊤∖↑N}=∗
+    (∀ l, hocap_auth_stack_content_auth γs l ={⊤∖↑N}=∗
           match l with [] => hocap_auth_stack_content_auth γs [] ∗ Φ NONEV
                 | v :: l' => hocap_auth_stack_content_auth γs l' ∗ Φ (SOMEV v) end) -∗
     WP stack.(hocap_pred.pop) s {{ Φ }}.
   Proof.
     iIntros "#Hstack Hupd". iApply (hocap_pred.pop_spec with "Hstack").
-    iApply (laterable.make_laterable_intro with "[] Hupd"); iIntros "!# Hupd".
     iIntros (l) ">Hs".
-    iDestruct (make_laterable_elim with "Hupd") as ">Hupd".
     iMod ("Hupd" with "Hs") as "HsΦ".
     iModIntro. destruct l; iDestruct "HsΦ" as "[Hs HΦ]"; eauto with iFrame.
   Qed.
