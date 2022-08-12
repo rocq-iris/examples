@@ -455,7 +455,7 @@ Section rdcss.
         iDestruct "Hld" as (v') "Hld".
         iDestruct "Hrest" as (q Q' tid_ghost' γ_t' γ_s' γ_a') "(_ & >[Hld' Hld''] & Hrest)".
         iDestruct (mapsto_combine with "Hld Hld'") as "[Hld _]".
-        rewrite dfrac_op_own Qp_half_half.
+        rewrite dfrac_op_own Qp.half_half.
         by iDestruct (mapsto_ne with "Hld Hld''") as %[].
       + (* l_descr' ≠ l_descr: The CmpXchg fails. *)
         wp_apply (wp_resolve with "Hp"); first done. wp_cmpxchg_fail.

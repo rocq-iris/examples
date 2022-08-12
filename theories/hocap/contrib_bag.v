@@ -33,7 +33,7 @@ Section proof.
     bagPart γ q (X ⊎ Y) -∗ bagPart γ (q/2) X ∗ bagPart γ (q/2) Y.
   Proof.
     iIntros "Hp".
-    assert (q = (q/2)+(q/2))%Qp as Hq by (by rewrite Qp_div_2).
+    assert (q = (q/2)+(q/2))%Qp as Hq by (by rewrite Qp.div_2).
     rewrite /bagPart {1}Hq.
     rewrite -gmultiset_op -frac_op.
     rewrite frac_auth_frag_op own_op. iFrame.

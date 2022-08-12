@@ -73,7 +73,7 @@ Section atomic_sync.
     iMod ("HP") as (g'') "[[Hg'' _] [_ Hvs2]]".
     iSpecialize ("Hvs2" $! v).
     iDestruct (m_frag_agree' with "Hg'' Hg1") as "[Hg %]". subst.
-    rewrite Qp_div_2.
+    rewrite Qp.div_2.
     iAssert (|==> own γ (((1 / 2)%Qp, to_agree g') ⋅ ((1 / 2)%Qp, to_agree g')))%I
       with "[Hg]" as ">[Hg1 Hg2]".
     { iApply own_update; last by iAssumption.

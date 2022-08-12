@@ -301,7 +301,7 @@ Section graph.
   Lemma graph_divide q G G' :
     own_graph q (G ⋅ G') ⊣⊢ own_graph (q / 2) G ∗ own_graph (q / 2) G'.
   Proof.
-    replace q with ((q / 2) + (q / 2))%Qp at 1 by (by rewrite Qp_div_2).
+    replace q with ((q / 2) + (q / 2))%Qp at 1 by (by rewrite Qp.div_2).
       by rewrite /own_graph -own_op.
   Qed.
 

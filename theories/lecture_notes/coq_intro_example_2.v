@@ -358,8 +358,8 @@ Global Typeclasses Opaque isCounter.
    this will save us quite a bit of work.
 
    As we stated in an exercise in the counter modules section of the lecture
-   notes, the resource algebra we constructed above is nothing but Auth(N_max).
-   Auth and N_max are both part of the iris Coq library. They are called authR
+   notes, the resource algebra we constructed above is nothing but Auth(N.max).
+   Auth and N.max are both part of the iris Coq library. They are called authR
    and max_natUR (standing for authoritative Resource algebra and max nat Unital
    Resource algebra). *)
 

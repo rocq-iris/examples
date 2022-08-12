@@ -94,7 +94,7 @@ Section cnt_model.
   Proof.
     iIntros "H1 H2".
     iDestruct (makeElem_entail with "H1 H2") as "H".
-    rewrite Qp_div_2.
+    rewrite Qp.div_2.
     iApply (own_update with "H"); by apply cmra_update_exclusive.
   Qed.
 End cnt_model.

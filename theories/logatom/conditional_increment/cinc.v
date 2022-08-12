@@ -339,7 +339,7 @@ Section conditional_counter.
       iDestruct "Done" as "(_ & _ & >Hl'')".
       iDestruct "Hl''" as (v') "Hl''".
       iDestruct (mapsto_combine with "Hl Hl''") as "[Hl _]".
-      rewrite dfrac_op_own Qp_half_half.
+      rewrite dfrac_op_own Qp.half_half.
       iDestruct (mapsto_valid_3 with "Hl Hl'") as "[]".
     }
     (* The CmpXchg fails. *)

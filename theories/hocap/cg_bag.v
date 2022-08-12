@@ -90,7 +90,7 @@ Section proof.
     iDestruct (bag_contents_agree with "Hb1 Hb2") as %<-.
     iMod (own_update_2 with "Hb1 Hb2") as "Hb".
     { rewrite -pair_op frac_op.
-      assert ((1 / 2 + 1 / 2)%Qp = 1%Qp) as -> by apply Qp_div_2.
+      assert ((1 / 2 + 1 / 2)%Qp = 1%Qp) as -> by apply Qp.div_2.
       by apply (cmra_update_exclusive (1%Qp, to_agree Y)). }
     iDestruct "Hb" as "[Hb1 Hb2]".
     rewrite /bag_contents. by iFrame.

@@ -152,7 +152,7 @@ Section proof.
       iAssert (|==> own γx (((1/2/2)%Qp, to_agree x) ⋅
                             ((1/2/2)%Qp, to_agree x)))%I with "[Hx]" as ">[Hx1 Hx2]".
       { iDestruct (own_update with "Hx") as "?"; last by iAssumption.
-        rewrite -{1}(Qp_div_2 (1/2)%Qp).
+        rewrite -{1}(Qp.div_2 (1/2)%Qp).
         by apply pair_l_frac_op'. }
       wp_load. iMod ("Hclose" with "[-Hf' Ho1 Hx2 HoQ HR HΦ Hpx]") as "_".
       { iNext. rewrite {2}/p_inv. iRight. iRight. iLeft. iExists f, x. iFrame. }
@@ -167,7 +167,7 @@ Section proof.
         iApply excl_falso. iFrame.
       * iDestruct "Hp" as (? x5) ">(Hp & Hx & Hor & Ho4)".
         wp_store. iDestruct (m_frag_agree' with "Hx Hx2") as "[Hx %]".
-        subst. rewrite Qp_div_2. iMod ("Hclose" with "[-HR Hor HΦ]").
+        subst. rewrite Qp.div_2. iMod ("Hclose" with "[-HR Hor HΦ]").
         { iNext. iDestruct "Hp" as "[Hp1 Hp2]". iRight. iRight.
           iRight. iExists _, v. iFrame. iExists Q. iFrame. }
         iApply "HΦ". iFrame. done.
