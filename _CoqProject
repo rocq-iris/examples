@@ -96,6 +96,8 @@ theories/logatom/rdcss/rdcss.v
 theories/logatom/rdcss/spec.v
 theories/logatom/herlihy_wing_queue/spec.v
 theories/logatom/herlihy_wing_queue/hwq.v
+theories/logatom/counter_with_backup/counter_spec.v
+theories/logatom/counter_with_backup/counter_proof.v
 
 theories/proph/lib/one_shot_proph.v
 theories/proph/lib/typed_proph.v

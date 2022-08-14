@@ -66,6 +66,9 @@ This repository contains the following case studies:
   - Treiber Stack (by Zhen Zhang, and another version by Rodolphe Lepigre).
   - Flat Combiner (by Zhen Zhang, also see
     [this archived documentation](https://gitlab.mpi-sws.org/FP/iris-atomic/tree/master/docs)).
+  - Counter with a backup, the case study from Section 4 of the
+    [later credits paper](https://plv.mpi-sws.org/later-credits/) (by Simon
+    Spies).
 * [spanning_tree](theories/spanning_tree): Proof of a concurrent spanning tree
   algorithm (by Amin Timany).
 * [concurrent_stacks](theories/concurrent_stacks): Proof of an implementation of
