@@ -5,7 +5,7 @@ stages:
 
 variables:
   CPU_CORES: "10"
-  OCAML: "ocaml-variants.4.14.0+options ocaml-option-flambda"
+  OCAML: "ocaml-variants.4.14.0+options"
 
 .only_branches: &only_branches
   only:
