@@ -5,7 +5,7 @@ stages:
 
 variables:
   CPU_CORES: "10"
-  OCAML: "ocaml-variants.4.14.0+options ocaml-option-flambda"
+  OCAML: "ocaml-base-compiler.4.14.0"
 
 .only_branches: &only_branches
   only:
@@ -50,6 +50,7 @@ build-coq.dev:
 build-coq.8.15.0:
   <<: *template
   variables:
+    OCAML: "ocaml-variants.4.14.0+options ocaml-option-flambda"
     OPAM_PINS: "coq version 8.15.0"
     DENY_WARNINGS: "1"
     MANGLE_NAMES: "1"
@@ -70,6 +71,7 @@ build-coq.8.15.0-mr:
 trigger-iris.timing:
   <<: *template
   variables:
+    OCAML: "ocaml-variants.4.14.0+options ocaml-option-flambda"
     OPAM_PINS: "coq version 8.15.0   git+https://gitlab.mpi-sws.org/$IRIS_REPO#$IRIS_REV"
   tags:
   - fp-timing
