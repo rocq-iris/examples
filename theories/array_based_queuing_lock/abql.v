@@ -391,7 +391,7 @@ Section proof.
 
   Lemma rem_mod_eq (x y : nat) : (0 < y) → (x `rem` y)%Z = x `mod` y.
   Proof.
-    intros Hpos. rewrite Z.rem_mod_nonneg; [rewrite mod_Zmod| |]; lia.
+    intros Hpos. rewrite Z.rem_mod_nonneg; [rewrite Nat2Z.inj_mod| |]; lia.
   Qed.
 
   Lemma minus_plus_eq a b c : (a - b)%Z = c → a = (c + b)%Z.
@@ -417,7 +417,7 @@ Section proof.
     0 < cap → o <= t → t < o + i → i <= cap → t `mod` cap = o `mod` cap → t = o.
   Proof.
     intros LeqCap SLeqX XLeqSi ILeqCap ModEq%inj_eq.
-    repeat rewrite mod_Zmod in ModEq; try lia.
+    repeat rewrite Nat2Z.inj_mod in ModEq; try lia.
     apply Nat2Z.inj.
     eapply (mod_fact_Z _ _ i cap); lia.
   Qed.

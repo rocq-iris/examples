@@ -127,7 +127,7 @@ Section monotone_counter.
   Proof.
     split.
     - apply mcounterRA_included_aux.
-    - intros H%Max.max_r; exists (MCounter Bot m); unfold op, mcounterRAop; rewrite H; auto.
+    - intros H%Nat.max_r; exists (MCounter Bot m); unfold op, mcounterRAop; rewrite H; auto.
   Qed.
 
   Lemma mcounterRA_valid x (n : nat): ✓ (MCounter (NBT_incl x) n) ↔ (n ≤ x)%nat.
@@ -147,7 +147,7 @@ Section monotone_counter.
     (* The operation is commutative. *)
     - unfold op, mcounterRAop. intros [[]] [[]]; rewrite Nat.max_comm; reflexivity.
     (* Core axioms. *)
-    - unfold pcore, mcounterRACore, op, mcounterRAop; intros [[]] [[]] [=->]; rewrite Max.max_idempotent; auto.
+    - unfold pcore, mcounterRACore, op, mcounterRAop; intros [[]] [[]] [=->]; rewrite Nat.max_idempotent; auto.
     - unfold pcore, mcounterRACore, op, mcounterRAop; intros [[]] [[]] [=->]; auto.
     - unfold pcore, mcounterRACore, op, mcounterRAop. 
       intros [x n] [y m] cx Hleq%mcounterRA_included_aux [=<-].

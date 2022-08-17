@@ -1017,7 +1017,7 @@ Lemma length_array_content sz slots deqs :
   length (array_content sz slots deqs) = sz.
 Proof.
   induction sz as [|sz IH]; first done.
-  by rewrite /= app_length plus_comm /= IH.
+  by rewrite /= app_length Nat.add_comm /= IH.
 Qed.
 
 Lemma array_content_lookup sz slots deqs i :
@@ -2571,7 +2571,7 @@ Proof.
     - iPureIntro. destruct cont as [i1 i2|bs]; last done.
        destruct Hinitial_cont as [-> Hi1].
        destruct Hcont as (HC1 & HC2 & HC3 & HC4 & HC5 & HC6).
-       apply le_lt_or_eq in Hcont_i1 as [H|H]; rewrite -/i in H; first by lia.
+       apply Nat.lt_eq_cases in Hcont_i1 as [H|H]; rewrite -/i in H; first by lia.
        exfalso. subst i1.
        assert (is_Some (slots !! i)) as [d Hslots_i] by (apply Hslots; lia).
        destruct d as [[li si] wi]. rewrite /array_get Hslots_i /= in Hi_NULL.
@@ -2750,7 +2750,7 @@ Proof.
     iApply ("IH_loop" with "[] [] AU Hback_snap").
     - iPureIntro. lia.
     - iPureIntro. destruct cont as [i1 i2|bs]; last done.
-      apply le_lt_or_eq in Hcont_i1. destruct Hcont_i1 as [Hi1|Hi1]; first lia.
+      apply Nat.lt_eq_cases in Hcont_i1. destruct Hcont_i1 as [Hi1|Hi1]; first lia.
       exfalso. destruct Hinitial_cont as [-> Hinitial_cont].
       destruct Hcont as (HC1 & HC2 & HC3 & HC4 & HC5 & HC6 & HC7).
       assert (is_Some (slots !! i1)) as Hslots_i1. { apply Hslots. lia. }
