@@ -1,4 +1,8 @@
-(* This file implements the "S-F" transition system resource algebra from example 8.16. *)
+(* This file implements the "S-F" transition system resource algebra from example 8.16.
+   Note that usually this resource algebra would be defined using existing abstractions,
+   for example via "csumR (exclR unitO) unitR". For demonstration purposes, here it is
+   defined from scratch.
+ *)
 
 From iris.heap_lang Require Import proofmode.
 From iris.algebra Require Import frac.
@@ -7,9 +11,9 @@ From iris.prelude Require Import options.
 Section RADefinitions.
 
 Inductive SF :=
-    | S
-    | F
-    | B.
+    | S (* The starting state *)
+    | F (* The final state *)
+    | B. (* The invalid element "bottom" *)
 
 Canonical Structure SFRAC := leibnizO SF.
 
