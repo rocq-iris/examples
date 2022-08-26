@@ -9,23 +9,6 @@ From iris_examples.logrel.F_mu_ref_conc Require Export typing.
 From iris.prelude Require Import options.
 Import uPred.
 
-(* (* HACK: move somewhere else *) *)
-(* Ltac auto_equiv := *)
-(*   (* Deal with "pointwise_relation" *) *)
-(*   repeat lazymatch goal with *)
-(*   | |- pointwise_relation _ _ _ _ => intros ? *)
-(*   end; *)
-(*   (* Normalize away equalities. *) *)
-(*   repeat match goal with *)
-(*   | H : _ ≡{_}≡ _ |-  _ => apply (discrete_iff _ _) in H *)
-(*   | H : _ ≡ _ |-  _ => apply leibniz_equiv in H *)
-(*   | _ => progress simplify_eq *)
-(*   end; *)
-(*   (* repeatedly apply congruence lemmas and use the equalities in the hypotheses. *) *)
-(*   try (f_equiv; fast_done || auto_equiv). *)
-
-(* Ltac solve_proper ::= (repeat intros ?; simpl; auto_equiv). *)
-
 Definition logN : namespace := nroot .@ "logN".
 
 (** interp : is a unary logical relation. *)
