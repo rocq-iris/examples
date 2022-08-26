@@ -13,11 +13,9 @@ Section typed_interp.
   Context `{heapIG Σ}.
   Notation D := (persistent_predO val (iPropI Σ)).
 
-  Local Tactic Notation "smart_wp_bind"
-        uconstr(ctx) ident(v) constr(Hv) uconstr(Hp) :=
-    iApply (wp_bind (fill [ctx]));
-    iApply (wp_wand with "[-]"); [iApply Hp; trivial|]; cbn;
-    iIntros (v) Hv.
+  Lemma interp_expr_bind K e Δ τ τ' :
+    ⟦ τ ⟧ₑ Δ e -∗ (∀ v, ⟦ τ ⟧ Δ v -∗ ⟦ τ' ⟧ₑ Δ (fill K (of_val v))) -∗ ⟦ τ' ⟧ₑ Δ (fill K e).
+  Proof. iIntros; iApply wp_bind; iApply (wp_wand with "[$]"); done. Qed.
 
   Lemma sem_typed_var Γ x τ :
     Γ !! x = Some τ → ⊢ Γ ⊨ Var x : τ.
@@ -41,37 +39,40 @@ Section typed_interp.
     Γ ⊨ e1 : TNat -∗ Γ ⊨ e2 : TNat -∗ Γ ⊨ BinOp op e1 e2 : binop_res_type op.
   Proof.
     iIntros "#IH1 #IH2" (Δ vs) "!# #HΓ /=".
-    smart_wp_bind (BinOpLCtx _ e2.[env_subst vs]) v "#Hv" "IH1".
-    smart_wp_bind (BinOpRCtx _ v) v' "# Hv'" "IH2".
-    iDestruct "Hv" as (n) "%"; iDestruct "Hv'" as (n') "%"; simplify_eq/=.
+    iApply (interp_expr_bind [BinOpLCtx _ _]); first by iApply "IH1".
+    iIntros (v) "#Hv /=".
+    iApply (interp_expr_bind [BinOpRCtx _ _]); first by iApply "IH2".
+    iIntros (w) "#Hw/=".
+    iDestruct "Hv" as (n) "%"; iDestruct "Hw" as (n') "%"; simplify_eq/=.
     iApply wp_pure_step_later; [done|]; iIntros "!> _". iApply wp_value.
     destruct op; simpl; try destruct eq_nat_dec;
       try destruct le_dec; try destruct lt_dec; eauto 10.
   Qed.
 
-  Lemma sem_typed_pair Γ e1 e2 τ1 τ2 :
-    Γ ⊨ e1 : τ1 -∗ Γ ⊨ e2 : τ2 -∗ Γ ⊨ Pair e1 e2 : TProd τ1 τ2.
+  Lemma sem_typed_pair Γ e1 e2 τ1 τ2 : Γ ⊨ e1 : τ1 -∗ Γ ⊨ e2 : τ2 -∗ Γ ⊨ Pair e1 e2 : TProd τ1 τ2.
   Proof.
     iIntros "#IH1 #IH2" (Δ vs) "!# #HΓ"; simpl.
-    smart_wp_bind (PairLCtx e2.[env_subst vs]) v "#Hv" "IH1".
-    smart_wp_bind (PairRCtx v) v' "# Hv'" "IH2".
-    iApply wp_value; eauto.
+    iApply (interp_expr_bind [PairLCtx _]); first by iApply "IH1".
+    iIntros (v) "#Hv /=".
+    iApply (interp_expr_bind [PairRCtx _]); first by iApply "IH2".
+    iIntros (w) "#Hw/=".
+    iApply wp_value; simpl; eauto.
   Qed.
 
-  Lemma sem_typed_fst Γ e τ1 τ2 :
-        Γ ⊨ e : TProd τ1 τ2 -∗ Γ ⊨ Fst e : τ1.
+  Lemma sem_typed_fst Γ e τ1 τ2 : Γ ⊨ e : TProd τ1 τ2 -∗ Γ ⊨ Fst e : τ1.
   Proof.
     iIntros "#IH" (Δ vs) "!# #HΓ"; simpl.
-    smart_wp_bind (FstCtx) v "# Hv" "IH"; cbn.
+    iApply (interp_expr_bind [FstCtx]); first by iApply "IH".
+    iIntros (v) "#Hv /=".
     iDestruct "Hv" as (w1 w2) "#[% [H2 H3]]"; subst.
     iApply wp_pure_step_later; [done|]; iIntros "!> _". by iApply wp_value.
   Qed.
 
-  Lemma sem_typed_snd Γ e τ1 τ2 :
-    Γ ⊨ e : TProd τ1 τ2 -∗ Γ ⊨ Snd e : τ2.
+  Lemma sem_typed_snd Γ e τ1 τ2 : Γ ⊨ e : TProd τ1 τ2 -∗ Γ ⊨ Snd e : τ2.
   Proof.
     iIntros "#IH" (Δ vs) "!# #HΓ"; simpl.
-    smart_wp_bind (SndCtx) v "# Hv" "IH"; cbn.
+    iApply (interp_expr_bind [SndCtx]); first by iApply "IH".
+    iIntros (v) "#Hv /=".
     iDestruct "Hv" as (w1 w2) "#[% [H2 H3]]"; subst.
     iApply wp_pure_step_later; [done|]; iIntros "!> _". by iApply wp_value.
   Qed.
@@ -79,15 +80,17 @@ Section typed_interp.
   Lemma sem_typed_injl Γ e τ1 τ2 : Γ ⊨ e : τ1 -∗ Γ ⊨ InjL e : (TSum τ1 τ2).
   Proof.
     iIntros "#IH" (Δ vs) "!# #HΓ"; simpl.
-    smart_wp_bind (InjLCtx) v "# Hv" "IH"; cbn.
-    iApply wp_value; eauto.
+    iApply (interp_expr_bind [InjLCtx]); first by iApply "IH".
+    iIntros (v) "#Hv /=".
+    iApply wp_value; simpl; eauto.
   Qed.
 
   Lemma sem_typed_injr Γ e τ1 τ2 : Γ ⊨ e : τ2 -∗ Γ ⊨ InjR e : TSum τ1 τ2.
   Proof.
     iIntros "#IH" (Δ vs) "!# #HΓ"; simpl.
-    smart_wp_bind (InjRCtx) v "# Hv" "IH"; cbn.
-    iApply wp_value; eauto.
+    iApply (interp_expr_bind [InjRCtx]); first by iApply "IH".
+    iIntros (v) "#Hv /=".
+    iApply wp_value; simpl; eauto.
   Qed.
 
   Lemma sem_typed_case Γ e0 e1 e2 τ1 τ2 τ3 :
@@ -97,7 +100,8 @@ Section typed_interp.
     Γ ⊨ Case e0 e1 e2 : τ3.
   Proof.
     iIntros "#IH1 #IH2 #IH3" (Δ vs) "!# #HΓ"; simpl.
-    smart_wp_bind (CaseCtx _ _) v "#Hv" "IH1"; cbn.
+    iApply (interp_expr_bind [CaseCtx _ _]); first by iApply "IH1".
+    iIntros (v) "#Hv /=".
     iDestruct (interp_env_length with "HΓ") as %?.
     iDestruct "Hv" as "[Hv|Hv]"; iDestruct "Hv" as (w) "[% Hw]"; simplify_eq/=.
     + iApply wp_pure_step_later; auto 1 using to_of_val; asimpl. iIntros "!> _".
@@ -110,7 +114,8 @@ Section typed_interp.
     Γ ⊨ e0 : TBool -∗ Γ ⊨ e1 : τ -∗ Γ ⊨ e2 : τ -∗ Γ ⊨ If e0 e1 e2 : τ.
   Proof.
     iIntros "#IH1 #IH2 #IH3" (Δ vs) "!# #HΓ"; simpl.
-    smart_wp_bind (IfCtx _ _) v "#Hv" "IH1"; cbn.
+    iApply (interp_expr_bind [IfCtx _ _]); first by iApply "IH1".
+    iIntros (v) "#Hv /=".
     iDestruct "Hv" as ([]) "%"; subst; simpl;
       [iApply wp_pure_step_later .. ]; auto; iIntros "!> _";
         [iApply "IH2"| iApply "IH3"]; auto.
@@ -139,37 +144,37 @@ Section typed_interp.
     iApply interp_env_cons; iSplit; auto.
   Qed.
 
-  Lemma sem_typed_letin Γ e1 e2 τ1 τ2 :
-    Γ ⊨ e1 : τ1 -∗ τ1 :: Γ ⊨ e2 : τ2 -∗ Γ ⊨ LetIn e1 e2: τ2.
+  Lemma sem_typed_letin Γ e1 e2 τ1 τ2 : Γ ⊨ e1 : τ1 -∗ τ1 :: Γ ⊨ e2 : τ2 -∗ Γ ⊨ LetIn e1 e2: τ2.
   Proof.
     iIntros "#IH1 #IH2" (Δ vs) "!# #HΓ"; simpl.
-    smart_wp_bind (LetInCtx _) v "#Hv" "IH1"; cbn.
+    iApply (interp_expr_bind [LetInCtx _]); first by iApply "IH1".
+    iIntros (v) "#Hv /=".
     iDestruct (interp_env_length with "HΓ") as %?.
     iApply wp_pure_step_later; auto 1 using to_of_val. iIntros "!> _".
     asimpl. iApply ("IH2" $! Δ (v :: vs)).
     iApply interp_env_cons; iSplit; eauto.
   Qed.
 
-  Lemma sem_typed_seq Γ e1 e2 τ1 τ2 :
-    Γ ⊨ e1 : τ1 -∗ Γ ⊨ e2 : τ2 -∗ Γ ⊨ Seq e1 e2 : τ2.
+  Lemma sem_typed_seq Γ e1 e2 τ1 τ2 : Γ ⊨ e1 : τ1 -∗ Γ ⊨ e2 : τ2 -∗ Γ ⊨ Seq e1 e2 : τ2.
   Proof.
     iIntros "#IH1 #IH2" (Δ vs) "!# #HΓ"; simpl.
-    smart_wp_bind (SeqCtx _) v "#Hv" "IH1"; cbn.
+    iApply (interp_expr_bind [SeqCtx _]); first by iApply "IH1".
+    iIntros (v) "#Hv /=".
     iApply wp_pure_step_later; auto 1 using to_of_val. iIntros "!> _".
     iApply "IH2"; done.
   Qed.
 
-  Lemma sem_typed_app Γ e1 e2 τ1 τ2 :
-      Γ ⊨ e1 : TArrow τ1 τ2 -∗ Γ ⊨ e2 : τ1 -∗ Γ ⊨ App e1 e2 :  τ2.
+  Lemma sem_typed_app Γ e1 e2 τ1 τ2 : Γ ⊨ e1 : TArrow τ1 τ2 -∗ Γ ⊨ e2 : τ1 -∗ Γ ⊨ App e1 e2 :  τ2.
   Proof.
     iIntros "#IH1 #IH2" (Δ vs) "!# #HΓ"; simpl.
-    smart_wp_bind (AppLCtx (e2.[env_subst vs])) v "#Hv" "IH1".
-    smart_wp_bind (AppRCtx v) w "#Hw" "IH2".
+    iApply (interp_expr_bind [AppLCtx _]); first by iApply "IH1".
+    iIntros (v) "#Hv /=".
+    iApply (interp_expr_bind [AppRCtx _]); first by iApply "IH2".
+    iIntros (w) "#Hw/=".
     iApply "Hv"; done.
   Qed.
 
-  Lemma sem_typed_tlam Γ e τ :
-    (subst (ren (+1)) <$> Γ) ⊨ e : τ -∗ Γ ⊨ TLam e : TForall τ.
+  Lemma sem_typed_tlam Γ e τ : (subst (ren (+1)) <$> Γ) ⊨ e : τ -∗ Γ ⊨ TLam e : TForall τ.
   Proof.
     iIntros "#IH" (Δ vs) "!# #HΓ /=".
     iApply wp_value; simpl.
@@ -180,7 +185,8 @@ Section typed_interp.
   Lemma sem_typed_tapp Γ e τ τ' : Γ ⊨ e : TForall τ -∗ Γ ⊨ TApp e : τ.[τ'/].
   Proof.
     iIntros "#IH" (Δ vs) "!# #HΓ /=".
-    smart_wp_bind TAppCtx v "#Hv" "IH"; cbn.
+    iApply (interp_expr_bind [TAppCtx]); first by iApply "IH".
+    iIntros (v) "#Hv /=".
     iApply wp_wand_r; iSplitL;
       [iApply ("Hv" $! (⟦ τ' ⟧ Δ)); iPureIntro; apply _|]; cbn.
     iIntros (w) "?". by iApply interp_subst.
@@ -189,9 +195,11 @@ Section typed_interp.
   Lemma sem_typed_pack Γ e τ τ' : Γ ⊨ e : τ.[τ'/] -∗ Γ ⊨ Pack e : TExist τ.
   Proof.
     iIntros "#IH" (Δ vs) "!##HΓ /=".
-    smart_wp_bind PackCtx v "#Hv" "IH". iApply wp_value.
+    iApply (interp_expr_bind [PackCtx]); first by iApply "IH".
+    iIntros (v) "#Hv /=".
+    iApply wp_value.
     rewrite -interp_subst.
-    iExists (interp _ Δ), _; iModIntro; iSplit; done.
+    iExists (interp _ Δ), _; iSplit; done.
   Qed.
 
   Lemma sem_typed_unpack Γ e1 e2 τ τ' :
@@ -200,7 +208,8 @@ Section typed_interp.
     Γ ⊨ UnpackIn e1 e2 : τ'.
   Proof.
     iIntros "#IH1 #IH2" (Δ vs) "!# #HΓ /=".
-    smart_wp_bind (UnpackInCtx _) v "#Hv" "IH1".
+    iApply (interp_expr_bind [UnpackInCtx _]); first by iApply "IH1".
+    iIntros (v) "#Hv /=".
     iDestruct "Hv" as (τi w ->) "#Hw"; simpl.
     iApply wp_pure_step_later; auto 1 using to_of_val. iIntros "!> _".
     asimpl.
@@ -215,7 +224,9 @@ Section typed_interp.
   Lemma sem_typed_fold Γ e τ : Γ ⊨ e : τ.[(TRec τ)/] -∗ Γ ⊨ Fold e : TRec τ.
   Proof.
     iIntros "#IH" (Δ vs) "!# #HΓ /=".
-    smart_wp_bind FoldCtx v "#Hv" ("IH" $! Δ vs). iApply wp_value.
+    iApply (interp_expr_bind [FoldCtx]); first by iApply "IH".
+    iIntros (v) "#Hv /=".
+    iApply wp_value.
     rewrite /= -interp_subst fixpoint_interp_rec1_eq /=.
     iModIntro; eauto.
   Qed.
@@ -223,7 +234,8 @@ Section typed_interp.
   Lemma sem_typed_unfold Γ e τ : Γ ⊨ e : TRec τ -∗ Γ ⊨ Unfold e : τ.[(TRec τ)/].
   Proof.
     iIntros "#IH" (Δ vs) "!# #HΓ /=".
-    smart_wp_bind UnfoldCtx v "#Hv" ("IH" $! Δ vs).
+    iApply (interp_expr_bind [UnfoldCtx]); first by iApply "IH".
+    iIntros (v) "#Hv /=".
     rewrite /= fixpoint_interp_rec1_eq.
     change (fixpoint _) with (⟦ TRec τ ⟧ Δ); simpl.
     iDestruct "Hv" as (w) "#[% Hw]"; subst.
@@ -241,9 +253,11 @@ Section typed_interp.
   Lemma sem_typed_alloc Γ e τ : Γ ⊨ e : τ -∗ Γ ⊨ Alloc e : Tref τ.
   Proof.
     iIntros "#IH" (Δ vs) "!# #HΓ /=".
-    smart_wp_bind AllocCtx v "#Hv" "IH"; cbn. iClear "HΓ". iApply wp_fupd.
+    iApply (interp_expr_bind [AllocCtx]); first by iApply "IH".
+    iIntros (v) "#Hv /=".
+    iApply wp_fupd.
     iApply wp_alloc; auto 1 using to_of_val.
-    iNext; iIntros (l) "Hl".
+    iNext; iIntros (l) "Hl /=".
     iMod (inv_alloc _ with "[Hl]") as "HN";
       [| iModIntro; iExists _; iSplit; trivial]; eauto.
   Qed.
@@ -251,7 +265,8 @@ Section typed_interp.
   Lemma sem_typed_load Γ e τ : Γ ⊨ e : (Tref τ) -∗ Γ ⊨ Load e : τ.
   Proof.
     iIntros "#IH" (Δ vs) "!# #HΓ /=".
-    smart_wp_bind LoadCtx v "#Hv" "IH"; cbn. iClear "HΓ".
+    iApply (interp_expr_bind [LoadCtx]); first by iApply "IH".
+    iIntros (v) "#Hv /=".
     iDestruct "Hv" as (l) "[% #Hv]"; subst.
     iApply wp_atomic.
     iInv (logN .@ l) as (w) "[Hw1 #Hw2]" "Hclose".
@@ -260,12 +275,13 @@ Section typed_interp.
     iIntros "Hw1". iMod ("Hclose" with "[Hw1 Hw2]"); eauto.
   Qed.
 
-  Lemma sem_typed_store Γ e1 e2 τ :
-    Γ ⊨ e1 : (Tref τ) -∗ Γ ⊨ e2 : τ -∗ Γ ⊨ Store e1 e2 : TUnit.
+  Lemma sem_typed_store Γ e1 e2 τ : Γ ⊨ e1 : (Tref τ) -∗ Γ ⊨ e2 : τ -∗ Γ ⊨ Store e1 e2 : TUnit.
   Proof.
     iIntros "#IH1 #IH2" (Δ vs) "!# #HΓ /=".
-    smart_wp_bind (StoreLCtx _) v "#Hv" "IH1"; cbn.
-    smart_wp_bind (StoreRCtx _) w "#Hw" "IH2"; cbn. iClear "HΓ".
+    iApply (interp_expr_bind [StoreLCtx _]); first by iApply "IH1".
+    iIntros (v) "#Hv /=".
+    iApply (interp_expr_bind [StoreRCtx _]); first by iApply "IH2".
+    iIntros (w) "#Hw/=".
     iDestruct "Hv" as (l) "[% #Hv]"; subst.
     iApply wp_atomic.
     iInv (logN .@ l) as (z) "[Hz1 #Hz2]" "Hclose".
@@ -283,9 +299,12 @@ Section typed_interp.
   Proof.
     iIntros (Heqτ) "#IH1 #IH2 #IH3".
     iIntros (Δ vs) "!# #HΓ /=".
-    smart_wp_bind (CasLCtx _ _) v1 "#Hv1" "IH1"; cbn.
-    smart_wp_bind (CasMCtx _ _) v2 "#Hv2" "IH2"; cbn.
-    smart_wp_bind (CasRCtx _ _) v3 "#Hv3" "IH3"; cbn. iClear "HΓ".
+    iApply (interp_expr_bind [CasLCtx _ _]); first by iApply "IH1".
+    iIntros (v1) "#Hv1 /=".
+    iApply (interp_expr_bind [CasMCtx _ _]); first by iApply "IH2".
+    iIntros (v2) "#Hv2 /=".
+    iApply (interp_expr_bind [CasRCtx _ _]); first by iApply "IH3".
+    iIntros (v3) "#Hv3 /=".
     iDestruct "Hv1" as (l) "[% Hv1]"; subst.
     iApply wp_atomic.
     iInv (logN .@ l) as (w) "[Hw1 #Hw2]" "Hclose".
@@ -298,12 +317,13 @@ Section typed_interp.
       iIntros "Hw1". iMod ("Hclose" with "[Hw1 Hw2]"); eauto.
   Qed.
 
-  Lemma sem_typed_FAA Γ e1 e2 :
-    Γ ⊨ e1 : Tref TNat -∗ Γ ⊨ e2 : TNat -∗ Γ ⊨ FAA e1 e2 : TNat.
+  Lemma sem_typed_FAA Γ e1 e2 : Γ ⊨ e1 : Tref TNat -∗ Γ ⊨ e2 : TNat -∗ Γ ⊨ FAA e1 e2 : TNat.
   Proof.
     iIntros "#IH1 #IH2" (Δ vs) "!# #HΓ /=".
-    smart_wp_bind (FAALCtx _) v1 "#Hv1" "IH1"; cbn.
-    smart_wp_bind (FAARCtx _) v2 "#Hv2" "IH2"; cbn. iClear "HΓ".
+    iApply (interp_expr_bind [FAALCtx _]); first by iApply "IH1".
+    iIntros (v1) "#Hv1 /=".
+    iApply (interp_expr_bind [FAARCtx _]); first by iApply "IH2".
+    iIntros (v2) "#Hv2 /=".
     iDestruct "Hv1" as (l) "[% Hv1]".
     iDestruct "Hv2" as (k) "%"; simplify_eq/=.
     iApply wp_atomic.

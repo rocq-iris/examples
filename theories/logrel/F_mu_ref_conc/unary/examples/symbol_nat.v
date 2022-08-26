@@ -70,7 +70,6 @@ Section symbol_nat_sem_typ.
             with "[Hl Hmt]") as "#Hinv".
     { unfold Max_token. by iNext; iExists _; iFrame. }
     iApply wp_value.
-    iModIntro.
     iExists (PersPred (λ v, ∃ m, ⌜v = #nv m⌝ ∗ Token γ m))%I; simpl.
     iExists _; iSplit; first done.
     iExists _, _; iSplit; first done.

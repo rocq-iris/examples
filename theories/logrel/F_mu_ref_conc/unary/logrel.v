@@ -56,7 +56,7 @@ Section logrel.
   Solve Obligations with repeat intros ?; simpl; solve_proper.
 
   Program Definition interp_exist (interp : listO D -n> D) : listO D -n> D :=
-    λne Δ, PersPred (λ w, □ ∃ (τi : D) v, ⌜w = PackV v⌝ ∗ interp (τi :: Δ) v)%I.
+    λne Δ, PersPred (λ w, ∃ (τi : D) v, ⌜w = PackV v⌝ ∗ interp (τi :: Δ) v)%I.
   Solve Obligations with repeat intros ?; simpl; solve_proper.
 
   Definition interp_rec1 (interp : listO D -n> D) (Δ : listO D) (τi : D) : D :=
@@ -120,56 +120,42 @@ Section logrel.
     ⟦ τ.[upn (length Δ1) (ren (+ length Π))] ⟧ (Δ1 ++ Π ++ Δ2)
     ≡ ⟦ τ ⟧ (Δ1 ++ Δ2).
   Proof.
-    revert Δ1 Π Δ2. induction τ=> Δ1 Π Δ2; simpl; auto.
-    - intros w; simpl; properness; auto;
-        match goal with IH : ∀ _, _ |- _ => by apply IH end.
-    - intros w; simpl; properness; auto;
-        match goal with IH : ∀ _, _ |- _ => by apply IH end.
-    - intros w; simpl; properness; auto;
-        match goal with IH : ∀ _, _ |- _ => by apply IH end.
-    - apply fixpoint_proper=> τi w /=.
-      properness; auto.
-      match goal with IH : ∀ _, _ |- _ => by apply (IH (_ :: _)) end.
+    revert Δ1 Π Δ2. induction τ=> Δ1 Π Δ2; simpl; auto; intros ?; simpl.
+    - by repeat (f_equiv; try match goal with IH : ∀ _, _ |- _ => by apply IH end).
+    - by repeat (f_equiv; try match goal with IH : ∀ _, _ |- _ => by apply IH end).
+    - by repeat (f_equiv; try match goal with IH : ∀ _, _ |- _ => by apply IH end).
+    - f_equiv.
+      apply fixpoint_proper=> τi w /=.
+      by repeat (f_equiv; try match goal with IH : ∀ _, _ |- _ => by apply (IH (_ :: _)) end).
     - rewrite iter_up; destruct lt_dec as [Hl | Hl]; simpl.
       { by rewrite !lookup_app_l. }
-      intros ?; simpl.
       rewrite !lookup_app_r; [|lia ..]; do 3 f_equiv; lia.
-    - intros w; simpl; properness; auto.
-      match goal with IH : ∀ _, _ |- _ => by apply (IH (_ :: _)) end.
-    - intros w; simpl; properness; auto.
-      match goal with IH : ∀ _, _ |- _ => by apply (IH (_ :: _)) end.
-    - intros w; simpl; properness; auto.
-      match goal with IH : ∀ _, _ |- _ => by apply IH end.
+    - by repeat (f_equiv; try match goal with IH : ∀ _, _ |- _ => by apply (IH (_ :: _)) end).
+    - by repeat (f_equiv; try match goal with IH : ∀ _, _ |- _ => by apply (IH (_ :: _)) end).
+    - by repeat (f_equiv; try match goal with IH : ∀ _, _ |- _ => by apply IH end).
   Qed.
 
   Lemma interp_subst_up Δ1 Δ2 τ τ' :
     ⟦ τ ⟧ (Δ1 ++ interp τ' Δ2 :: Δ2)
     ≡ ⟦ τ.[upn (length Δ1) (τ' .: ids)] ⟧ (Δ1 ++ Δ2).
   Proof.
-    revert Δ1 Δ2; induction τ=> Δ1 Δ2; simpl; auto.
-    - intros w; simpl; properness; auto;
-        match goal with IH : ∀ _, _ |- _ => by apply IH end.
-    - intros w; simpl; properness; auto;
-        match goal with IH : ∀ _, _ |- _ => by apply IH end.
-    - intros w; simpl; properness; auto;
-        match goal with IH : ∀ _, _ |- _ => by apply IH end.
-    - apply fixpoint_proper=> τi w /=.
-      properness; auto.
-      match goal with IH : ∀ _, _ |- _ => by apply (IH (_ :: _)) end.
+    revert Δ1 Δ2; induction τ=> Δ1 Δ2; simpl; auto; intros ?; simpl.
+    - by repeat (f_equiv; try match goal with IH : ∀ _, _ |- _ => by apply IH end).
+    - by repeat (f_equiv; try match goal with IH : ∀ _, _ |- _ => by apply IH end).
+    - by repeat (f_equiv; try match goal with IH : ∀ _, _ |- _ => by apply IH end).
+    - f_equiv.
+      apply fixpoint_proper=> τi w /=.
+      by repeat (f_equiv; try match goal with IH : ∀ _, _ |- _ => by apply (IH (_ :: _)) end).
     - match goal with |- context [_ !! ?x] => rename x into idx end.
       rewrite iter_up; destruct lt_dec as [Hl | Hl]; simpl.
       { by rewrite !lookup_app_l. }
-      intros ?; simpl.
       rewrite !lookup_app_r; [|lia ..].
       case EQ: (idx - length Δ1) => [|n]; simpl.
       { symmetry. asimpl. apply (interp_weaken [] Δ1 Δ2 τ'). }
       rewrite !lookup_app_r; [|lia ..]. do 3 f_equiv. lia.
-    - intros w; simpl; properness; auto.
-      match goal with IH : ∀ _, _ |- _ => by apply (IH (_ :: _)) end.
-    - intros w; simpl; properness; auto.
-      match goal with IH : ∀ _, _ |- _ => by apply (IH (_ :: _)) end.
-    - intros w; simpl; properness; auto.
-      match goal with IH : ∀ _, _ |- _ => by apply IH end.
+    - by repeat (f_equiv; try match goal with IH : ∀ _, _ |- _ => by apply (IH (_ :: _)) end).
+    - by repeat (f_equiv; try match goal with IH : ∀ _, _ |- _ => by apply (IH (_ :: _)) end).
+    - by repeat (f_equiv; try match goal with IH : ∀ _, _ |- _ => by apply IH end).
   Qed.
 
   Lemma interp_subst Δ2 τ τ' v : ⟦ τ ⟧ (⟦ τ' ⟧ Δ2 :: Δ2) v ≡ ⟦ τ.[τ'/] ⟧ Δ2 v.
