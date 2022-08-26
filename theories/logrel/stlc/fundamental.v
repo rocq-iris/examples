@@ -15,10 +15,9 @@ Section typed_interp.
   specific [state_interp], but STLC has no state so it does not care. *)
   Context `{irisGS stlc_lang Σ}.
 
-  Local Tactic Notation "smart_wp_bind" uconstr(ctx) ident(v) constr(Hv) constr(Hp) :=
-    iApply (wp_bind (fill [ctx]));
-    iApply (wp_wand with "[-]"); [iApply Hp; trivial|]; cbn;
-    iIntros (v) Hv.
+  Lemma interp_expr_bind K e τ τ' :
+    ⟦ τ ⟧ₑ e -∗ (∀ v, ⟦ τ ⟧ v -∗ ⟦ τ' ⟧ₑ (fill K (#v))) -∗ ⟦ τ' ⟧ₑ (fill K e).
+  Proof. iIntros; iApply wp_bind; iApply (wp_wand with "[$]"); done. Qed.
 
   Theorem fundamental Γ e τ : Γ ⊢ₜ e : τ → ⊢ Γ ⊨ e : τ.
   Proof.
@@ -30,24 +29,33 @@ Section typed_interp.
       by iApply wp_value.
     - (* unit *) by iApply wp_value.
     - (* pair *)
-      smart_wp_bind (PairLCtx _.[env_subst vs]) v "# Hv" "IH".
-      smart_wp_bind (PairRCtx v) v' "# Hv'" "IH1".
-      iApply wp_value; eauto 10.
+      iApply (interp_expr_bind [PairLCtx _]); first by iApply "IH".
+      iIntros (v) "#Hv /=".
+      iApply (interp_expr_bind [PairRCtx _]); first by iApply "IH1".
+      iIntros (w) "#Hw /=".
+      iApply wp_value; simpl; eauto 10.
     - (* fst *)
-      smart_wp_bind (FstCtx) v "# Hv" "IH"; cbn.
+      iApply (interp_expr_bind [FstCtx]); first by iApply "IH".
+      iIntros (v) "#Hv /=".
       iDestruct "Hv" as (w1 w2) "#[-> [H2 H3]] /=".
       iApply wp_pure_step_later; auto. iIntros "!> _". by iApply wp_value.
     - (* snd *)
-      smart_wp_bind (SndCtx) v "# Hv" "IH"; cbn.
+      iApply (interp_expr_bind [SndCtx]); first by iApply "IH".
+      iIntros (v) "#Hv /=".
       iDestruct "Hv" as (w1 w2) "#[-> [H2 H3]] /=".
       iApply wp_pure_step_later; auto. iIntros "!> _". by iApply wp_value.
     - (* injl *)
-      smart_wp_bind (InjLCtx) v "# Hv" "IH". by iApply wp_value; eauto.
+      iApply (interp_expr_bind [InjLCtx]); first by iApply "IH".
+      iIntros (v) "#Hv /=".
+      iApply wp_value; simpl; eauto.
     - (* injr *)
-      smart_wp_bind (InjRCtx) v "# Hv" "IH". by iApply wp_value; eauto.
+      iApply (interp_expr_bind [InjRCtx]); first by iApply "IH".
+      iIntros (v) "#Hv /=".
+      iApply wp_value; simpl; eauto.
     - (* case *)
       iDestruct (interp_env_length with "[]") as %Hlen; auto.
-      smart_wp_bind (CaseCtx _ _) v "# Hv" "IH"; cbn.
+      iApply (interp_expr_bind [CaseCtx _ _]); first by iApply "IH".
+      iIntros (v) "#Hv /=".
       iDestruct "Hv" as "[Hv|Hv]"; iDestruct "Hv" as (w) "[-> Hw] /=".
       + simpl. iApply wp_pure_step_later; auto. asimpl.
         iIntros "!> _". iApply ("IH1" $! (w::vs)).
@@ -61,8 +69,11 @@ Section typed_interp.
       iApply wp_pure_step_later; auto. iIntros "!> _". asimpl.
       iApply ("IH" $! (w :: vs)). iApply interp_env_cons; by iSplit.
     - (* app *)
-      smart_wp_bind (AppLCtx (_.[env_subst vs])) v "#Hv" "IH".
-      smart_wp_bind (AppRCtx v) w "#Hw" "IH1".
+      iApply (interp_expr_bind [AppLCtx _]); first by iApply "IH".
+      simpl.
+      iIntros (v) "#Hv /=".
+      iApply (interp_expr_bind [AppRCtx _]); first by iApply "IH1".
+      iIntros (w) "#Hw/=".
       iApply "Hv"; auto.
   Qed.
 End typed_interp.
