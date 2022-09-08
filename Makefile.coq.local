@@ -23,8 +23,8 @@ hocap: $(filter theories/hocap/%,$(VOFILES))
 logatom: $(filter theories/logatom/%,$(VOFILES))
 .PHONY: logatom
 
-array_based_queuing_lock: $(filter theories/array_based_queuing_lock/%,$(VOFILES))
-.PHONY: array_based_queuing_lock
+locks: $(filter theories/locks/%,$(VOFILES))
+.PHONY: locks
 
 proph: $(filter theories/proph/%,$(VOFILES))
 .PHONY: proph

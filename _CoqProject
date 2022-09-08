@@ -112,4 +112,7 @@ theories/proph/clairvoyant_coin_spec.v
 theories/proph/clairvoyant_coin.v
 theories/proph/clairvoyant_coin_typed.v
 
-theories/array_based_queuing_lock/abql.v
+theories/locks/array_based_queuing_lock/abql.v
+theories/locks/freeable_lock/freeable_lock.v
+theories/locks/freeable_lock/freeable_logatom_lock.v
+theories/locks/freeable_lock/freeable_spin_lock.v
