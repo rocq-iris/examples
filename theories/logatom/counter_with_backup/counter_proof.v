@@ -425,7 +425,7 @@ Section counter_proof.
       iExists Ψ. rewrite bool_decide_eq_false_2 //. iFrame.
     - iDestruct "Done" as "[_ Htok]".
       (* contradictory *)
-      iDestruct (own_valid_2 with "Hex Htok") as %[].
+      iCombine "Hex Htok" gives %[].
   Qed.
 
   (** We obtain the post condition of the AU for [put] after it has been executed,
@@ -466,7 +466,7 @@ Section counter_proof.
       rewrite bool_decide_eq_false_2 //.
       iFrame.
     - iDestruct "Done" as "[_ Htok]".
-      iDestruct (own_valid_2 with "Hex Htok") as %[].
+      iCombine "Hex Htok" gives %[].
   Qed.
 
   (** ** Proving the actual specs for the counter operations *)
@@ -653,7 +653,7 @@ Next Obligation.
 Qed.
 Next Obligation.
   intros ???? [γ_cnt γ_ex] ??. iIntros "[_ H1] [_ H2]".
-  iDestruct (own_valid_2 with "H1 H2") as %[].
+  iCombine "H1 H2" gives %[].
 Qed.
 
 Global Typeclasses Opaque value is_counter.

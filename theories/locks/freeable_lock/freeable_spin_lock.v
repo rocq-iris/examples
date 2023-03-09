@@ -49,7 +49,7 @@ Section proof.
     own γ.(spin_lock_name_own) q.
 
   Lemma locked_exclusive (γ : spin_lock_name) : locked γ -∗ locked γ -∗ False.
-  Proof. iIntros "H1 H2". by iDestruct (own_valid_2 with "H1 H2") as %?. Qed.
+  Proof. iIntros "H1 H2". by iCombine "H1 H2" gives %?. Qed.
 
   Lemma own_lock_valid (γ : spin_lock_name) q :
     own_lock γ q -∗ ⌜q ≤ 1⌝%Qp.
@@ -105,7 +105,7 @@ Section proof.
   Proof.
     iIntros (Φ) "[#Hl Hown] HΦ". iDestruct "Hl" as (l ->) "#Hinv".
     wp_rec. wp_bind (CmpXchg _ _ _). iInv N as "[Hlock|>[_ Hcancel]]"; last first.
-    { rewrite /own_lock. iDestruct (own_valid_2 with "Hown Hcancel") as %Hc.
+    { rewrite /own_lock. iCombine "Hown Hcancel" gives %Hc.
       rewrite frac_op frac_valid in Hc. exfalso. eapply Qp.not_add_le_r. done. }
     iDestruct "Hlock" as ([]) "[Hl HR]".
     - wp_cmpxchg_fail. iModIntro. iSplitL "Hl"; first (iNext; iLeft; iExists true; eauto).

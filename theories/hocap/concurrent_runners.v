@@ -46,25 +46,25 @@ Lemma INIT_not_SET_RES `{saG Σ} γ q q' v :
   INIT γ q -∗ SET_RES γ q' v -∗ False.
 Proof.
   iIntros "Hs Hp".
-  iDestruct (own_valid_2 with "Hs Hp") as %[].
+  iCombine "Hs Hp" gives %[].
 Qed.
 Lemma INIT_not_FIN `{saG Σ} γ q v :
   INIT γ q -∗ FIN γ v -∗ False.
 Proof.
   iIntros "Hs Hp".
-  iDestruct (own_valid_2 with "Hs Hp") as %[].
+  iCombine "Hs Hp" gives %[].
 Qed.
 Lemma SET_RES_not_FIN `{saG Σ} γ q v v' :
   SET_RES γ q v -∗ FIN γ v' -∗ False.
 Proof.
   iIntros "Hs Hp".
-  iDestruct (own_valid_2 with "Hs Hp") as %[].
+  iCombine "Hs Hp" gives %[].
 Qed.
 Lemma SET_RES_agree `{saG Σ} (γ: gname) (q q': Qp) (v w: val) :
   SET_RES γ q v -∗ SET_RES γ q' w -∗ ⌜v = w⌝.
 Proof.
   iIntros "Hs1 Hs2".
-  iDestruct (own_valid_2 with "Hs1 Hs2") as %Hfoo.
+  iCombine "Hs1 Hs2" gives %Hfoo.
   iPureIntro. rewrite -Cinr_op -Cinl_op -pair_op in Hfoo.
   by destruct Hfoo as [_ ?%to_agree_op_inv_L].
 Qed.
@@ -72,7 +72,7 @@ Lemma FIN_agree `{saG Σ} (γ: gname) (v w: val) :
   FIN γ v -∗ FIN γ w -∗ ⌜v = w⌝.
 Proof.
   iIntros "Hs1 Hs2".
-  iDestruct (own_valid_2 with "Hs1 Hs2") as %Hfoo.
+  iCombine "Hs1 Hs2" gives %Hfoo.
   iPureIntro. rewrite -Cinr_op -Cinr_op in Hfoo.
   by apply to_agree_op_inv_L.
 Qed.

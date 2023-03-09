@@ -32,7 +32,7 @@ Lemma shot_agree `{oneshotG Σ} γ (v w: val) :
   shot γ v -∗ shot γ w -∗ ⌜v = w⌝.
 Proof.
   iIntros "Hs1 Hs2".
-  iDestruct (own_valid_2 with "Hs1 Hs2") as %Hfoo.
+  iCombine "Hs1 Hs2" gives %Hfoo.
   iPureIntro. by apply to_agree_op_inv_L.
 Qed.
 Global Instance pending_fractional `{oneshotG Σ} γ : Fractional (pending γ)%I.

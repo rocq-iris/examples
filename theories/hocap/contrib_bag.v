@@ -98,7 +98,7 @@ Section proof.
       iMod (bag_contents_update b Y with "[$Hb1 $Hb2]") as "[Hb1 Hb2]".
       rewrite /bagPart.
       iAssert (⌜X = ({[+ y +]} ⊎ Y)⌝)%I with "[Hpart HPs]" as %->.
-      { iDestruct (own_valid_2 with "HPs Hpart") as %Hfoo.
+      { iCombine "HPs Hpart" gives %Hfoo.
         apply frac_auth_agree in Hfoo. by unfold_leibniz. }
       iMod (own_update_2 with "HPs Hpart") as "Hown".
       { apply (frac_auth_update _ _ _ (({[+ y +]} ⊎ Y) ∖ {[+ y +]}) (({[+ y +]} ⊎ Y) ∖ {[+ y +]})).
@@ -117,7 +117,7 @@ Section proof.
       iDestruct (bag_contents_agree with "Hb1 Hb2") as %<-.
       iAssert (⌜X = ∅⌝)%I with "[Hpart HPs]" as %->.
       { rewrite /bagPart.
-        iDestruct (own_valid_2 with "HPs Hpart") as %Hfoo.
+        iCombine "HPs Hpart" gives %Hfoo.
         apply frac_auth_agree in Hfoo. by unfold_leibniz. }
       iMod ("Hcl" with "[Hb2 HPs]") as "_".
       { iNext. iExists _; iFrame. }

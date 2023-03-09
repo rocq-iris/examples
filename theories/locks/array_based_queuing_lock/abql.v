@@ -282,7 +282,7 @@ Section proof.
   Lemma locked_exclusive (γ κ : gname) o o' : locked γ κ o -∗ locked γ κ o' -∗ False.
   Proof.
     iIntros "[H1 _] [H2 _]".
-    iDestruct (own_valid_2 with "H1 H2") as %[[] _]%auth_frag_op_valid_1.
+    iCombine "H1 H2" gives %[[] _]%auth_frag_op_valid_1.
   Qed.
 
   (* Only one thread can know the exact value of `o`. *)
@@ -290,7 +290,7 @@ Section proof.
     own γ (◯ (Excl' o, GSet ∅)) -∗ own γ (◯ (Excl' o', GSet ∅)) -∗ False.
   Proof.
     iIntros "H1 H2".
-    iDestruct (own_valid_2 with "H1 H2") as %[[]]%auth_frag_op_valid_1.
+    iCombine "H1 H2" gives %[[]]%auth_frag_op_valid_1.
   Qed.
 
   (* Lemmas about both, left, and right. *)
@@ -317,7 +317,7 @@ Section proof.
         -∗ ⌜o ≤ x < o + i⌝ ∗ own γ (◯ (ε, GSet {[ x ]})) ∗ own γ (● (Excl' o, GSet (set_seq o i))).
   Proof.
     iIntros "P O".
-    iDestruct (own_valid_2 with "O P") as %[[_ xIncl%gset_disj_included]%prod_included Hv]%auth_both_valid_discrete.
+    iCombine "O P" gives %[[_ xIncl%gset_disj_included]%prod_included Hv]%auth_both_valid_discrete.
     iFrame. iPureIntro.
     apply elem_of_subseteq_singleton, elem_of_set_seq in xIncl.
     lia.
@@ -328,7 +328,7 @@ Section proof.
       -∗ ⌜0 < i⌝ ∗ own γ (◯ (ε, GSet {[ o ]})) ∗ own γ (● (Excl' o, GSet (set_seq o i))).
   Proof.
     iIntros "P O".
-    iDestruct (own_valid_2 with "O P") as %HV%auth_both_valid_discrete.
+    iCombine "O P" gives %HV%auth_both_valid_discrete.
     iFrame. iPureIntro.
     destruct HV as [[_ H%gset_disj_included]%prod_included _].
     apply elem_of_subseteq_singleton, set_seq_len_pos in H.
@@ -542,7 +542,7 @@ Section proof.
     wp_bind (_ <- _)%E.
     iInv N as (o' i xs) "(>%lenEq & >nextPts & arrPts & >Invs & >Auth & Part)" "Close".
     (* We want to show that o and o' are equal. We know this from the loked γ o ghost state. *)
-    iDestruct (own_valid_2 with "Auth Locked") as
+    iCombine "Auth Locked" gives
       %[[<-%Excl_included%leibniz_equiv _]%prod_included _]%auth_both_valid_discrete.
     rewrite rem_mod_eq //.
     iApply (array_store with "[arrPts]").
@@ -569,7 +569,7 @@ Section proof.
     * iDestruct (know_o_exclusive with "Locked Locked'") as "[]".
     (* This is the case where the lock is clopen, that is, the actual state
        of the lock. *)
-    * iDestruct (own_valid_2 with "Auth Locked") as
+    * iCombine "Auth Locked" gives
           %[[<-%Excl_included%leibniz_equiv _]%prod_included _]%auth_both_valid_discrete.
       rewrite rem_mod_eq //.
       iApply (wp_store_offset with "arrPts").

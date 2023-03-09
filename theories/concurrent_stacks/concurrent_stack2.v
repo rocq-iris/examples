@@ -111,7 +111,7 @@ Section side_channel.
       wp_pures.
       by iApply "HΦ"; iRight.
     - wp_cmpxchg_fail.
-      iDestruct (own_valid_2 with "H Hγ") as %[].
+      iCombine "H Hγ" gives %[].
   Qed.
 
   (* A partial specification for take that will be useful later *)

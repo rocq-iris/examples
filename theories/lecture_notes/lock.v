@@ -122,7 +122,7 @@ Section lock_spec.
     iDestruct "Hi" as (ℓ ->) "Hinv".
     wp_lam.
     iInv (lockN #ℓ) as "[(Hl & HQ & >Ht)|Hl]" "Hcl".
-    - iDestruct (own_valid_2 with "Hld Ht") as %Hv. done.
+    - iCombine "Hld Ht" gives %Hv. done.
     - wp_store.
       iMod ("Hcl" with "[-Hcont]") as "_"; first by iNext; iLeft; iFrame.
       iApply "Hcont".

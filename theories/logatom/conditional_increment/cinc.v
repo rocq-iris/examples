@@ -220,7 +220,7 @@ Section conditional_counter.
     counter_content γs c1 -∗ counter_content γs c2 -∗ False.
   Proof.
     iIntros "Hb1 Hb2".
-    iDestruct (own_valid_2 with "Hb1 Hb2") as %?%auth_frag_op_valid_1.
+    iCombine "Hb1 Hb2" gives %?%auth_frag_op_valid_1.
     done.
   Qed.
 
@@ -243,10 +243,10 @@ Section conditional_counter.
     iInv stateN as (vs) "(Hp & [NotDone | Done])".
     * (* Moved back to NotDone: contradiction. *)
       iDestruct "NotDone" as "(>Hs' & _ & _)".
-      iDestruct (own_valid_2 with "Hs Hs'") as %?. contradiction.
+      iCombine "Hs Hs'" gives %?. contradiction.
     * iDestruct "Done" as "(_ & QT & Hghost)".
       iDestruct "QT" as "[Q | >T]"; last first.
-      { iDestruct (own_valid_2 with "Ht T") as %Contra.
+      { iCombine "Ht T" gives %Contra.
           by inversion Contra. }
       iSplitR "Q"; last done. iIntros "!> !>". unfold state_inv.
       iExists _. iFrame "Hp". iRight.
@@ -273,7 +273,7 @@ Section conditional_counter.
          as token for that transition. *)
       iDestruct "Done" as "(_ & _ & Hlghost & _)".
       iDestruct "Hlghost" as (v') ">Hlghost".
-        by iDestruct (mapsto_valid_2 with "Hl_ghost Hlghost") as %[??].
+        by iCombine "Hl_ghost Hlghost" gives %[??].
     }
     iDestruct "NotDone" as "(>Hs & >Hc' & [Pending | Accepted])".
     { (* We also cannot be [Pending] any more we have [own γ_n] showing that this
@@ -408,12 +408,12 @@ Section conditional_counter.
         iDestruct "Accepted" as "[>Hl_ghost_inv _]".
         iDestruct "Hl_ghost_inv" as (v) "Hlghost".
         iCombine "Hl_ghost'" "Hl_ghost'2" as "Hl_ghost'".
-        by iDestruct (mapsto_valid_2 with "Hlghost Hl_ghost'") as %[??].
+        by iCombine "Hlghost Hl_ghost'" gives %[??].
       + (* Done: contradiction *)
         iDestruct "Done" as "[QT >[Hlghost _]]".
         iDestruct "Hlghost" as (v) "Hlghost".
         iCombine "Hl_ghost'" "Hl_ghost'2" as "Hl_ghost'".
-        by iDestruct (mapsto_valid_2 with "Hlghost Hl_ghost'") as %[??].
+        by iCombine "Hlghost Hl_ghost'" gives %[??].
     - (* we are the failing thread. exploit that [f] is a GC location. *)
       iMod (inv_mapsto_acc with "GC isGC") as (b) "(_ & H↦ & Hclose)"; first solve_ndisj.
       wp_load.

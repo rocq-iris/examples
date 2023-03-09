@@ -85,7 +85,7 @@ Section tada.
     tada_lock_state γ s1 -∗ ghost_var γ.(tada_lock_name_state) (3/4) s2 -∗ False.
   Proof.
     iIntros "[Hvar1 _] Hvar2".
-    iDestruct (ghost_var_valid_2 with "Hvar1 Hvar2") as %[Hval _].
+    iCombine "Hvar1 Hvar2" gives %[Hval _].
     exfalso. done.
   Qed.
   Lemma tada_lock_state_exclusive γ s1 s2 :

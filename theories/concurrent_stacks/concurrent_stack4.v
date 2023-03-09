@@ -136,9 +136,9 @@ Section proofs.
       wp_pures.
       iApply ("HΦ" with "[HQ]"); iRight; auto.
     - wp_cmpxchg_fail.
-      iDestruct (own_valid_2 with "H Hγ") as %[].
+      iCombine "H Hγ" gives %[].
     - wp_cmpxchg_fail.
-      iDestruct (own_valid_2 with "H Hγ") as %[].
+      iCombine "H Hγ" gives %[].
   Qed.
 
   Lemma take_works γ P Q Q' o Ψ :

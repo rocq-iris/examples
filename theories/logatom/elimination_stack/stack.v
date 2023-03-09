@@ -96,7 +96,7 @@ Section stack.
     stack_content γs l1 -∗ stack_content γs l2 -∗ False.
   Proof.
     iIntros "Hl1 Hl2".
-    iDestruct (own_valid_2 with "Hl1 Hl2") as %[]%auth_frag_op_valid_1.
+    iCombine "Hl1 Hl2" gives %[]%auth_frag_op_valid_1.
   Qed.
 
   Definition stack_elem_to_val (stack_rep : option loc) : val :=
@@ -210,7 +210,7 @@ Section stack.
     - (* The CAS succeeded. Update everything accordingly. *)
       iMod "AU" as (l') "[Hl' [_ Hclose]]".
       iMod (mapsto_persist with "Hhead_new") as "#Hhead_new".
-      iDestruct (own_valid_2 with "Hs● Hl'") as
+      iCombine "Hs● Hl'" gives
         %[->%Excl_included%leibniz_equiv _]%auth_both_valid_discrete.
       iMod (own_update_2 with "Hs● Hl'") as "[Hs● Hl']".
       { eapply auth_update, option_local_update, (exclusive_local_update _ (Excl _)). done. }
@@ -255,14 +255,14 @@ Section stack.
         wp_if. iApply ("IH" with "AU").
       + (* Offer revoked by someone else? Impossible! *)
         iDestruct "Hst" as ">Hst".
-        iDestruct (own_valid_2 with "Htok Hst") as %[].
+        iCombine "Htok Hst" gives %[].
       + (* Offer got accepted by someone, awesome! We are done. *)
         iModIntro. iSplitR "Hst".
         { iNext. iExists OfferAcked. iFrame. }
         wp_if. by iApply "Hst".
       + (* Offer got acked by someone else? Impossible! *)
         iDestruct "Hst" as ">Hst".
-        iDestruct (own_valid_2 with "Htok Hst") as %[].
+        iCombine "Htok Hst" gives %[].
   Qed.
 
   Lemma pop_spec γs (s : val) :
@@ -284,7 +284,7 @@ Section stack.
       prove that. *)
       iDestruct "Hlist" as ">%". subst stack_rep.
       iMod "AU" as (l') "[Hl' [_ Hclose]]".
-      iDestruct (own_valid_2 with "Hs● Hl'") as
+      iCombine "Hs● Hl'" gives
         %[->%Excl_included%leibniz_equiv _]%auth_both_valid_discrete.
       iMod ("Hclose" with "Hl'") as "HΦ".
       iSplitR "HΦ"; first by eauto 10 with iFrame.
@@ -306,7 +306,7 @@ Section stack.
       + (* CAS succeeded! It must still be the same head element in the list,
         and we are done. *)
         iMod "AU" as (l') "[Hl' [_ Hclose]]".
-        iDestruct (own_valid_2 with "Hs● Hl'") as
+        iCombine "Hs● Hl'" gives
           %[->%Excl_included%leibniz_equiv _]%auth_both_valid_discrete.
         destruct l as [|v' l]; simpl.
         { (* Contradiction. *) iDestruct "Hlist" as ">%". done. }
@@ -346,13 +346,13 @@ Section stack.
         iMod (lc_fupd_elim_later with "Hlc Hoff") as "AUoff".
         iInv stackN as (stack_rep offer_rep l) "(>Hs● & >H↦ & Hlist & Hoff)".
         iMod "AUoff" as (l') "[Hl' [_ Hclose]]".
-        iDestruct (own_valid_2 with "Hs● Hl'") as
+        iCombine "Hs● Hl'" gives
           %[->%Excl_included%leibniz_equiv _]%auth_both_valid_discrete.
         iMod (own_update_2 with "Hs● Hl'") as "[Hs● Hl']".
         { eapply auth_update, option_local_update, (exclusive_local_update _ (Excl _)). done. }
         iMod ("Hclose" with "Hl'") as "HQoff".
         iMod "AU" as (l') "[Hl' [_ Hclose]]".
-        iDestruct (own_valid_2 with "Hs● Hl'") as
+        iCombine "Hs● Hl'" gives
           %[->%Excl_included%leibniz_equiv _]%auth_both_valid_discrete.
         iMod (own_update_2 with "Hs● Hl'") as "[Hs● Hl']".
         { eapply auth_update, option_local_update, (exclusive_local_update _ (Excl _)). done. }

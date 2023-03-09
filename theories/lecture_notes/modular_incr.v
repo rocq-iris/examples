@@ -75,7 +75,7 @@ Section cnt_model.
     γ ⤇[p] n -∗ γ ⤇[q] m -∗ ⌜n = m⌝.
   Proof.
     iIntros "H1 H2".
-    iDestruct (own_valid_2 with "H1 H2") as %HValid.
+    iCombine "H1 H2" gives %HValid.
     destruct HValid as [_ H2].
     iIntros "!%"; by apply to_agree_op_inv_L.
   Qed.

@@ -180,7 +180,7 @@ Lemma hwq_cont_exclusive γe elts1 elts2 :
   hwq_cont γe elts1 -∗ hwq_cont γe elts2 -∗ False.
 Proof.
   iIntros "H1 H2".
-  by iDestruct (own_valid_2 with "H1 H2") as %?%auth_frag_op_valid_1.
+  by iCombine "H1 H2" gives %?%auth_frag_op_valid_1.
 Qed.
 
 (** Operations for the CMRA used to show that back only increases. *)
@@ -258,12 +258,12 @@ Proof. apply own_update. by apply cmra_update_exclusive. Qed.
 
 Lemma contra_not_no_contra i1 i2 γc :
   no_contra γc -∗ contra γc i1 i2 -∗ False.
-Proof. iIntros "HnoC HC". iDestruct (own_valid_2 with "HnoC HC") as %[]. Qed.
+Proof. iIntros "HnoC HC". iCombine "HnoC HC" gives %[]. Qed.
 
 Lemma contra_agree i1 i2 i1' i2' γc :
   contra γc i1 i2 -∗ contra γc i1' i2' -∗ ⌜i1' = i1 ∧ i2' = i2⌝.
 Proof.
-  iIntros "HC HC'". iDestruct (own_valid_2 with "HC HC'") as %H.
+  iIntros "HC HC'". iCombine "HC HC'" gives %H.
   iPureIntro. apply to_agree_op_inv_L in H. by inversion H.
 Qed.
 
@@ -436,7 +436,7 @@ Lemma use_val_wit γs slots i l :
   slot_val_wit γs i l -∗
   ⌜val_of <$> slots !! i = Some l⌝.
 Proof.
-  iIntros "H● Hwit". iDestruct (own_valid_2 with "H● Hwit") as %H.
+  iIntros "H● Hwit". iCombine "H● Hwit" gives %H.
   iPureIntro. apply auth_both_valid_discrete in H as [H%singleton_included_l _].
   destruct H as [ps (H1 & H2%option_included)]. rewrite lookup_fmap in H1.
   destruct (slots !! i) as [d|]; last by inversion H1. simpl in H1.
@@ -469,7 +469,7 @@ Lemma use_name_tok γs slots i γ :
   slot_name_tok γs i γ -∗
   ⌜name_of <$> slots !! i = Some (Some γ)⌝.
 Proof.
-  iIntros "H● Hwit". iDestruct (own_valid_2 with "H● Hwit") as %H.
+  iIntros "H● Hwit". iCombine "H● Hwit" gives %H.
   iPureIntro. apply auth_both_valid_discrete in H as [H%singleton_included_l _].
   destruct H as [ps (H1 & H2%option_included)]. rewrite lookup_fmap in H1.
   destruct (slots !! i) as [d|]; last by inversion H1. simpl in H1.
@@ -538,7 +538,7 @@ Lemma use_committed_wit γs slots i :
   slot_committed_wit γs i -∗
   ⌜was_committed <$> slots !! i = Some true⌝.
 Proof.
-  iIntros "H● Hwit". iDestruct (own_valid_2 with "H● Hwit") as %H.
+  iIntros "H● Hwit". iCombine "H● Hwit" gives %H.
   iPureIntro. apply auth_both_valid_discrete in H as [H%singleton_included_l _].
   destruct H as [ps (H1 & H2%option_included)]. rewrite lookup_fmap in H1.
   destruct (slots !! i) as [d|]; last by inversion H1. simpl in H1.
@@ -564,7 +564,7 @@ Lemma use_written_wit γs slots i :
   slot_written_wit γs i -∗
   ⌜was_written <$> slots !! i = Some true⌝.
 Proof.
-  iIntros "H● Hwit". iDestruct (own_valid_2 with "H● Hwit") as %H.
+  iIntros "H● Hwit". iCombine "H● Hwit" gives %H.
   iPureIntro. apply auth_both_valid_discrete in H as [H%singleton_included_l _].
   destruct H as [ps (H1 & H2%option_included)]. rewrite lookup_fmap in H1.
   destruct (slots !! i) as [d|]; last by inversion H1. simpl in H1.

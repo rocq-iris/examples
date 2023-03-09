@@ -334,7 +334,7 @@ Section rdcss.
     iDestruct "Hn1" as (γ_1) "[#Meta1 Hn1]".
     iDestruct "Hn2" as (γ_2) "[#Meta2 Hn2]".
     iDestruct (meta_agree with "Meta1 Meta2") as %->.
-    by iDestruct (own_valid_2 with "Hn1 Hn2") as %?%auth_frag_op_valid_1.
+    by iCombine "Hn1 Hn2" gives %?%auth_frag_op_valid_1.
   Qed.
 
   (** A few more helper lemmas that will come up later *)
@@ -350,10 +350,10 @@ Section rdcss.
     iInv descrN as (vs) "(Hp & [NotDone | Done])".
     * (* Moved back to NotDone: contradiction. *)
       iDestruct "NotDone" as "(>Hs' & _ & _)".
-      iDestruct (own_valid_2 with "Hs Hs'") as %?. contradiction.
+      iCombine "Hs Hs'" gives %?. contradiction.
     * iDestruct "Done" as "(_ & QT & Hrest)".
       iDestruct "QT" as "[Qn | >T]"; last first.
-      { iDestruct (own_valid_2 with "Ht T") as %Contra.
+      { iCombine "Ht T" gives %Contra.
           by inversion Contra. }
       iSplitR "Qn"; last done. iIntros "!> !>". unfold descr_inv.
       iExists _. iFrame "Hp". iRight.
@@ -378,12 +378,12 @@ Section rdcss.
     { (* We cannot be [done] yet, as we own the [γ_a] token that serves
          as token for that transition. *)
       iDestruct "Done" as "(_ & _ & _ & _ & >Token_a')".
-      by iDestruct (own_valid_2 with "Token_a Token_a'") as %?.
+      by iCombine "Token_a Token_a'" gives %?.
     }
     iDestruct "NotDone" as "(>Hs & >Hln' & [Pending | Accepted])".
     { (* We also cannot be [Pending] any more because we own the [γ_a] token. *)
       iDestruct "Pending" as "[_ >(_ & _ & Token_a')]".
-      by iDestruct (own_valid_2 with "Token_a Token_a'") as %?.
+      by iCombine "Token_a Token_a'" gives %?.
     }
     (* So, we are [Accepted]. Now we can show that (InjRV l_descr) = (state_to_val s), because
        while a [descr] protocol is not [done], it owns enough of

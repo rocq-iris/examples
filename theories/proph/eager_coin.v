@@ -26,7 +26,7 @@ Section proof.
     iDestruct "H1" as (l1) "[% Hl1]".
     iDestruct "H2" as (l2) "[% Hl2]".
     simplify_eq.
-    by iDestruct (mapsto_valid_2 with "Hl1 Hl2") as %[??].
+    by iCombine "Hl1 Hl2" gives %[??].
   Qed.
 
   Lemma new_eager_coin_spec :

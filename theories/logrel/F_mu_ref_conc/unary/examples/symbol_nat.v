@@ -47,7 +47,7 @@ Section symbol_nat_sem_typ.
   Proof.
     iIntros "Hmt Htk".
     rewrite /Max_token /Token; simpl.
-    by iDestruct (own_valid_2 with "Hmt Htk") as
+    by iCombine "Hmt Htk" gives
         %[?%max_nat_included _]%auth_both_valid_discrete.
   Qed.
 

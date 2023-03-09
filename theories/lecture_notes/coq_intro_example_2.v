@@ -295,7 +295,7 @@ Section monotone_counter.
     wp_load.
     (* NOTE: We use the validity property of the RA we have constructed. From the fact that we own 
              ◯ n and ● m to conclude that n ≤ m. *)
-    iDestruct (own_valid_2 with "HOwnAuth HOwnFrag") as %H%mcounterRA_valid_auth_frag. 
+    iCombine "HOwnAuth HOwnFrag" gives %H%mcounterRA_valid_auth_frag. 
     iMod ("HClose" with "[Hpt HOwnAuth]") as "_".
     { iNext; iExists m; iFrame. }
     iModIntro.
@@ -653,7 +653,7 @@ Section ccounter.
   Proof.
     iIntros (Φ) "[Hown #Hinv] HΦ".
     rewrite /read /=. wp_lam. iInv N as (c) ">[Hγ Hpt]" "Hclose". wp_load.
-    iDestruct (own_valid_2 with "Hγ Hown") as % ?%ccounterRA_valid. (* We use the validity property of our RA. *)
+    iCombine "Hγ Hown" gives % ?%ccounterRA_valid. (* We use the validity property of our RA. *)
     iMod ("Hclose" with "[Hpt Hγ]") as "_"; [iNext; iExists c; by iFrame|].
     iApply ("HΦ" with "[-]"); rewrite /is_ccounter; eauto.
   Qed.
@@ -664,7 +664,7 @@ Section ccounter.
   Proof.
     iIntros (Φ) "[Hown #Hinv] HΦ".
     rewrite /read /=. wp_lam. iInv N as (c) ">[Hγ Hpt]" "Hclose". wp_load.
-    iDestruct (own_valid_2 with "Hγ Hown") as % <-%ccounterRA_valid_full. (* We use the validity property of our RA. *)
+    iCombine "Hγ Hown" gives % <-%ccounterRA_valid_full. (* We use the validity property of our RA. *)
     iMod ("Hclose" with "[Hpt Hγ]") as "_"; [iNext; iExists n; by iFrame|].
     iApply "HΦ"; iModIntro. iFrame "Hown #"; done.
   Qed.

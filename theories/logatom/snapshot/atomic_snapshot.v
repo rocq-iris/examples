@@ -117,7 +117,7 @@ Section atomic_snapshot.
     snapshot_content γs a1 -∗ snapshot_content γs a2 -∗ False.
   Proof.
     iIntros "H1 H2".
-    iDestruct (own_valid_2 with "H1 H2") as %[]%auth_frag_op_valid_1.
+    iCombine "H1 H2" gives %[]%auth_frag_op_valid_1.
   Qed.
 
   Definition new_timestamp t v : gmap Z val := {[ t := v ]}.
@@ -165,7 +165,7 @@ Section atomic_snapshot.
     own γ (● (Excl' n)) -∗ own γ (◯ (Excl' m)) -∗ ⌜m = n⌝.
   Proof.
     iIntros "Hγ● Hγ◯".
-    iDestruct (own_valid_2 with "Hγ● Hγ◯") as
+    iCombine "Hγ● Hγ◯" gives
         %[H%Excl_included%leibniz_equiv _]%auth_both_valid_discrete.
     done.
   Qed.
@@ -196,7 +196,7 @@ Section atomic_snapshot.
     ⌜∀ t x, T2 !! t = Some x → T1 !! t = Some x⌝.
   Proof.
     iIntros "[Hγ⚫ Hγ◯]".
-    iDestruct (own_valid_2 with "Hγ⚫ Hγ◯") as
+    iCombine "Hγ⚫ Hγ◯" gives
         %[H Hv]%auth_both_valid_discrete. iPureIntro. intros t x HT2.
     pose proof (iffLR (lookup_included (gmap_to_UR T2) (gmap_to_UR T1)) H t) as Ht.
     rewrite !lookup_fmap HT2 /= in Ht.

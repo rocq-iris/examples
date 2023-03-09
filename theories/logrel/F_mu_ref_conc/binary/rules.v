@@ -189,6 +189,14 @@ Section cfg.
     by iApply (mapstoS_valid l _ v2).
   Qed.
 
+  Global Instance mapstoS_combine_sep_gives l dq1 dq2 v1 v2 :
+    CombineSepGives (l ↦ₛ{dq1} v1) (l ↦ₛ{dq2} v2) ⌜✓ (dq1 ⋅ dq2) ∧ v1 = v2⌝.
+  Proof.
+    rewrite /CombineSepGives. iIntros "[H1 H2]". iSplit.
+    - iDestruct (mapstoS_valid_2 with "H1 H2") as %?; auto.
+    - iDestruct (mapstoS_agree with "H1 H2") as %?; auto.
+  Qed.
+
   Lemma step_insert K tp j e σ κ e' σ' efs :
     tp !! j = Some (fill K e) → head_step e σ κ e' σ' efs →
     erased_step (tp, σ) (<[j:=fill K e']> tp ++ efs, σ').

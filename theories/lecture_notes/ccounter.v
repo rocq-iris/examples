@@ -101,7 +101,7 @@ Section ccounter.
     - iIntros (m) "!# [HownE HOwnfrag]".
       iInv (N .@ "counter") as (k) "[>H1 >H2]" "HClose".
       iDestruct (makeElem_eq with "HownE H2") as %->.
-      iDestruct (own_valid_2 with "H1 HOwnfrag") as %Hleq%ccounterRA_valid.
+      iCombine "H1 HOwnfrag" gives %Hleq%ccounterRA_valid.
       iMod ("HClose" with "[H1 H2]") as "_".
       { iExists _; by iFrame. }
       iFrame; iIntros "!>!%".
@@ -122,7 +122,7 @@ Section ccounter.
     - iIntros (m) "!# [HownE HOwnfrag]".
       iInv (N .@ "counter") as (k) "[>H1 >H2]" "HClose".
       iDestruct (makeElem_eq with "HownE H2") as %->.
-      iDestruct (own_valid_2 with "H1 HOwnfrag") as %Hleq%ccounterRA_valid_full; simplify_eq.
+      iCombine "H1 HOwnfrag" gives %Hleq%ccounterRA_valid_full; simplify_eq.
       iMod ("HClose" with "[H1 H2]") as "_".
       { iExists _; by iFrame. }
       iFrame; by iIntros "!>!%".

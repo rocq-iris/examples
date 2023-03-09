@@ -257,26 +257,26 @@ Section logrel.
       + destruct (decide (l2 = l)); simplify_eq.
         * destruct (decide (l2' = l')); simplify_eq; first by iFrame.
           iInv (logN.@(l, l2')) as ([v v']) "(>Hlx & >Hlx' & Hvv) /=" "Hclose".
-          iDestruct (mapsto_valid_2 with "Hl Hlx") as %[? ?]; done.
+          iCombine "Hl Hlx" gives %[? ?]; done.
         * destruct (decide (l2' = l')); simplify_eq; last first.
           { iModIntro; iFrame; iPureIntro; intuition simplify_eq. }
           iInv (logN.@(l2, l')) as ([v v']) "(>Hlx & >Hlx' & Hvv) /=" "Hclose".
-          iDestruct (mapstoS_valid_2 with "Hl' Hlx'") as %?; done.
+          iCombine "Hl' Hlx'" gives %[??]; done.
       + iInv (logN.@(l, l1')) as ([v v']) "(>Hlx & >Hlx' & Hvv) /=" "Hclose".
-          iDestruct (mapsto_valid_2 with "Hl Hlx") as %[? ?]; done.
+          iCombine "Hl Hlx" gives %[? ?]; done.
     - destruct (decide (l1 = l2)); simplify_eq.
       + destruct (decide (l1' = l2')); simplify_eq; first by iFrame.
         iInv (logN.@(l2, l1')) as ([v v']) "(>Hlx & >Hlx' & Hvv) /=" "Hclose".
         iInv (logN.@(l2, l2')) as ([w w']) "(>Hly & >Hly' & Hww) /=" "Hclose'".
-        iDestruct (mapsto_valid_2 with "Hly Hlx") as %[? ?]; done.
+        iCombine "Hly Hlx" gives %[? ?]; done.
       + destruct (decide (l1' = l2')); simplify_eq; last first.
         { iModIntro; iFrame; iPureIntro; intuition simplify_eq. }
         destruct (decide (l2' = l')); simplify_eq.
         * iInv (logN.@(l1, l')) as ([v v']) "(>Hlx & >Hlx' & Hvv) /=" "Hclose".
-          iDestruct (mapstoS_valid_2 with "Hl' Hlx'") as %?; done.
+          iCombine "Hl' Hlx'" gives %[??]; done.
         * iInv (logN.@(l1, l2')) as ([v v']) "(>Hlx & >Hlx' & Hvv) /=" "Hclose".
           iInv (logN.@(l2, l2')) as ([w w']) "(>Hly & >Hly' & Hww) /=" "Hclose'".
-          iDestruct (mapstoS_valid_2 with "Hly' Hlx'") as %?; done.
+          iCombine "Hly' Hlx'" gives %[??]; done.
   Qed.
 
 End logrel.

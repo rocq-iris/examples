@@ -350,14 +350,14 @@ Section hocap_pred_auth.
        hocap_auth.pop_spec := hocap_auth_pop |}.
   Next Obligation.
     iIntros (???) "Hf1 Hf2".
-    iDestruct (own_valid_2 with "Hf1 Hf2") as %[]%auth_frag_op_valid_1.
+    iCombine "Hf1 Hf2" gives %[]%auth_frag_op_valid_1.
   Qed.
   Next Obligation.
     iIntros (???) "Ha1 Ha2".
-    iDestruct (own_valid_2 with "Ha1 Ha2") as %[]%auth_auth_op_valid.
+    iCombine "Ha1 Ha2" gives %[]%auth_auth_op_valid.
   Qed.
   Next Obligation.
-    iIntros (???) "Hf Ha". iDestruct (own_valid_2 with "Ha Hf") as
+    iIntros (???) "Hf Ha". iCombine "Ha Hf" gives
       %[->%Excl_included%leibniz_equiv _]%auth_both_valid_discrete. done.
   Qed.
   Next Obligation.
