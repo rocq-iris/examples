@@ -86,8 +86,8 @@ Proof.
     { iExists false, γsps. iFrame. }
     wp_pures. by wp_apply ("IH" with "[$] [$]"). }
   iSpecialize ("HRs" with "[//]"). wp_load.
-  iDestruct (own_valid_2 with "H● H◯")
-    as %[Hvalid%gset_disj_included%elem_of_subseteq_singleton _]%auth_both_valid_discrete.
+  iCombine "H● H◯"
+    gives %[Hvalid%gset_disj_included%elem_of_subseteq_singleton _]%auth_both_valid_discrete.
   iDestruct (big_sepS_delete with "HRs") as "[HR'' HRs]"; first done.
   iDestruct "HR''" as (R'') "[#Hsp' HR'']".
   iDestruct (saved_prop_agree with "Hsp Hsp'") as "#Heq".
@@ -106,8 +106,8 @@ Proof.
   rename P1 into R1; rename P2 into R2.
   iIntros (?). iDestruct 1 as (γ P R' γsp) "(#Hinv & HR & H◯ & #Hsp)".
   iInv N as (b γsps) "(>Hl & >H● & HRs)".
-  iDestruct (own_valid_2 with "H● H◯")
-    as %[Hvalid%gset_disj_included%elem_of_subseteq_singleton _]%auth_both_valid_discrete.
+  iCombine "H● H◯"
+    gives %[Hvalid%gset_disj_included%elem_of_subseteq_singleton _]%auth_both_valid_discrete.
   iMod (own_update_2 with "H● H◯") as "H●".
   { apply (auth_update_dealloc _ _ (GSet (γsps ∖ {[ γsp ]}))).
     apply gset_disj_dealloc_local_update. }

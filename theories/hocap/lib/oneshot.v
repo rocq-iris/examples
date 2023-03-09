@@ -25,8 +25,7 @@ Lemma shot_not_pending `{oneshotG Σ} γ v q :
   shot γ v -∗ pending γ q -∗ False.
 Proof.
   iIntros "Hs Hp".
-  iPoseProof (own_valid_2 with "Hs Hp") as "H".
-  iDestruct "H" as %[].
+  iCombine "Hs Hp" gives %[].
 Qed.
 Lemma shot_agree `{oneshotG Σ} γ (v w: val) :
   shot γ v -∗ shot γ w -∗ ⌜v = w⌝.

@@ -150,8 +150,8 @@ Qed.
 Lemma auth_agree γ xs ys :
   own γ (● (Excl' xs)) -∗ own γ (◯ (Excl' ys)) -∗ ⌜xs = ys⌝.
 Proof.
-  iIntros "Hγ● Hγ◯". by iDestruct (own_valid_2 with "Hγ● Hγ◯")
-    as %[<-%Excl_included%leibniz_equiv _]%auth_both_valid_discrete.
+  iIntros "Hγ● Hγ◯". by iCombine "Hγ● Hγ◯"
+    gives %[<-%Excl_included%leibniz_equiv _]%auth_both_valid_discrete.
 Qed.
 
 (** The view of the authority can be updated together with the local view. *)

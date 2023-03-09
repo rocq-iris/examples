@@ -474,8 +474,8 @@ Section proof.
       * (* The case where the lock is closed. *)
         rewrite xsEq in xsLookup. apply nth_list_with_one in xsLookup.
         assert (t = o) as ->. { apply (mod_fact _ _ i (cap)); auto. }
-        iDestruct (own_valid_2 with "Ticket Ticket2")
-          as % [_ ?%gset_disj_valid_op]%auth_frag_op_valid_1.
+        iCombine "Ticket Ticket2"
+          gives % [_ ?%gset_disj_valid_op]%auth_frag_op_valid_1.
         set_solver.
     - iMod ("Close" with "[nextPts isArr Inv Auth Part]") as "_".
       { iNext. iExists o, i, xs. iFrame. auto. }

@@ -313,7 +313,7 @@ Section monotone_counter.
     wp_bind (! _)%E.
     iInv N as (m) ">[Hpt HOwnAuth]" "HClose".
     wp_load.
-    iDestruct (@own_valid_2 _ _ _ γ with "HOwnAuth HOwnFrag") as %H%mcounterRA_valid_auth_frag.
+    iCombine "HOwnAuth HOwnFrag" gives %H%mcounterRA_valid_auth_frag.
     iMod ("HClose" with "[Hpt HOwnAuth]") as "_".
     { iNext; iExists m; iFrame. }
     iModIntro.
@@ -491,7 +491,7 @@ Section monotone_counter'.
     wp_lam.
     iInv N as (m) ">[Hpt HOwnAuth]" "HClose".
     wp_load.
-    iDestruct (@own_valid_2 _ _ _ γ with "HOwnAuth HOwnFrag") as %H%mcounterRA_valid_auth_frag'.
+    iCombine "HOwnAuth HOwnFrag" gives %H%mcounterRA_valid_auth_frag'.
     iMod ("HClose" with "[Hpt HOwnAuth]") as "_".
     { iNext; iExists m; iFrame. }
     iModIntro.
@@ -509,7 +509,7 @@ Section monotone_counter'.
     wp_bind (! _)%E.
     iInv N as (m) ">[Hpt HOwnAuth]" "HClose".
     wp_load.
-    iDestruct (@own_valid_2 _ _ _ γ with "HOwnAuth HOwnFrag") as %H%mcounterRA_valid_auth_frag'.
+    iCombine "HOwnAuth HOwnFrag" gives %H%mcounterRA_valid_auth_frag'.
     iMod ("HClose" with "[Hpt HOwnAuth]") as "_".
     { iNext; iExists m; iFrame. }
     iModIntro.
