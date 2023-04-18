@@ -52,7 +52,7 @@ Section proof.
     { iModIntro. iIntros (Y) "[Hb1 HP]".
       iInv NI as (X) "[>Hb2 HPs]" "Hcl".
       iDestruct (bag_contents_agree with "Hb1 Hb2") as %<-.
-      iMod (bag_contents_update b ({[v]} ⊎ Y) with "[$Hb1 $Hb2]") as "[Hb1 Hb2]".
+      iMod (bag_contents_update b ({[+ v +]} ⊎ Y) with "[$Hb1 $Hb2]") as "[Hb1 Hb2]".
       iFrame. iApply "Hcl".
       iNext. iExists _; iFrame.
       rewrite big_sepMS_singleton. iFrame. }
