@@ -13,7 +13,7 @@ Definition Shot {Σ} {F : oFunctor} (x : oFunctor_apply F (iPropO Σ)) : one_sho
   Cinr $ to_agree $ Next $ x.
 
 Class oneShotG (Σ : gFunctors) (F : oFunctor) :=
-  one_shot_inG :> inG Σ (one_shotR Σ F).
+  one_shot_inG :: inG Σ (one_shotR Σ F).
 Definition oneShotΣ (F : oFunctor) : gFunctors :=
   #[ GFunctor (csumRF (exclRF unitO) (agreeRF (▶ F))) ].
 Global Instance subG_oneShotΣ {Σ F} : subG (oneShotΣ F) Σ → oneShotG Σ F.

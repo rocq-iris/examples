@@ -59,7 +59,7 @@ Definition pop_stack : val :=
 (** * Definition of the required camera *************************************)
 
 Class stackG Σ := StackG {
-  stack_tokG :> inG Σ (authR (optionUR (exclR (listO valO)))) }.
+  stack_tokG :: inG Σ (authR (optionUR (exclR (listO valO)))) }.
 
 Definition stackΣ : gFunctors :=
   #[GFunctor (authR (optionUR (exclR (listO valO))))].

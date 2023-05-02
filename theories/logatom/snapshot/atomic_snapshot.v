@@ -75,8 +75,8 @@ Definition read_with_proph : val :=
 Definition timestampUR := gmapUR Z $ agreeR valO.
 
 Class atomic_snapshotG Σ := AtomicSnapshotG {
-                                atomic_snapshot_stateG :> inG Σ $ authR $ optionUR $ exclR $ valO;
-                                atomic_snapshot_timestampG :> inG Σ $ authR $ timestampUR
+                                atomic_snapshot_stateG :: inG Σ $ authR $ optionUR $ exclR $ valO;
+                                atomic_snapshot_timestampG :: inG Σ $ authR $ timestampUR
 }.
 Definition atomic_snapshotΣ : gFunctors :=
   #[GFunctor (authR $ optionUR $ exclR $ valO); GFunctor (authR timestampUR)].

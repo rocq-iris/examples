@@ -52,9 +52,9 @@ Definition mk_flat : val :=
 Definition reqR := prodR fracR (agreeR valO). (* request x should be kept same *)
 Definition toks : Type := gname * gname * gname * gname * gname. (* a bunch of tokens to do state transition *)
 Class flatG Σ := FlatG {
-  req_G :> inG Σ reqR;
-  sp_G  :> savedPredG Σ val;
-  tok_G :> inG Σ (exclR unitO);
+  req_G :: inG Σ reqR;
+  sp_G  :: savedPredG Σ val;
+  tok_G :: inG Σ (exclR unitO);
 }.
 
 Definition flatΣ : gFunctors :=

@@ -7,7 +7,7 @@ From iris.prelude Require Import options.
 (** We are going to need the oneshot RA to verify the
     Task.Join() method *)
 Definition oneshotR := csumR fracR (agreeR valO).
-Class oneshotG Σ := { oneshot_inG :> inG Σ oneshotR }.
+Class oneshotG Σ := { oneshot_inG :: inG Σ oneshotR }.
 Definition oneshotΣ : gFunctors := #[GFunctor oneshotR].
 Global Instance subG_oneshotΣ {Σ} : subG oneshotΣ Σ → oneshotG Σ.
 Proof. solve_inG. Qed.

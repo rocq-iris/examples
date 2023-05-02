@@ -58,7 +58,7 @@ Definition pop : val :=
     end.
 
 Definition channelR := exclR unitR.
-Class channelG Σ := {channel_inG :> inG Σ channelR}.
+Class channelG Σ := {channel_inG :: inG Σ channelR}.
 
 Section proofs.
   Context `{!heapGS Σ, !channelG Σ} (N : namespace).

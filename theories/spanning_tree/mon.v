@@ -21,9 +21,9 @@ Definition markingUR : ucmra := gsetUR loc.
 (** The CMRA we need. *)
 Class graphG Σ := GraphG
   {
-    graph_marking_inG :> inG Σ (authR markingUR);
+    graph_marking_inG :: inG Σ (authR markingUR);
     graph_marking_name : gname;
-    graph_inG :> inG Σ (authR graphUR);
+    graph_inG :: inG Σ (authR graphUR);
     graph_name : gname
   }.
 (** The Functor we need. *)
@@ -70,7 +70,7 @@ Definition Gmon := gmapR loc (exclR chlO).
 Definition excl_chlC_chl (ch : exclR chlO) : option (option loc * option loc) :=
   match ch with
   | Excl w => Some w
-  | Excl_Bot => None
+  | ExclBot => None
   end.
 
 Definition Gmon_graph (G : Gmon) : graph loc := omap excl_chlC_chl G.

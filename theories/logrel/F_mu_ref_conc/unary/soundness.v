@@ -4,8 +4,8 @@ From iris.program_logic Require Import adequacy.
 From iris.prelude Require Import options.
 
 Class heapPreIG Σ := HeapPreIG {
-  heap_preG_iris :> invGpreS Σ;
-  heap_preG_heap :> gen_heapGpreS loc F_mu_ref_conc.val Σ
+  heap_preG_iris :: invGpreS Σ;
+  heap_preG_heap :: gen_heapGpreS loc F_mu_ref_conc.val Σ
 }.
 
 Theorem soundness Σ `{heapPreIG Σ} e τ e' thp σ σ' :

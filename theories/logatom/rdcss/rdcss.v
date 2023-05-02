@@ -158,9 +158,9 @@ Definition tokenUR    := exclR unitO.
 Definition one_shotUR := csumR (exclR unitO) (agreeR unitO).
 
 Class rdcssG Σ := RDCSSG {
-                     rdcss_valG      :> inG Σ valUR;
-                     rdcss_tokenG    :> inG Σ tokenUR;
-                     rdcss_one_shotG :> inG Σ one_shotUR;
+                     rdcss_valG      :: inG Σ valUR;
+                     rdcss_tokenG    :: inG Σ tokenUR;
+                     rdcss_one_shotG :: inG Σ one_shotUR;
                    }.
 
 Definition rdcssΣ : gFunctors :=

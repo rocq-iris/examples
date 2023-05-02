@@ -9,7 +9,7 @@ From iris.prelude Require Import options.
 
 From iris_examples.lecture_notes Require Import modular_incr.
 
-Class ccounterG Σ := CCounterG { ccounter_inG :> inG Σ (frac_authR natR) }.
+Class ccounterG Σ := CCounterG { ccounter_inG :: inG Σ (frac_authR natR) }.
 Definition ccounterΣ : gFunctors := #[GFunctor (frac_authR natR)].
 
 Global Instance subG_ccounterΣ {Σ} : subG ccounterΣ Σ → ccounterG Σ.

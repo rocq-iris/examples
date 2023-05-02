@@ -15,7 +15,7 @@ From iris.prelude Require Import options.
     FIN v = the task has been completed with the result v *)
 (* We use this RA to verify the Task.run() method *)
 Definition saR := csumR fracR (csumR (prodR fracR (agreeR valO)) (agreeR valO)).
-Class saG Σ := { sa_inG :> inG Σ saR }.
+Class saG Σ := { sa_inG :: inG Σ saR }.
 Definition INIT `{saG Σ} γ (q: Qp) := own γ (Cinl q%Qp).
 Definition SET_RES `{saG Σ} γ (q: Qp) (v: val) := own γ (Cinr (Cinl (q%Qp, to_agree v))).
 Definition FIN `{saG Σ} γ (v: val) := own γ (Cinr (Cinr (to_agree v))).

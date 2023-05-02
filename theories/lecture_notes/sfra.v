@@ -71,8 +71,8 @@ Proof.
   (* - done. *)
 Qed.
 
-Class SFG Σ := SF_G :> inG Σ (SFRA).
-Class FracG Σ := Frac_G :> inG Σ (fracR).
+Class SFG Σ := SF_G :: inG Σ (SFRA).
+Class FracG Σ := Frac_G :: inG Σ (fracR).
 
 End RADefinitions.
 

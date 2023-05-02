@@ -89,9 +89,9 @@ Definition tokenUR    := exclR unitO.
 Definition one_shotUR := csumR (exclR unitO) (agreeR unitO).
 
 Class cincG Σ := ConditionalIncrementG {
-                     cinc_numG      :> inG Σ numUR;
-                     cinc_tokenG    :> inG Σ tokenUR;
-                     cinc_one_shotG :> inG Σ one_shotUR;
+                     cinc_numG      :: inG Σ numUR;
+                     cinc_tokenG    :: inG Σ tokenUR;
+                     cinc_one_shotG :: inG Σ one_shotUR;
                    }.
 
 Definition cincΣ : gFunctors :=

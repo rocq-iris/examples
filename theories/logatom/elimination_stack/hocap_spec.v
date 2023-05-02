@@ -287,7 +287,7 @@ hocap_auth.stack_content_frag := frag
 
 (** The CMRA & functor we need. *)
 Class hocapG Σ := HocapG {
-  hocap_stateG :> inG Σ (authR (optionUR $ exclR (listO valO)));
+  hocap_stateG :: inG Σ (authR (optionUR $ exclR (listO valO)));
 }.
 Definition hocapΣ : gFunctors :=
   #[GFunctor (exclR unitO); GFunctor (authR (optionUR $ exclR (listO valO)))].

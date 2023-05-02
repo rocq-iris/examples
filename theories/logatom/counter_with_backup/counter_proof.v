@@ -65,12 +65,12 @@ End counter_impl.
 
 (** ** Ghost state for the counter *)
 Class counterG (Σ : gFunctors) := {
-  counter_nat_gname_mapG :> ghost_mapG Σ nat gname;
-  counter_nat_gnames_mapG :> ghost_mapG Σ nat (gname * gname);
-  counter_ghost_varG :> ghost_varG Σ bool;
-  counter_mono_natG :> mono_natG Σ;
-  counter_tokenG :> inG Σ (exclR unitO);
-  counter_ghost_setG :> ghost_mapG Σ (gname * gname) unit;
+  counter_nat_gname_mapG :: ghost_mapG Σ nat gname;
+  counter_nat_gnames_mapG :: ghost_mapG Σ nat (gname * gname);
+  counter_ghost_varG :: ghost_varG Σ bool;
+  counter_mono_natG :: mono_natG Σ;
+  counter_tokenG :: inG Σ (exclR unitO);
+  counter_ghost_setG :: ghost_mapG Σ (gname * gname) unit;
 }.
 
 Definition counterΣ : gFunctors :=

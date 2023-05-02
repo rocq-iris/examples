@@ -120,10 +120,10 @@ Definition backUR := authR max_natUR.
 
 Class hwqG Σ :=
   HwqG {
-    hwq_arG   :> inG Σ eltsUR; (** Logical contents of the queue. *)
-    hwq_contG :> inG Σ contUR; (** One-shot for contradiction states. *)
-    hwq_slotG :> inG Σ slotUR; (** State data for used array slots. *)
-    hwq_back  :> inG Σ backUR; (** Used to show that back only increases. *)
+    hwq_arG   :: inG Σ eltsUR; (** Logical contents of the queue. *)
+    hwq_contG :: inG Σ contUR; (** One-shot for contradiction states. *)
+    hwq_slotG :: inG Σ slotUR; (** State data for used array slots. *)
+    hwq_back  :: inG Σ backUR; (** Used to show that back only increases. *)
   }.
 
 Definition hwqΣ : gFunctors :=

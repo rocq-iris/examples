@@ -13,8 +13,8 @@ heap. *)
 (** The CMRA & functor we need. *)
 (* Not bundling heapGS, as it may be shared with other users. *)
 Class stackG Σ := StackG {
-  stack_tokG :> inG Σ (exclR unitO);
-  stack_stateG :> inG Σ (authR (optionUR $ exclR (listO valO)));
+  stack_tokG :: inG Σ (exclR unitO);
+  stack_stateG :: inG Σ (authR (optionUR $ exclR (listO valO)));
  }.
 Definition stackΣ : gFunctors :=
   #[GFunctor (exclR unitO); GFunctor (authR (optionUR $ exclR (listO valO)))].

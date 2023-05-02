@@ -25,7 +25,7 @@ Definition to_heap {L V} `{Countable L} : gmap L V → heapUR L V :=
   fmap (λ v, (1%Qp, to_agree (v : leibnizO V))).
 
 (** The CMRA for the thread pool. *)
-Class cfgSG Σ := CFGSG { cfg_inG :> inG Σ (authR cfgUR); cfg_name : gname }.
+Class cfgSG Σ := CFGSG { cfg_inG :: inG Σ (authR cfgUR); cfg_name : gname }.
 
 Section definitionsS.
   Context `{cfgSG Σ, invGS Σ}.

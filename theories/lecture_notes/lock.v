@@ -28,7 +28,7 @@ From iris.algebra Require Import excl.
    projects, mostly with the goal of catching common mistakes. *)
 From iris.prelude Require Import options.
 
-Class lockG Σ := lock_G :> inG Σ (exclR unitR).
+Class lockG Σ := lock_G :: inG Σ (exclR unitR).
 
 Section lock_model.
 (* In order to do the proof we need to assume certain things about the

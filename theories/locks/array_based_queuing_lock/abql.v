@@ -162,7 +162,7 @@ Section algebra.
   Global Instance sumRA_cmra_discrete : CmraDiscrete sumRA.
   Proof. apply discrete_cmra_discrete. Qed.
 
-  Class sumG Σ := SumG { sum_inG :> inG Σ sumRA }.
+  Class sumG Σ := SumG { sum_inG :: inG Σ sumRA }.
   Definition sumΣ : gFunctors := #[GFunctor sumRA].
 
   Global Instance subG_sumΣ {Σ} : subG sumΣ Σ → sumG Σ.
@@ -225,9 +225,9 @@ End array_model.
 
 (** The CMRAs we need. *)
 Class alockG Σ := {
-  tlock_G :> inG Σ (authR (prodUR (optionUR (exclR natO)) (gset_disjUR nat)));
-  tlock_sumG :> sumG Σ;
-  tlock_tokenG :> inG Σ ((prodR (optionUR (exclR unitO)) (optionUR (exclR unitO))));
+  tlock_G :: inG Σ (authR (prodUR (optionUR (exclR natO)) (gset_disjUR nat)));
+  tlock_sumG :: sumG Σ;
+  tlock_tokenG :: inG Σ ((prodR (optionUR (exclR unitO)) (optionUR (exclR unitO))));
 }.
 
 Section proof.
@@ -382,7 +382,7 @@ Section proof.
     { iNext. rewrite /lock_inv. iExists 0, 0, (<[0:=true]> (replicate cap false)).
       iFrame. iSplitR.
       - by rewrite insert_length replicate_length.
-      - iLeft. iFrame. rewrite Nat.mod_0_l //. lia. }
+      - iLeft. iFrame. rewrite Nat.Div0.mod_0_l //. }
     wp_pures.
     iApply "Post".
     rewrite /is_lock. iFrame.

@@ -36,7 +36,7 @@ Definition popBag : val := rec: "pop" "b" :=
 
 Canonical Structure valmultisetO := leibnizO (gmultiset valO).
 Class bagG Σ := BagG
-{ bag_bagG :> inG Σ (prodR fracR (agreeR valmultisetO));
+{ bag_bagG :: inG Σ (prodR fracR (agreeR valmultisetO));
 }.
 
 (** Generic specification for the bag, using view shifts. *)

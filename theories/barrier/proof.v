@@ -8,8 +8,8 @@ From iris.prelude Require Import options.
 
 (** The CMRAs/functors we need. *)
 Class barrierG Σ := BarrierG {
-  barrier_inG :> inG Σ (authR (gset_disjUR gname));
-  barrier_savedPropG :> savedPropG Σ;
+  barrier_inG :: inG Σ (authR (gset_disjUR gname));
+  barrier_savedPropG :: savedPropG Σ;
 }.
 Definition barrierΣ : gFunctors :=
   #[ GFunctor (authRF (gset_disjUR gname)); savedPropΣ ].

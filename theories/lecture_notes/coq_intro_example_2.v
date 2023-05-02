@@ -218,7 +218,7 @@ Section monotone_counter.
   (* We now need to tell Coq to use our RA as one of the RA's in the instantiation of Iris. *)
   (* This is achieved via the subG constructor. All of this is boilerplate, so
      the proofs are trivial, with the tactics provided by the library. *)
-  Class mcounterG Σ := MCounterG { mcounter_inG :> inG Σ mcounterRA }.
+  Class mcounterG Σ := MCounterG { mcounter_inG :: inG Σ mcounterRA }.
   Definition mcounterΣ : gFunctors := #[GFunctor mcounterRA].
   
   Global Instance subG_mcounterΣ {Σ} : subG mcounterΣ Σ → mcounterG Σ.
@@ -410,7 +410,7 @@ Section monotone_counter'.
   (* We tell Coq that our Iris instantiation has the following resource
      algebras. Note that the only diffference from above is that we use authR
      max_natUR in place of the resource algebra mcounterRA we constructed above. *)
-  Class mcounterG' Σ := MCounterG' { mcounter_inG' :> inG Σ (authR max_natUR)}.
+  Class mcounterG' Σ := MCounterG' { mcounter_inG' :: inG Σ (authR max_natUR)}.
   Definition mcounterΣ' : gFunctors := #[GFunctor (authR max_natUR)].
 
   Global Instance subG_mcounterΣ' {Σ} : subG mcounterΣ' Σ → mcounterG' Σ.
@@ -549,7 +549,7 @@ Section ccounter.
   (* We start as we did before, telling Coq what we assume from the Iris instantiation. *)
   (* Note that now we use natR as the underlying resource algebra. This is the
      RA of natural numbers with addition as the operation. *)
-  Class ccounterG Σ := CCounterG { ccounter_inG :> inG Σ (frac_authR natR) }.
+  Class ccounterG Σ := CCounterG { ccounter_inG :: inG Σ (frac_authR natR) }.
   Definition ccounterΣ : gFunctors := #[GFunctor (frac_authR natR)].
 
   Global Instance subG_ccounterΣ {Σ} : subG ccounterΣ Σ → ccounterG Σ.

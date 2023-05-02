@@ -12,7 +12,7 @@ From iris.heap_lang.lib Require Import par.
 
 Definition cntCmra : cmra := prodR fracR (agreeR ZO).
 
-Class cntG Σ := CntG { CntG_inG :> inG Σ cntCmra }.
+Class cntG Σ := CntG { CntG_inG :: inG Σ cntCmra }.
 Definition cntΣ : gFunctors := #[GFunctor cntCmra ].
 
 Global Instance subG_cntΣ {Σ} : subG cntΣ Σ → cntG Σ.

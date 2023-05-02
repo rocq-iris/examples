@@ -8,7 +8,7 @@ From iris.prelude Require Import options.
 (** The simple syncer spec in [sync.v] implies a logically atomic spec. *)
 
 Definition syncR := prodR fracR (agreeR valO). (* track the local knowledge of ghost state *)
-Class syncG Σ := sync_tokG :> inG Σ syncR.
+Class syncG Σ := sync_tokG :: inG Σ syncR.
 Definition syncΣ : gFunctors := #[GFunctor (constRF syncR)].
 
 Global Instance subG_syncΣ {Σ} : subG syncΣ Σ → syncG Σ.
