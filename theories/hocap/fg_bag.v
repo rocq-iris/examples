@@ -60,7 +60,7 @@ Section proof.
     | _, _ => False
     end%I.
 
-  Lemma is_list_duplicate hd xs : is_list hd xs -∗ is_list hd xs ∗ is_list hd xs.
+  Lemma is_list_duplicate hd xs : is_list hd xs ⊢ is_list hd xs ∗ is_list hd xs.
   Proof.
     iInduction xs as [ | x xs ] "IH" forall (hd); simpl; eauto.
     destruct hd; last by auto.
@@ -98,7 +98,7 @@ Section proof.
   Lemma bag_contents_agree γb X Y :
     bag_contents γb X -∗ bag_contents γb Y -∗ ⌜X = Y⌝.
   Proof.
-    rewrite /bag_contents. apply bi.wand_intro_r.
+    rewrite /bag_contents. apply bi.entails_wand, bi.wand_intro_r.
     rewrite -own_op own_valid uPred.discrete_valid.
     f_equiv=> /=. rewrite -pair_op.
     by intros [_ ?%to_agree_op_inv_L].

@@ -530,7 +530,7 @@ Section counter_proof.
 
   (** *** Proof of [get] *)
   Lemma get_spec γs (c : val) :
-    is_counter γs c ⊢ <<< ∀∀ (n : nat), value γs n >>> (get c) @ ↑N <<< value γs n, RET #n>>>.
+    is_counter γs c -∗ <<< ∀∀ (n : nat), value γs n >>> (get c) @ ↑N <<< value γs n, RET #n>>>.
   Proof.
     iIntros "Counter". iIntros (Φ) "AU". destruct γs as [γ_cnt γ_ex].
     iDestruct "Counter" as (b p γ_prim γ_get γ_put) "(-> & #I)".
@@ -568,7 +568,7 @@ Section counter_proof.
 
   (** *** Proof of [get_backup] *)
   Lemma get_backup_spec γs (c: val) :
-    is_counter γs c ⊢ <<< ∀∀ (n: nat), value γs n >>> (get_backup c) @ ↑N <<< value γs n, RET #n>>>.
+    is_counter γs c -∗ <<< ∀∀ (n: nat), value γs n >>> (get_backup c) @ ↑N <<< value γs n, RET #n>>>.
   Proof.
     iIntros "Counter". iIntros (Φ) "AU". destruct γs as [γ_cnt γ_ex].
     iDestruct "Counter" as (b p γ_prim γ_get γ_put) "(-> & #I)".
@@ -589,7 +589,7 @@ Section counter_proof.
 
   (** *** Proof of [increment] *)
   Lemma increment_spec γs (c: val) :
-    is_counter γs c ⊢ <<< ∀∀ (n: nat), value γs n >>> (increment c) @ ↑N <<< value γs (n + 1), RET #n>>>.
+    is_counter γs c -∗ <<< ∀∀ (n: nat), value γs n >>> (increment c) @ ↑N <<< value γs (n + 1), RET #n>>>.
   Proof.
     iIntros "Counter". iIntros (Φ) "AU". destruct γs as [γ_cnt γ_ex].
     iDestruct "Counter" as (b p γ_prim γ_get γ_put) "(-> & #I)".

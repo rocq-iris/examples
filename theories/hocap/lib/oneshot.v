@@ -18,7 +18,7 @@ Lemma new_pending `{oneshotG Σ} : ⊢ |==> ∃ γ, pending γ 1%Qp.
 Proof. by apply own_alloc. Qed.
 Lemma shoot `{oneshotG Σ} (v: val) γ : pending γ 1%Qp ==∗ shot γ v.
 Proof.
-  apply own_update.
+  apply bi.entails_wand, own_update.
   by apply cmra_update_exclusive.
 Qed.
 Lemma shot_not_pending `{oneshotG Σ} γ v q :

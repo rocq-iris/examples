@@ -77,7 +77,7 @@ Section proof.
   Lemma bag_contents_agree γb X Y :
     bag_contents γb X -∗ bag_contents γb Y -∗ ⌜X = Y⌝.
   Proof.
-    rewrite /bag_contents. apply bi.wand_intro_r.
+    rewrite /bag_contents. apply bi.entails_wand, bi.wand_intro_r.
     rewrite -own_op own_valid uPred.discrete_valid.
     f_equiv=> /=. rewrite -pair_op.
     by intros [_ ?%to_agree_op_inv_L].

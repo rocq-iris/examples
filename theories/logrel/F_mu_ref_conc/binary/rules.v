@@ -165,7 +165,7 @@ Section cfg.
 
   Lemma mapstoS_agree l q1 q2 v1 v2 : l ↦ₛ{q1} v1 -∗ l ↦ₛ{q2} v2 -∗ ⌜v1 = v2⌝.
   Proof.
-    apply wand_intro_r.
+    apply entails_wand, wand_intro_r.
     rewrite /heapS_mapsto -own_op own_valid uPred.discrete_valid. f_equiv.
     rewrite auth_frag_op_valid -pair_op singleton_op -pair_op.
     rewrite pair_valid singleton_valid pair_valid to_agree_op_valid_L.
@@ -180,7 +180,7 @@ Section cfg.
   Lemma mapstoS_valid l q v : l ↦ₛ{q} v -∗ ✓ q.
   Proof.
     rewrite /heapS_mapsto own_valid !discrete_valid auth_frag_valid.
-    by apply pure_mono=> -[_] /singleton_valid [??].
+    by apply entails_wand, pure_mono=> -[_] /singleton_valid [??].
   Qed.
   Lemma mapstoS_valid_2 l q1 q2 v1 v2 :
     l ↦ₛ{q1} v1 -∗ l ↦ₛ{q2} v2 -∗ ✓ (q1 + q2)%Qp.

@@ -79,13 +79,13 @@ Qed.
 Lemma INIT_SET_RES `{saG Σ} (v: val) γ :
   INIT γ 1%Qp ==∗ SET_RES γ 1%Qp v.
 Proof.
-  apply own_update.
+  apply bi.entails_wand, own_update.
   by apply cmra_update_exclusive.
 Qed.
 Lemma SET_RES_FIN `{saG Σ} (v w: val) γ :
   SET_RES γ 1%Qp v ==∗ FIN γ w.
 Proof.
-  apply own_update.
+  apply bi.entails_wand, own_update.
   by apply cmra_update_exclusive.
 Qed.
 

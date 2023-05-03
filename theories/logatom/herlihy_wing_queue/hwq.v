@@ -254,7 +254,7 @@ Lemma new_no_contra : ⊢ |==> ∃ γc, no_contra γc.
 Proof. by apply own_alloc. Qed.
 
 Lemma to_contra i1 i2 γc : no_contra γc ==∗ contra γc i1 i2.
-Proof. apply own_update. by apply cmra_update_exclusive. Qed.
+Proof. apply bi.entails_wand, own_update. by apply cmra_update_exclusive. Qed.
 
 Lemma contra_not_no_contra i1 i2 γc :
   no_contra γc -∗ contra γc i1 i2 -∗ False.

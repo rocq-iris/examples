@@ -364,7 +364,7 @@ Section proofs.
   Proof.
     iIntros (Φ) "(Hstack & Hupd) HΦ".
     iDestruct "Hstack" as (mailbox l) "(-> & #Hmailbox & #Hinv)".
-    iDestruct (bi.and_mono_r with "Hupd") as "Hupd"; first apply inner_mask_promote.
+    iDestruct (bi.and_mono_r with "Hupd") as "Hupd"; first by iApply inner_mask_promote.
     iDestruct (bi.and_mono_l _ _ (∀ (v : val) (xs : list val), _)%I with "Hupd") as "Hupd".
     { iIntros "Hupdcons". iIntros (v xs). iSpecialize ("Hupdcons" $! v xs). iApply (inner_mask_promote with "Hupdcons"). }
     iLöb as "IH".
