@@ -262,9 +262,7 @@ Section contents.
       iDestruct "HQ" as "[[HQ Htoken2]|Hshot]"; last first.
       { iExFalso. iApply (shot_not_pending with "Hshot Htoken"). }
       iMod (shoot v γ with "[Htoken Htoken2]") as "#Hshot".
-      { iApply (fractional_split_2 with "Htoken Htoken2").
-        assert ((1 / 2 + 1 / 2)%Qp = 1%Qp) as -> by apply Qp.div_2.
-        apply _. }
+      { iCombine "Htoken Htoken2" as "?". done. }
       iMod ("Hcl" with "[Hstate Hres]") as "_".
       { iNext. iRight. iRight. iExists _. iFrame. iFrame "HFIN".
         iRight. eauto. }
@@ -305,9 +303,7 @@ Section contents.
     iInv (N.@"task") as "[>(Hstate & Hres & Hpending & HINIT')|[Hstatus|Hstatus]]" "Hcl".
     - wp_store.
       iMod (INIT_SET_RES v γ' with "[HINIT HINIT']") as "[HSETRES HSETRES']".
-      { iApply (fractional_split_2 with "HINIT HINIT'").
-        assert ((1 / 2 + 1 / 2)%Qp = 1%Qp) as -> by apply Qp.div_2.
-        apply _. }
+      { iSplitL "HINIT"; done. }
       iMod ("Hcl" with "[HSETRES Hstate Hres Hpending]") as "_".
       { iNext. iRight. iLeft. iExists _; iFrame. }
       iModIntro. wp_seq.
@@ -317,9 +313,7 @@ Section contents.
         wp_store.
         iDestruct (SET_RES_agree with "HSETRES HSETRES'") as %->.
         iMod (SET_RES_FIN v v with "[HSETRES HSETRES']") as "#HFIN".
-        { iApply (fractional_split_2 with "HSETRES HSETRES'").
-          assert ((1 / 2 + 1 / 2)%Qp = 1%Qp) as -> by apply Qp.div_2.
-          apply _. }
+        { iSplitL "HSETRES"; done. }
         iMod ("Hcl" with "[-HΦ]") as "_".
         { iNext. do 2 iRight. iExists _; iFrame. iFrame "HFIN". iLeft. iFrame.  }
         iModIntro. by iApply "HΦ".

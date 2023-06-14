@@ -34,7 +34,7 @@ Proof.
   iCombine "Hs1 Hs2" gives %Hfoo.
   iPureIntro. by apply to_agree_op_inv_L.
 Qed.
-Global Instance pending_fractional `{oneshotG Σ} γ : Fractional (pending γ)%I.
+Global Instance pending_fractional `{oneshotG Σ} γ : Fractional (pending γ).
 Proof.
   intros p q. rewrite /pending.
   rewrite -own_op. by f_equiv.

@@ -85,8 +85,7 @@ Section cnt_model.
   Proof.
     iIntros "H1 H2".
     iDestruct (makeElem_eq with "H1 H2") as %->.
-    iCombine "H1" "H2" as "H".
-    by rewrite makeElem_op.
+    iCombine "H1" "H2" as "H". done.
   Qed.
 
   Lemma makeElem_update γ (n m k : Z):
