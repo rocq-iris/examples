@@ -15,7 +15,7 @@ Global Instance subG_syncΣ {Σ} : subG syncΣ Σ → syncG Σ.
 Proof. solve_inG. Qed.
 
 Section atomic_sync.
-  Context `{EqDecision A, !heapGS Σ, !lockG Σ}.
+  Context `{EqDecision A, !heapGS Σ}.
   Canonical AO := leibnizO A.
   Context `{!inG Σ (prodR fracR (agreeR AO))}.
 

@@ -13,6 +13,8 @@ From iris.heap_lang.lib Require Import lock spin_lock.
 From iris_examples.hocap Require Import abstract_bag.
 From iris.prelude Require Import options.
 
+Local Existing Instance spin_lock.
+
 (** Coarse-grained bag implementation using a spin lock *)
 Definition newBag : val := λ: <>,
   let: "r" := ref NONE in

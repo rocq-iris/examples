@@ -10,6 +10,8 @@ From iris.prelude Require Import options.
 
 Set Default Proof Using "Type*".
 
+Local Existing Instance spin_lock.
+
 Definition doOp : val :=
   λ: "p",
      match: !"p" with
@@ -19,7 +21,8 @@ Definition doOp : val :=
 
 Definition try_srv : val :=
   λ: "lk" "s",
-    if: try_acquire "lk"
+    (* try_acquire is not part of the lock interface so we poke the abstraction *)
+    if: spin_lock.try_acquire "lk"
       then let: "hd" := !"s" in
            treiber.iter "hd" doOp;;
            release "lk"
@@ -219,7 +222,7 @@ Section proof.
     ⊢ WP try_srv lk #s {{ Φ }}.
   Proof.
     iIntros "(#? & #? & HΦ)". wp_lam. wp_pures.
-    wp_apply (try_acquire_spec with "[]"); first done.
+    wp_apply (spin_lock.try_acquire_spec with "[]"); first done.
     iIntros ([]); last by (iIntros; wp_if).
     iIntros "[Hlocked [Ho2 HR]]".
     wp_if. wp_bind (! _)%E.

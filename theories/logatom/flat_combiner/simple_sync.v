@@ -8,6 +8,8 @@ From iris_examples.logatom.flat_combiner Require Import sync.
 From iris.prelude Require Import options.
 Import uPred.
 
+Local Existing Instance spin_lock.
+
 Definition mk_sync: val :=
   λ: <>,
        let: "l" := newlock #() in

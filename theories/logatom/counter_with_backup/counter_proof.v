@@ -14,7 +14,7 @@ From iris.prelude Require Import options.
 (** As explained in the paper, we build upon the abstract logically-atomic heap defined in [atomic_heap.v], not HeapLang's built-in heap primitives. *)
 
 Section counter_impl.
-  Context {Σ : gFunctors} `{!heapGS Σ, !atomic_heap}.
+  Context `{!atomic_heap}.
   Import atomic_heap.notation.
   (** ** Definition of the operations. *)
 
@@ -88,7 +88,7 @@ Proof. solve_inG. Qed.
 Section counter_proof.
   Context {Σ: gFunctors}.
   Context `{!heapGS Σ}
-          `{!atomic_heap}
+          `{!atomic_heap, !atomic_heapGS Σ}
           `{!counterG Σ}.
   Context (N: namespace).
   Import atomic_heap.notation.
@@ -640,7 +640,7 @@ Section counter_proof.
 End counter_proof.
 
 (** Our particular counter is an instance of the logically-atomic counter interface *)
-Program Definition atomic_counter `{!heapGS Σ, counterG Σ} `{!atomic_heap} :
+Program Definition atomic_counter `{!heapGS Σ, counterG Σ} `{!atomic_heap, atomic_heapGS Σ} :
   atomic_counter Σ :=
   {|
       counter_spec.new_counter_spec := new_counter_spec;
@@ -649,10 +649,10 @@ Program Definition atomic_counter `{!heapGS Σ, counterG Σ} `{!atomic_heap} :
       counter_spec.get_backup_spec := get_backup_spec;
   |}.
 Next Obligation.
-  intros ????[] ?. rewrite /value. apply _.
+  intros Σ ????? [] ?. rewrite /value. apply _.
 Qed.
 Next Obligation.
-  intros ???? [γ_cnt γ_ex] ??. iIntros "[_ H1] [_ H2]".
+  intros Σ ????? [γ_cnt γ_ex] ??. iIntros "[_ H1] [_ H2]".
   iCombine "H1 H2" gives %[].
 Qed.
 
