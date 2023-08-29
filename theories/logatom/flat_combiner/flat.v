@@ -10,6 +10,8 @@ From iris.prelude Require Import options.
 
 Set Default Proof Using "Type*".
 
+Local Existing Instance spin_lock.
+
 Definition doOp : val :=
   λ: "p",
      match: !"p" with
@@ -19,7 +21,7 @@ Definition doOp : val :=
 
 Definition try_srv : val :=
   λ: "lk" "s",
-    if: try_acquire "lk"
+    if: spin_lock.try_acquire "lk"
       then let: "hd" := !"s" in
            treiber.iter "hd" doOp;;
            release "lk"
@@ -42,7 +44,7 @@ Definition install : val :=
 
 Definition mk_flat : val :=
   λ: <>,
-   let: "lk" := newlock #() in
+   let: "lk" := spin_lock.newlock #() in
    let: "s" := new_stack #() in
    λ: "f" "x",
       let: "p" := install "f" "x" "s" in
@@ -219,8 +221,8 @@ Section proof.
     ⊢ WP try_srv lk #s {{ Φ }}.
   Proof.
     iIntros "(#? & #? & HΦ)". wp_lam. wp_pures.
-    wp_bind (try_acquire _). iApply (try_acquire_spec with "[]"); first done.
-    iNext. iIntros ([]); last by (iIntros; wp_if).
+    wp_apply (spin_lock.try_acquire_spec with "[]"); first done.
+    iIntros ([]); last by (iIntros; wp_if).
     iIntros "[Hlocked [Ho2 HR]]".
     wp_if. wp_bind (! _)%E.
     iInv N as "H" "Hclose".
@@ -255,7 +257,7 @@ Section proof.
     + iDestruct "Hp" as (f x) "(>Hp & Hs')".
       wp_load. iMod ("Hclose" with "[Hp Hs']").
       { iNext. iFrame. iRight. iLeft. iExists f, x. iFrame. }
-      iModIntro. wp_match. wp_bind (try_srv _ _). iApply try_srv_spec=>//.
+      iModIntro. wp_match. wp_apply try_srv_spec=>//.
       iFrame "#". wp_seq. iApply ("IH" with "Ho3"); eauto.
     + iDestruct "Hp" as (f x) "(Hp & Hx & Ho2 & Ho4)".
       wp_load. iMod ("Hclose" with "[-Ho3 HΦ]") as "_".
@@ -276,23 +278,23 @@ Section proof.
   Proof using Type* N.
     iIntros (R Φ) "HR HΦ".
     iMod (own_alloc (Excl ())) as (γr) "Ho2"; first done.
-    wp_lam. wp_bind (newlock _).
-    iApply (newlock_spec (own γr (Excl ()) ∗ R)%I with "[$Ho2 $HR]")=>//.
-    iNext. iIntros (lk γlk) "#Hlk".
-    wp_let. wp_bind (new_stack _).
-    iApply (new_bag_spec N (p_inv' R γm γr))=>//.
-    iNext. iIntros (s) "#Hss".
+    wp_lam.
+    wp_apply (newlock_spec (own γr (Excl ()) ∗ R)%I with "[$Ho2 $HR]")=>//.
+    iIntros (lk γlk) "#Hlk".
+    wp_let.
+    wp_apply (new_bag_spec N (p_inv' R γm γr))=>//.
+    iIntros (s) "#Hss".
     wp_pures. iModIntro. iApply "HΦ".
     iModIntro. iIntros (f). wp_pures.
     iIntros "!> !>" (P Q x) "#Hf !>".
-    iIntros (Φ') "Hp HΦ'". wp_pures. wp_bind (install _ _ _).
-    iApply (install_spec R P Q f x γm γr s with "[Hp]")=>//.
+    iIntros (Φ') "Hp HΦ'". wp_pures.
+    wp_apply (install_spec R P Q f x γm γr s with "[Hp]")=>//.
     { iFrame. iFrame "#". }
-    iNext. iIntros (p [[[[γx γ1] γ3] γ4] γq]) "[(Ho3 & Hx & HoQ) #?]".
-    wp_let. wp_bind (loop _ _ _).
-    iApply (loop_spec with "[-Hx HoQ HΦ']")=>//.
+    iIntros (p [[[[γx γ1] γ3] γ4] γq]) "[(Ho3 & Hx & HoQ) #?]".
+    wp_let.
+    wp_apply (loop_spec with "[-Hx HoQ HΦ']")=>//.
     { iFrame "#". iFrame. }
-    iNext. iIntros (v1 v2) "Hs".
+    iIntros (v1 v2) "Hs".
     iDestruct "Hs" as (Q') "(Hx' & HoQ' & HQ')".
     destruct (decide (x = v1)) as [->|Hneq].
     - iDestruct (saved_pred_agree _ _ _ _ _ v2 with "[$HoQ] [HoQ']") as "Heq"; first by iFrame.
