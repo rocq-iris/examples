@@ -76,9 +76,9 @@ Proof.
   - eauto.
   - by iIntros "(? & _)".
   - iDestruct 1 as (l hd') "(? & ? & H & ?)". rewrite IHxs. iDestruct "H" as "(H_isListxs' & ?)".
-    iFrame. iExists l, hd'. iFrame.
+    iFrame.
   - iDestruct 1 as "(H_isList & ? & H)". iDestruct "H_isList" as (l hd') "(? & ? & ?)".
-    iExists l, hd'. rewrite IHxs. iFrame.
+    iFrame. rewrite IHxs. iFrame.
 Qed.
 
 (* The predicate
@@ -246,7 +246,7 @@ Proof.
      wp_match. do 2 (wp_load; wp_proj; wp_let). wp_op.
      wp_store. iApply ("IH" with "Hxs").
      iNext. iIntros (w) "H'". iApply "H". iDestruct "H'" as "[Hw Hislist]".
-     iFrame. iExists l, hd'. iFrame. done.
+     iFrame. done.
 Qed.
 
 
@@ -328,8 +328,7 @@ Proof.
     iApply ("IH" with "H_isList H_Pxs' H_Iempty [H_l H_Px H_inv]").
     iNext. iIntros (r) "(H_isListxs' & H_Ixs')".
     iApply ("H_f" with "[$H_Ixs' $H_Px] [H_inv H_isListxs' H_l]").
-    iNext. iIntros (r') "H_inv'". iApply "H_inv". iFrame.
-    iExists l, hd'. by iFrame.
+    iNext. iIntros (r') "H_inv'". iApply "H_inv". iFrame. done.
 Qed.
 
 Lemma foldr_spec_PPI P I (f a hd : val) (xs : list val) :

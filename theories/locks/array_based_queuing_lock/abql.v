@@ -385,8 +385,7 @@ Section proof.
       - iLeft. iFrame. rewrite Nat.Div0.mod_0_l //. }
     wp_pures.
     iApply "Post".
-    rewrite /is_lock. iFrame.
-    iExists _, _. auto.
+    rewrite /is_lock. iFrame. auto.
   Qed.
 
   Lemma rem_mod_eq (x y : nat) : (0 < y) → (x `rem` y)%Z = x `mod` y.

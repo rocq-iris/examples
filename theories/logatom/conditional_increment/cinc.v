@@ -298,11 +298,10 @@ Section conditional_counter.
     iSplitL "Hl_ghost_inv Hl_ghost Q Hp' Hl".
     (* Update state to Done. *)
     { iNext. iExists _. iFrame "Hp'". iRight. unfold done_state.
-      iFrame "#∗". iDestruct "Hl_ghost_inv" as (v) "Hl_ghost_inv".
-      iDestruct (pointsto_agree with "Hl_ghost Hl_ghost_inv") as %<-.
-      iSplitR "Hl"; iExists _; iFrame. }
+      iDestruct "Hl_ghost_inv" as (v) "Hl_ghost_inv".
+      iDestruct (pointsto_agree with "Hl_ghost Hl_ghost_inv") as %<-. iFrame "#∗". }
     iModIntro. iSplitR "HQ".
-    { iNext. iDestruct "Hc" as "[Hc1 Hc2]".
+    { iNext. iDestruct "Hc" as "[Hc1 Hc2]". 
       iExists l_new, _, (Quiescent n). iFrame. }
     wp_seq. iApply "HQ".
     iApply state_done_extract_Q; done.

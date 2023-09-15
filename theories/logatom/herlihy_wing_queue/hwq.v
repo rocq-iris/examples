@@ -2160,8 +2160,7 @@ Proof.
         intros ->. apply Hpref in Hk as (H1 & H2).
         rewrite Hi_free in H1. inversion H1. }
       iSplitL "Hbig Hpend_tok_i AU".
-      { iApply big_sepM_insert; first done. iFrame. iSplit; first done.
-        iExists (Φ #()). iFrame. done. }
+      { iApply big_sepM_insert; first done. iFrame "#∗". }
       iPureIntro. subst new_slots. repeat split_and; try done.
       - intros k. destruct sz as [|sz]; first by lia.
         split; intros Hk.

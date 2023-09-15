@@ -228,7 +228,7 @@ Section contents.
     iMod (inv_alloc (N.@"task") _ (task_inv γ γ' status res (Q a))%I with "[-HP HΦ Htask Hinit]") as "#Hinv".
     { iNext. iLeft. iFrame. }
     wp_pures. iModIntro. iApply "HΦ".
-    iFrame. iSplitL; iExists _,_,_; iFrame "Hinv"; eauto.
+    unfold isTask, task. iFrame "#∗". eauto.
   Qed.
 
   Lemma task_Join_spec γb γ γ' (r t a : val) P Q :
@@ -248,14 +248,14 @@ Section contents.
       iMod ("Hcl" with "[Hstate Hres]") as "_".
       { iNext; iLeft; iFrame. }
       iModIntro. wp_op. wp_if.
-      rewrite /task_Join. iApply ("IH" with "[$Htoken] HΦ").
+      rewrite /task_Join. iApply ("IH" with "[Htoken] HΦ").
       iExists _,_,_; iFrame "Htask"; eauto.
     - iDestruct "Hstatus" as (v) "(>Hstate & >Hres & HQ)".
       wp_load.
       iMod ("Hcl" with "[Hstate Hres HQ]") as "_".
       { iNext; iRight; iLeft. iExists _; iFrame. }
       iModIntro. wp_op. wp_if.
-      rewrite /task_Join. iApply ("IH" with "[$Htoken] HΦ").
+      rewrite /task_Join. iApply ("IH" with "[Htoken] HΦ").
       iExists _,_,_; iFrame "Htask"; eauto.
     - iDestruct "Hstatus" as (v) "(>Hstate & >Hres & #HFIN & HQ)".
       wp_load.
@@ -264,8 +264,7 @@ Section contents.
       iMod (shoot v γ with "[Htoken Htoken2]") as "#Hshot".
       { iCombine "Htoken Htoken2" as "?". done. }
       iMod ("Hcl" with "[Hstate Hres]") as "_".
-      { iNext. iRight. iRight. iExists _. iFrame. iFrame "HFIN".
-        iRight. eauto. }
+      { iNext. iRight. iRight. iFrame "#∗". }
       iModIntro. wp_op. wp_if. wp_bind (!#res)%E.
       iInv (N.@"task") as "[>(Hstate & Hres & Hpending & HINIT)|[Hstatus|Hstatus]]" "Hcl".
       { iExFalso. iApply (shot_not_pending with "Hshot Hpending"). }

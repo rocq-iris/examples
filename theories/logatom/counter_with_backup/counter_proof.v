@@ -232,8 +232,7 @@ Section counter_proof.
       rewrite bool_decide_decide; destruct decide; first lia.
       iDestruct "Hget" as (O) "[Hmap Hset]".
       iMod (logicall_execute_gets_set with "[$Hc $Hset]") as "[Hc Hset]".
-      iModIntro. iFrame. iSplitL "Hset Hmap".
-      { iExists O. iFrame. }
+      iModIntro. iFrame.
       iApply (big_sepM_impl with "Hgets"). iModIntro.
       iIntros (k γ' Hel). iDestruct 1 as (O') "(Hmap & Hset)".
       iExists O'. iFrame. iApply (big_sepS_impl with "Hset").
@@ -245,9 +244,9 @@ Section counter_proof.
     - eapply delete_notin in Hlook. rewrite -Hlook. iModIntro. iFrame.
       iApply (big_sepM_impl with "Hgets"). iModIntro.
       iIntros (k γ' Hel). iDestruct 1 as (O') "(Hmap & Hset)".
-      iExists O'. iFrame. iApply (big_sepS_impl with "Hset").
+      iFrame. iApply (big_sepS_impl with "Hset").
       iModIntro. iIntros ([γ1' γ2'] Hel'). iDestruct 1 as (Ψ) "(I' & Hvar & Hcred)".
-      iExists Ψ. iFrame "I'". rewrite !bool_decide_decide.
+      iFrame "I'". rewrite !bool_decide_decide.
       destruct decide, decide; [iFrame| | lia | iFrame].
       assert (S n = k) as Heq by lia. rewrite Heq lookup_delete in Hel.
       naive_solver.
@@ -288,7 +287,6 @@ Section counter_proof.
     iSplitR ""; last done.
     iSplit; first done. rewrite !big_sepM_insert //.
     iFrame. iSplitR; first eauto with iFrame.
-    iExists ∅. iFrame.
     rewrite big_sepS_empty. done.
   Qed.
 
@@ -483,7 +481,7 @@ Section counter_proof.
     awp_apply load_spec.
     iInv "I" as (G P n_b n_p) "(>%Hn & >Hb & >Hp & >Hcnt & >Hprim & Hrest)".
     iAaccIntro with "Hp".
-    { iIntros "?". iModIntro. rewrite /counter_inv /counter_inv_inner. iFrame "Cnt Hone". iFrame. iNext. iExists G, P, n_b, n_p. eauto with iFrame. }
+    { iIntros "?". iModIntro. rewrite /counter_inv /counter_inv_inner. by iFrame. }
     iIntros "Hp". iDestruct (mono_nat_auth_own_agree with "Hcnt Cnt") as %[_ ->].
     iDestruct (mono_nat_lb_own_get with "Hprim") as "#Hn_p".
     iModIntro. iSplitR "Cnt Cnt2 Hone".

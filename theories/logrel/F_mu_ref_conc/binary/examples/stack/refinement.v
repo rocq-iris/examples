@@ -303,9 +303,8 @@ Section Stack_refinement.
         iApply ("Hlat" $! istk6 zn2 with "[Hj] [HLK]"); trivial.
         rewrite StackLink_unfold; iModIntro; simpl.
         iDestruct "HLK" as "[Histk6 [HLK|HLK]]";
-          iExists istk6, w'; iSplit; auto; iFrame "#".
-        iRight. iDestruct "HLK" as (? ? ? ?) "(?&?&?&?)".
-        iExists _, _, _, _; iFrame "#".
+          iExists istk6, w'; iSplit; auto. iFrame "Histk6".
+        iDestruct "HLK" as (? ? ? ?) "(?&?&?&?)". iFrame "#".
   Qed.
 End Stack_refinement.
 
