@@ -285,10 +285,10 @@ Section rdcss.
   Local Hint Extern 0 (environments.envs_entails _ (descr_inv _ _ _ _ _ _ _ _ _ _)) => unfold descr_inv : core.
 
   Definition rdcss_au Q l_n l_m m1 n1 n2 :=
-    (AU << ∃∃ (m n : val), (l_m ↦_(λ _, True) m) ∗ rdcss_state l_n n >>
+    (AU <{ ∃∃ (m n : val), (l_m ↦_(λ _, True) m) ∗ rdcss_state l_n n }>
          @ ⊤∖(↑N ∪ ↑inv_heapN), ∅
-        << (l_m ↦_(λ _, True) m) ∗ (rdcss_state l_n (if (decide ((m = m1) ∧ (n = n1))) then n2 else n)),
-           COMM Q n >>)%I.
+        <{ (l_m ↦_(λ _, True) m) ∗ (rdcss_state l_n (if (decide ((m = m1) ∧ (n = n1))) then n2 else n)),
+           COMM Q n }>)%I.
 
   Definition rdcss_inv l_n :=
     (∃ (s : abstract_state),
@@ -556,9 +556,9 @@ Section rdcss.
     val_is_unboxed m1 →
     val_is_unboxed (InjLV n1) →
     is_rdcss l_n -∗
-    <<< ∀∀ (m n: val), l_m ↦_(λ _, True) m ∗ rdcss_state l_n n >>>
+    <<{ ∀∀ (m n: val), l_m ↦_(λ _, True) m ∗ rdcss_state l_n n }>>
         rdcss #l_m #l_n m1 n1 n2 @ ↑N ∪ ↑inv_heapN
-    <<< l_m ↦_(λ _, True) m ∗ rdcss_state l_n (if decide (m = m1 ∧ n = n1) then n2 else n), RET n >>>.
+    <<{ l_m ↦_(λ _, True) m ∗ rdcss_state l_n (if decide (m = m1 ∧ n = n1) then n2 else n) | RET n }>>.
   Proof.
     iIntros (Hm1_unbox Hn1_unbox) "(#InvR & #InvGC & %)". iIntros (Φ) "AU".
     (* allocate fresh descriptor *)
@@ -654,9 +654,9 @@ Section rdcss.
   (** ** Proof of [get] *)
   Lemma get_spec l_n :
     is_rdcss l_n -∗
-    <<< ∀∀ (n : val), rdcss_state l_n n >>>
+    <<{ ∀∀ (n : val), rdcss_state l_n n }>>
         get #l_n @↑N
-    <<< rdcss_state l_n n, RET n >>>.
+    <<{ rdcss_state l_n n | RET n }>>.
   Proof.
     iIntros "(#InvR & #InvGC & %)" (Φ) "AU". iLöb as "IH".
     wp_lam. wp_bind (! _)%E. iInv rdcssN as (s) "(>Hln & Hrest)". wp_load.

@@ -1208,8 +1208,8 @@ Qed.
 
 (** Atomic update for the insertion of [l], with post-condition [Q]. *)
 Definition enqueue_AU γe l Q :=
-  (AU << ∃∃ ls : list loc, hwq_cont γe ls >> @ ⊤ ∖ ↑N, ∅
-      << hwq_cont γe (ls ++ [l]), COMM Q >>)%I.
+  (AU <{ ∃∃ ls : list loc, hwq_cont γe ls }> @ ⊤ ∖ ↑N, ∅
+      <{ hwq_cont γe (ls ++ [l]), COMM Q }>)%I.
 
 (*
 When a contradiction is going on, we have [cont = WithCont i1 i2] where:
@@ -1528,9 +1528,9 @@ Qed.
 
 Lemma enqueue_spec sz γe (q : val) (l : loc) :
   is_hwq sz γe q -∗
-  <<< ∀∀ (ls : list loc), hwq_cont γe ls >>>
+  <<{ ∀∀ (ls : list loc), hwq_cont γe ls }>>
     enqueue q #l @ ↑N
-  <<< hwq_cont γe (ls ++ [l]), RET #() >>>.
+  <<{ hwq_cont γe (ls ++ [l]) | RET #() }>>.
 Proof.
   iIntros "Hq" (Φ) "AU".
   iDestruct "Hq" as (γb γi γc γs ℓ_ar ℓ_back p ->) "#Inv".
@@ -2497,9 +2497,9 @@ Qed.
 
 Lemma dequeue_spec sz γe (q : val) :
   is_hwq sz γe q -∗
-  <<< ∀∀ (ls : list loc), hwq_cont γe ls >>>
+  <<{ ∀∀ (ls : list loc), hwq_cont γe ls }>>
     dequeue q @ ↑N
-  <<< ∃∃ (l : loc) ls', ⌜ls = l :: ls'⌝ ∗ hwq_cont γe ls', RET #l >>>.
+  <<{ ∃∃ (l : loc) ls', ⌜ls = l :: ls'⌝ ∗ hwq_cont γe ls' | RET #l }>>.
 Proof.
   iIntros "Hq" (Φ) "AU". iLöb as "IH".
   iDestruct "Hq" as (γb γi γc γs ℓ_ar ℓ_back p ->) "#Inv".

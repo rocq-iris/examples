@@ -184,9 +184,9 @@ Section conditional_counter.
        ∨ own γ_s (Cinr $ to_agree ()) ∗ done_state Q l l_ghost_winner γ_t))%I.
 
   Local Definition cinc_au Q γs f :=
-    (AU << ∃∃ (b : bool) (n : Z), counter_content γs n ∗ f ↦_(λ _, True) #b >>
+    (AU <{ ∃∃ (b : bool) (n : Z), counter_content γs n ∗ f ↦_(λ _, True) #b }>
            @ ⊤∖(↑N ∪ ↑inv_heapN), ∅
-        << counter_content γs (if b then n + 1 else n)%Z ∗ f ↦_(λ _, True) #b, COMM Q >>)%I.
+        <{ counter_content γs (if b then n + 1 else n)%Z ∗ f ↦_(λ _, True) #b, COMM Q }>)%I.
 
   Definition counter_inv γ_n c :=
     (∃ (l : loc) (q : Qp) (s : abstract_state),
@@ -432,9 +432,9 @@ Section conditional_counter.
 
   Lemma cinc_spec γs v (f: loc) :
     is_counter γs v -∗
-    <<< ∀∀ (b : bool) (n : Z), counter_content γs n ∗ f ↦_(λ _, True) #b >>>
+    <<{ ∀∀ (b : bool) (n : Z), counter_content γs n ∗ f ↦_(λ _, True) #b }>>
         cinc v #f @ (↑N ∪ ↑inv_heapN)
-    <<< counter_content γs (if b then n + 1 else n)%Z ∗ f ↦_(λ _, True) #b, RET #() >>>.
+    <<{ counter_content γs (if b then n + 1 else n)%Z ∗ f ↦_(λ _, True) #b | RET #() }>>.
   Proof.
     iIntros "#InvC". iDestruct "InvC" as (c_l [-> ?]) "[#GC #InvC]".
     iIntros (Φ) "AU". iLöb as "IH".
@@ -515,9 +515,9 @@ Section conditional_counter.
 
   Lemma get_spec γs v :
     is_counter γs v -∗
-    <<< ∀∀ (n : Z), counter_content γs n >>>
+    <<{ ∀∀ (n : Z), counter_content γs n }>>
         get v @ (↑N ∪ ↑inv_heapN)
-    <<< counter_content γs n, RET #n >>>.
+    <<{ counter_content γs n | RET #n }>>.
   Proof.
     iIntros "#InvC" (Φ) "AU". iDestruct "InvC" as (c_l [-> ?]) "[GC InvC]".
     iLöb as "IH". wp_lam. wp_bind (! _)%E.

@@ -44,9 +44,9 @@ Section tada.
     else True.
 
   Local Definition acquire_AU γ (Q : iProp Σ) : iProp Σ :=
-    AU << ∃∃ s : state, tada_lock_state γ s >>
+    AU <{ ∃∃ s : state, tada_lock_state γ s }>
        @ ⊤ ∖ ↑N, ∅
-       << tada_lock_state γ Locked, COMM Q >>.
+       <{ tada_lock_state γ Locked, COMM Q }>.
 
   Local Instance acquire_AU_proper γ :
     NonExpansive (acquire_AU γ).
@@ -197,9 +197,9 @@ Section tada.
   Lemma acquire_tada_spec γ lk :
     tada_is_lock γ lk -∗
     £2 -∗
-    <<< ∀∀ s, tada_lock_state γ s >>>
+    <<{ ∀∀ s, tada_lock_state γ s }>>
       l.(acquire) lk @ ↑N
-    <<< tada_lock_state γ Locked, RET #() >>>.
+    <<{ tada_lock_state γ Locked | RET #() }>>.
   Proof.
     iIntros "[#Hislock #Hinv] [Hlc1 Hlc2] %Φ AU".
     iMod (register_lock_acquire with "Hinv AU") as (q) "[Hown Hloan]".
@@ -218,9 +218,9 @@ Section tada.
 
   Lemma release_tada_spec γ lk :
     tada_is_lock γ lk -∗
-    <<< tada_lock_state γ Locked >>>
+    <<{ tada_lock_state γ Locked }>>
       l.(release) lk @ ↑N
-    <<< tada_lock_state γ Free, RET #() >>>.
+    <<{ tada_lock_state γ Free | RET #() }>>.
   Proof.
     iIntros "[#Hislock _] %Φ AU". iApply fupd_wp.
     iMod "AU" as "[[Hvar1 [Hlocked Hvar2]] [_ Hclose]]".

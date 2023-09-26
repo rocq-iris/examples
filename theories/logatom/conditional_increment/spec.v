@@ -31,14 +31,14 @@ Record atomic_cinc {Σ} `{!heapGS Σ} := AtomicCinc {
     {{{ ctr γs, RET ctr ; is_counter N γs ctr ∗ counter_content γs 0 }}};
   cinc_spec N γs v (f : loc) :
     is_counter N γs v -∗
-    <<< ∀∀ (b : bool) (n : Z), counter_content γs n ∗ f ↦_(λ _, True) #b >>>
+    <<{ ∀∀ (b : bool) (n : Z), counter_content γs n ∗ f ↦_(λ _, True) #b }>>
         cinc v #f @ ↑N ∪ ↑inv_heapN
-    <<< counter_content γs (if b then n + 1 else n)%Z ∗ f ↦_(λ _, True) #b, RET #() >>>;
+    <<{ counter_content γs (if b then n + 1 else n)%Z ∗ f ↦_(λ _, True) #b | RET #() }>>;
   get_spec N γs v:
     is_counter N γs v -∗
-    <<< ∀∀ (n : Z), counter_content γs n >>>
+    <<{ ∀∀ (n : Z), counter_content γs n }>>
         get v @ ↑N ∪ ↑inv_heapN
-    <<< counter_content γs n, RET #n >>>;
+    <<{ counter_content γs n | RET #n }>>;
 }.
 Global Arguments atomic_cinc _ {_}.
 

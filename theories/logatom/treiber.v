@@ -83,9 +83,9 @@ Section proof.
   Qed.
 
   Lemma push_atomic_spec (s: loc) (x: val) :
-    ⊢ <<< ∀∀ (xs : list val), is_stack s xs >>>
+    ⊢ <<{ ∀∀ (xs : list val), is_stack s xs }>>
         push #s x @ ∅
-      <<< is_stack s (x::xs), RET #() >>>.
+      <<{ is_stack s (x::xs) | RET #() }>>.
   Proof.
     unfold is_stack.
     iIntros (Φ) "HP". iLöb as "IH". wp_rec.
@@ -110,11 +110,11 @@ Section proof.
   Qed.
 
   Lemma pop_atomic_spec (s: loc) :
-    ⊢ <<< ∀∀ (xs : list val), is_stack s xs >>>
+    ⊢ <<{ ∀∀ (xs : list val), is_stack s xs }>>
         pop #s @ ∅
-      <<< match xs with [] => is_stack s []
-                  | x::xs' => is_stack s xs' end,
-      RET match xs with [] => NONEV | x :: _ => SOMEV x end >>>.
+      <<{ match xs with [] => is_stack s []
+                  | x::xs' => is_stack s xs' end
+        | RET match xs with [] => NONEV | x :: _ => SOMEV x end }>>.
   Proof.
     unfold is_stack.
     iIntros (Φ) "HP". iLöb as "IH". wp_rec.

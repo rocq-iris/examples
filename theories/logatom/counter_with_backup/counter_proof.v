@@ -105,12 +105,12 @@ Section counter_proof.
 
   (** Invariant for transfer of atomic update (helping) of [get] *)
   Definition get_inv γs (γ1 γ2 : gname) (n : nat) (Φ : val → iProp Σ) : iProp Σ :=
-    ((AU << ∃∃ n: nat, value γs n >> @ ⊤ ∖ ↑N, ∅ << value γs n, COMM (Φ #n) >> ∗ ghost_var γ1 (1/2) true ∗ £ 1) ∨
+    ((AU <{ ∃∃ n: nat, value γs n }> @ ⊤ ∖ ↑N, ∅ <{ value γs n, COMM (Φ #n) }> ∗ ghost_var γ1 (1/2) true ∗ £ 1) ∨
      (ghost_var γ1 (1/2) false ∗ Φ #n) ∨ (ghost_var γ1 (1/2) false ∗ own γ2 (Excl ()))).
 
   (** Invariant for transfer of atomic update (helping) of [put] *)
   Definition put_inv γs (γ1 γ2 : gname) (n : nat) (Φ : val → iProp Σ): iProp Σ :=
-    ((AU  << ∃∃ n: nat, value γs n >> @ ⊤ ∖ ↑N, ∅ << value γs (n + 1), COMM (Φ #n) >> ∗ ghost_var γ1 (1/2) true ∗ £ 1) ∨
+    ((AU <{ ∃∃ n: nat, value γs n }> @ ⊤ ∖ ↑N, ∅ <{ value γs (n + 1), COMM (Φ #n) }> ∗ ghost_var γ1 (1/2) true ∗ £ 1) ∨
      (ghost_var γ1 (1/2) false ∗ Φ #n) ∨ (ghost_var γ1 (1/2) false ∗ own γ2 (Excl ()))).
 
   (** The part of the main counter invariant that controls execution of [put]s *)
@@ -307,7 +307,7 @@ Section counter_proof.
 
   Lemma counter_inv_inner_register_get Φ E γs γ_prim γ_get γ_put γ b p G P n_b n_p :
     n_b < n_p →
-    AU << ∃∃ n: nat, value γs n >> @ ⊤ ∖ ↑N, ∅ << value γs n, COMM (Φ #n) >> -∗
+    AU <{ ∃∃ n: nat, value γs n }> @ ⊤ ∖ ↑N, ∅ <{ value γs n, COMM (Φ #n) }> -∗
     £ 1 -∗
     n_p ↪[ γ_get ]□ γ -∗
     counter_inv_inner γs γ_prim γ_get γ_put b p G P n_b n_p ={E}=∗
@@ -348,7 +348,7 @@ Section counter_proof.
 
   Lemma counter_inv_inner_register_put Φ E γs γ_prim γ_get γ_put b p G P n_b n_p :
     n_b ≤ n_p →
-    AU << ∃∃ n: nat, value γs n >> @ ⊤ ∖ ↑N, ∅ << value γs (n + 1), COMM (Φ #n) >> -∗
+    AU <{ ∃∃ n: nat, value γs n }> @ ⊤ ∖ ↑N, ∅ <{ value γs (n + 1), COMM (Φ #n) }> -∗
     £ 1 -∗
     b ↦ #n_b -∗
     p ↦ #(S n_p) -∗
@@ -530,7 +530,7 @@ Section counter_proof.
 
   (** *** Proof of [get] *)
   Lemma get_spec γs (c : val) :
-    is_counter γs c -∗ <<< ∀∀ (n : nat), value γs n >>> (get c) @ ↑N <<< value γs n, RET #n>>>.
+    is_counter γs c -∗ <<{ ∀∀ (n : nat), value γs n }>> (get c) @ ↑N <<{ value γs n | RET #n}>>.
   Proof.
     iIntros "Counter". iIntros (Φ) "AU". destruct γs as [γ_cnt γ_ex].
     iDestruct "Counter" as (b p γ_prim γ_get γ_put) "(-> & #I)".
@@ -568,7 +568,7 @@ Section counter_proof.
 
   (** *** Proof of [get_backup] *)
   Lemma get_backup_spec γs (c: val) :
-    is_counter γs c -∗ <<< ∀∀ (n: nat), value γs n >>> (get_backup c) @ ↑N <<< value γs n, RET #n>>>.
+    is_counter γs c -∗ <<{ ∀∀ (n: nat), value γs n }>> (get_backup c) @ ↑N <<{ value γs n | RET #n}>>.
   Proof.
     iIntros "Counter". iIntros (Φ) "AU". destruct γs as [γ_cnt γ_ex].
     iDestruct "Counter" as (b p γ_prim γ_get γ_put) "(-> & #I)".
@@ -589,7 +589,7 @@ Section counter_proof.
 
   (** *** Proof of [increment] *)
   Lemma increment_spec γs (c: val) :
-    is_counter γs c -∗ <<< ∀∀ (n: nat), value γs n >>> (increment c) @ ↑N <<< value γs (n + 1), RET #n>>>.
+    is_counter γs c -∗ <<{ ∀∀ (n: nat), value γs n }>> (increment c) @ ↑N <<{ value γs (n + 1) | RET #n}>>.
   Proof.
     iIntros "Counter". iIntros (Φ) "AU". destruct γs as [γ_cnt γ_ex].
     iDestruct "Counter" as (b p γ_prim γ_get γ_put) "(-> & #I)".

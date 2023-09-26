@@ -37,14 +37,14 @@ Record atomic_rdcss {Σ} `{!heapGS Σ} := AtomicRdcss {
     val_is_unboxed m1 →
     val_is_unboxed (InjLV n1) →
     is_rdcss N l_n -∗
-    <<< ∀∀ (m n: val), l_m ↦_(λ _, True) m ∗ rdcss_state N l_n n >>>
+    <<{ ∀∀ (m n: val), l_m ↦_(λ _, True) m ∗ rdcss_state N l_n n }>>
         rdcss #l_m #l_n m1 n1 n2 @ ↑N ∪ ↑inv_heapN
-    <<< l_m ↦_(λ _, True) m ∗ rdcss_state N l_n (if decide (m = m1 ∧ n = n1) then n2 else n), RET n >>>;
+    <<{ l_m ↦_(λ _, True) m ∗ rdcss_state N l_n (if decide (m = m1 ∧ n = n1) then n2 else n) | RET n }>>;
   get_spec N (l_n : loc):
     is_rdcss N l_n -∗
-    <<< ∀∀ (n : val), rdcss_state N l_n n >>>
+    <<{ ∀∀ (n : val), rdcss_state N l_n n }>>
         get #l_n @ ↑N
-    <<< rdcss_state N l_n n, RET n >>>;
+    <<{ rdcss_state N l_n n | RET n }>>;
 }.
 Global Arguments atomic_rdcss _ {_}.
 

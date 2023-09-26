@@ -142,7 +142,7 @@ Section stack.
   Local Hint Extern 0 (environments.envs_entails _ (offer_inv _ _ _ _)) => unfold offer_inv : core.
 
   Definition stack_push_au γs v Q : iProp :=
-    AU << ∃∃ l, stack_content γs l >> @ ⊤∖↑N, ∅ << stack_content γs (v::l), COMM Q >>.
+    AU <{ ∃∃ l, stack_content γs l }> @ ⊤∖↑N, ∅ <{ stack_content γs (v::l), COMM Q }>.
 
   Definition is_offer (γs : gname) (offer_rep : option (val * loc)) :=
     match offer_rep with
@@ -187,9 +187,9 @@ Section stack.
 
   Lemma push_spec γs s (v : val) :
     is_stack γs s -∗
-    <<< ∀∀ l : list val, stack_content γs l >>>
+    <<{ ∀∀ l : list val, stack_content γs l }>>
       push s v @ ↑N
-    <<< stack_content γs (v::l), RET #() >>>.
+    <<{ stack_content γs (v::l) | RET #() }>>.
   Proof.
     iIntros "#Hinv". iIntros (Φ) "AU".
     iDestruct "Hinv" as (head offer) "[% #Hinv]". subst s.
@@ -270,10 +270,10 @@ Section stack.
 
   Lemma pop_spec γs (s : val) :
     is_stack γs s -∗
-    <<< ∀∀ l, stack_content γs l >>>
+    <<{ ∀∀ l, stack_content γs l }>>
       pop s @ ↑N
-    <<< stack_content γs (tail l),
-        RET match l with [] => NONEV | v :: _ => SOMEV v end >>>.
+    <<{ stack_content γs (tail l)
+      | RET match l with [] => NONEV | v :: _ => SOMEV v end }>>.
   Proof.
     iIntros "#Hinv". iIntros (Φ) "AU".
     iDestruct "Hinv" as (head offer) "[% #Hinv]". subst s.

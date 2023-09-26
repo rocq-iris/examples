@@ -28,14 +28,14 @@ Record atomic_hwq {Σ} `{!heapGS Σ} := AtomicHWQ {
     {{{ v γ, RET v; is_hwq N sz γ v ∗ hwq_content γ [] }}};
   enqueue_spec N (sz : nat) (γ : name) (q : val) (l : loc) :
     is_hwq N sz γ q -∗
-    <<< ∀∀ (ls : list loc), hwq_content γ ls >>>
+    <<{ ∀∀ (ls : list loc), hwq_content γ ls }>>
       enqueue q #l @ ↑N
-    <<< hwq_content γ (ls ++ [l]), RET #() >>>;
+    <<{ hwq_content γ (ls ++ [l]) | RET #() }>>;
   dequeue_spec N (sz : nat) (γ : name) (q : val) :
     is_hwq N sz γ q -∗
-    <<< ∀∀ (ls : list loc), hwq_content γ ls >>>
+    <<{ ∀∀ (ls : list loc), hwq_content γ ls }>>
       dequeue q @ ↑N
-    <<< ∃∃ (l : loc) ls', ⌜ls = l :: ls'⌝ ∗ hwq_content γ ls', RET #l >>>;
+    <<{ ∃∃ (l : loc) ls', ⌜ls = l :: ls'⌝ ∗ hwq_content γ ls' | RET #l }>>;
 }.
 Global Arguments atomic_hwq _ {_}.
 
