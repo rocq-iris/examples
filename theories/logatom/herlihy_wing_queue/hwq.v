@@ -1422,7 +1422,7 @@ Lemma big_lemma γe γs (ls : list loc) slots (p : list nat) :
 Proof.
   revert p. iIntros (p).
   iInduction p as [|n ps] "IH" forall (slots ls); iIntros (HNoDup H) "Hs● Hbig He●".
-  - iModIntro. rewrite /= -app_nil_end map_imap_helped_nil. iFrame.
+  - iModIntro. rewrite /= app_nil_r map_imap_helped_nil. iFrame.
   - assert (∀ i : nat, i ∈ ps → was_committed <$> slots !! i = Some false) as H1.
     { intros i Hi. apply H. apply elem_of_list_further, Hi. }
     assert (was_committed <$> slots !! n = Some false) as H2.
@@ -1880,7 +1880,7 @@ Proof.
   (* There is no [Contra1]/[Contra2], and the prophecy is non-trivial. *)
   destruct Hcont as (Hblocks & Hrest & Hpvs).
   assert (rest = []) as -> by by apply Hrest.
-  rewrite -app_nil_end in elts. rewrite -app_nil_end.
+  rewrite app_nil_r in elts. rewrite app_nil_r.
   destruct b as [b_unused b_pendings].
   (* We compare our index with the unused element of the prophecy. *)
   destruct (decide (b_unused = i)) as [->|b_unused_not_i].
@@ -1929,7 +1929,7 @@ Proof.
           + by destruct dw.
           + by destruct dw. }
       iSplitL "He●".
-      { rewrite -app_nil_end /new_pref /elts map_app map_cons.
+      { rewrite app_nil_r /new_pref /elts map_app map_cons.
         rewrite [in get_value new_slots deqs i]/get_value.
         rewrite [in new_slots !! i]/new_slots.
         rewrite map_lookup_imap lookup_insert /= -app_assoc cons_middle.
@@ -2145,7 +2145,7 @@ Proof.
     { pose (new_bs := glue_blocks (b_unused, b_pendings) i blocks).
       pose (new_slots := <[i:=(l, Pend γs_i, false)]> slots).
       iNext. iExists (S back), pvs, pref, [], (NoCont new_bs), new_slots, deqs.
-      rewrite -app_nil_end. iFrame. iSplitL "Hℓ_ar".
+      rewrite app_nil_r. iFrame. iSplitL "Hℓ_ar".
       { assert (array_content sz slots deqs = array_content sz new_slots deqs) as ->; last done.
         apply array_content_ext. intros k Hk. rewrite /new_slots /array_get.
         destruct (decide (k = i)) as [->|Hk_not_i].
