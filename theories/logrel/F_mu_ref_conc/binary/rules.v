@@ -163,7 +163,7 @@ Section cfg.
   Local Hint Resolve to_tpool_insert' : core.
   Local Hint Resolve tpool_singleton_included : core.
 
-  Lemma mapstoS_agree l q1 q2 v1 v2 : l ↦ₛ{q1} v1 -∗ l ↦ₛ{q2} v2 -∗ ⌜v1 = v2⌝.
+  Lemma pointstoS_agree l q1 q2 v1 v2 : l ↦ₛ{q1} v1 -∗ l ↦ₛ{q2} v2 -∗ ⌜v1 = v2⌝.
   Proof.
     apply entails_wand, wand_intro_r.
     rewrite /heapS_pointsto -own_op own_valid uPred.discrete_valid. f_equiv.
@@ -171,30 +171,30 @@ Section cfg.
     rewrite pair_valid singleton_valid pair_valid to_agree_op_valid_L.
     by intros [_ [_ [=]]].
   Qed.
-  Lemma mapstoS_combine l q1 q2 v1 v2 :
+  Lemma pointstoS_combine l q1 q2 v1 v2 :
     l ↦ₛ{q1} v1 -∗ l ↦ₛ{q2} v2 -∗ l ↦ₛ{q1 + q2} v1 ∗ ⌜v1 = v2⌝.
   Proof.
-    iIntros "Hl1 Hl2". iDestruct (mapstoS_agree with "Hl1 Hl2") as %->.
+    iIntros "Hl1 Hl2". iDestruct (pointstoS_agree with "Hl1 Hl2") as %->.
     rewrite /heapS_pointsto. iCombine "Hl1 Hl2" as "Hl". eauto with iFrame.
   Qed.
-  Lemma mapstoS_valid l q v : l ↦ₛ{q} v -∗ ✓ q.
+  Lemma pointstoS_valid l q v : l ↦ₛ{q} v -∗ ✓ q.
   Proof.
     rewrite /heapS_pointsto own_valid !discrete_valid auth_frag_valid.
     by apply entails_wand, pure_mono=> -[_] /singleton_valid [??].
   Qed.
-  Lemma mapstoS_valid_2 l q1 q2 v1 v2 :
+  Lemma pointstoS_valid_2 l q1 q2 v1 v2 :
     l ↦ₛ{q1} v1 -∗ l ↦ₛ{q2} v2 -∗ ✓ (q1 + q2)%Qp.
   Proof.
-    iIntros "H1 H2". iDestruct (mapstoS_combine with "H1 H2") as "[? ->]".
-    by iApply (mapstoS_valid l _ v2).
+    iIntros "H1 H2". iDestruct (pointstoS_combine with "H1 H2") as "[? ->]".
+    by iApply (pointstoS_valid l _ v2).
   Qed.
 
-  Global Instance mapstoS_combine_sep_gives l dq1 dq2 v1 v2 :
+  Global Instance pointstoS_combine_sep_gives l dq1 dq2 v1 v2 :
     CombineSepGives (l ↦ₛ{dq1} v1) (l ↦ₛ{dq2} v2) ⌜✓ (dq1 ⋅ dq2) ∧ v1 = v2⌝.
   Proof.
     rewrite /CombineSepGives. iIntros "[H1 H2]". iSplit.
-    - iDestruct (mapstoS_valid_2 with "H1 H2") as %?; auto.
-    - iDestruct (mapstoS_agree with "H1 H2") as %?; auto.
+    - iDestruct (pointstoS_valid_2 with "H1 H2") as %?; auto.
+    - iDestruct (pointstoS_agree with "H1 H2") as %?; auto.
   Qed.
 
   Lemma step_insert K tp j e σ κ e' σ' efs :
