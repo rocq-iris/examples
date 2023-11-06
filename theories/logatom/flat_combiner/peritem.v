@@ -43,7 +43,7 @@ Section proofs.
   Proof.
     iIntros (Φ) "_ HΦ".
     wp_lam. wp_bind (ref NONE)%E. wp_alloc l as "Hl".
-    iMod (mapsto_persist with "Hl") as "#Hl".
+    iMod (pointsto_persist with "Hl") as "#Hl".
     wp_alloc s as "Hs".
     iAssert (∃ xs, is_bag_R N R xs s)%I with "[-HΦ]" as "Hxs".
     { iFrame. iExists [], l.
@@ -68,7 +68,7 @@ Section proofs.
     iDestruct "H1" as (xs' hd') "[>Hs H1]".
     destruct (decide (hd = hd')) as [->|Hneq].
     - wp_cmpxchg_suc.
-      iMod (mapsto_persist with "Hl") as "#Hl".
+      iMod (pointsto_persist with "Hl") as "#Hl".
       iMod (inv_alloc N _ (R x) with "[HRx]") as "#HRx"; first eauto.
       iMod ("Hclose" with "[Hs Hl H1]").
       { iNext. iFrame. iExists (x::xs'), l.

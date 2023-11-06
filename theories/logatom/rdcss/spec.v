@@ -8,7 +8,7 @@ From iris.prelude Require Import options.
     See [rdcss.v] for references and more details about this data structure.
 
 _Note on the use of "invariant" locations_: the specification of the [rdcss]
-operation as given by [rdcss_spec] relies on the [inv_mapsto l_m m] assertion,
+operation as given by [rdcss_spec] relies on the [inv_pointsto l_m m] assertion,
 written [l_m ↦_(λ _, True) m]. It roughly corresponds to the usual [l_m ↦ m] but
 with an additional guarantee that [l_m] will not be deallocated (and the value
 stored there satisfies the given predicate, which is trivial in this case). This

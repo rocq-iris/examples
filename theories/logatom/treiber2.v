@@ -269,7 +269,7 @@ Proof.
     (* Commit operation. *)
     iMod ("HClose" with "Hγ◯") as "H".
     (* We can eliminate the modality. *)
-    iMod (mapsto_persist with "Hr") as "Hr".
+    iMod (pointsto_persist with "Hr") as "Hr".
     iModIntro. iSplitR "H"; first by eauto 10 with iFrame.
     (* And conclude the proof easily, after some computation steps. *)
     wp_pures. iExact "H".
@@ -325,9 +325,9 @@ Proof.
       iDestruct (auth_agree with "Hγ● Hγ◯") as %<-.
       (* Update the value of [γ] to [ys] (the tail of previous value). *)
       iMod (auth_update γ ys with "Hγ● Hγ◯") as "[Hγ● Hγ◯]".
-      (* We need to learn that [r = u] (true since mapsto must agree). *)
+      (* We need to learn that [r = u] (true since pointsto must agree). *)
       iDestruct "HPhys" as (u) "[Hw' HPhys]".
-      iDestruct (mapsto_agree with "Hw Hw'") as %[=-> ->%to_val_inj].
+      iDestruct (pointsto_agree with "Hw Hw'") as %[=-> ->%to_val_inj].
       (* Perform the commit. *)
       iMod ("HClose" with "Hγ◯") as "HΦ".
       (* Eliminate the modality. *)

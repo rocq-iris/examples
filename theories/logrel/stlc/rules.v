@@ -12,26 +12,26 @@ Section stlc_rules.
   Context `{irisGS stlc_lang Σ}.
   Implicit Types e : expr.
 
-  Ltac inv_head_step :=
+  Ltac inv_base_step :=
     repeat match goal with
     | H : to_val _ = Some _ |- _ => apply of_to_val in H
-    | H : head_step ?e _ _ _ _ _ |- _ =>
+    | H : base_step ?e _ _ _ _ _ |- _ =>
        try (is_var e; fail 1); (* inversion yields many goals if [e] is a variable
        and can thus better be avoided. *)
        inversion H; subst; clear H
     end.
 
-  Local Hint Extern 0 (head_reducible _ _) => eexists _, _, _, _; simpl : core.
+  Local Hint Extern 0 (base_reducible _ _) => eexists _, _, _, _; simpl : core.
 
-  Local Hint Constructors head_step : core.
+  Local Hint Constructors base_step : core.
   Local Hint Resolve to_of_val : core.
 
   Local Ltac solve_exec_safe := intros; subst; do 3 eexists; econstructor; eauto.
-  Local Ltac solve_exec_puredet := simpl; intros; by inv_head_step.
+  Local Ltac solve_exec_puredet := simpl; intros; by inv_base_step.
   Local Ltac solve_pure_exec :=
     unfold IntoVal in *;
     repeat match goal with H : AsVal _ |- _ => destruct H as [??] end; subst;
-    intros ?; apply nsteps_once, pure_head_step_pure_step;
+    intros ?; apply nsteps_once, pure_base_step_pure_step;
       constructor; [solve_exec_safe | solve_exec_puredet].
 
   (** Helper Lemmas for weakestpre. *)

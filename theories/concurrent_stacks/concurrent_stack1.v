@@ -100,7 +100,7 @@ Section stacks.
     iInv N as (ℓ'' v'') "(>% & >Hl & Hlist)" "Hclose"; simplify_eq.
     destruct (decide (v' = v'')) as [->|Hne].
     - wp_cmpxchg_suc. { destruct v''; left; done. }
-      iMod (mapsto_persist with "Hl'") as "Hl'".
+      iMod (pointsto_persist with "Hl'") as "Hl'".
       iMod ("Hclose" with "[HP Hl Hl' Hlist]") as "_".
       { iNext; iExists _, (Some ℓ'); iFrame; iSplit; first done;
         rewrite (is_list_unfold _ (Some _)) /=. eauto with iFrame. }
@@ -145,7 +145,7 @@ Section stacks.
       * rewrite is_list_unfold.
         iDestruct "Hlist" as (h' t') "(Hl'' & HP & Hlist) /=".
         wp_cmpxchg_suc.
-        iDestruct (mapsto_agree with "Hl'' Hl") as %[= <- <-%oloc_to_val_inj].
+        iDestruct (pointsto_agree with "Hl'' Hl") as %[= <- <-%oloc_to_val_inj].
         iMod ("Hclose" with "[Hl' Hlist]") as "_".
         { iNext; iExists ℓ'', _; by iFrame. }
         iModIntro.

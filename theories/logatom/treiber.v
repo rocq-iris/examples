@@ -52,15 +52,15 @@ Section proof.
       + auto.
       + iIntros "[Hxs Hys] /=".
         iDestruct "Hys" as (hd') "[Hhd Hys']".
-        by iDestruct (mapsto_agree with "Hxs Hhd") as %?.
+        by iDestruct (pointsto_agree with "Hxs Hhd") as %?.
     - induction ys as [|y ys' IHys'].
       + iIntros "[Hxs Hys] /=".
         iDestruct "Hxs" as (?) "[Hhd _]".
-        by iDestruct (mapsto_agree with "Hhd Hys") as %?.
+        by iDestruct (pointsto_agree with "Hhd Hys") as %?.
       + iIntros "[Hxs Hys] /=".
         iDestruct "Hxs" as (?) "[Hhd Hxs']".
         iDestruct "Hys" as (?) "[Hhd' Hys']".
-        iDestruct (mapsto_agree with "Hhd Hhd'") as %[= -> ->].
+        iDestruct (pointsto_agree with "Hhd Hhd'") as %[= -> ->].
         by iDestruct (IHxs' with "[$Hxs' $Hys']") as %->.
   Qed.
 
@@ -77,7 +77,7 @@ Section proof.
   Proof.
     iIntros (Φ) "_ HΦ". wp_lam.
     wp_bind (ref NONE)%E. wp_alloc l as "Hl".
-    iMod (mapsto_persist with "Hl") as "Hl".
+    iMod (pointsto_persist with "Hl") as "Hl".
     wp_alloc l' as "Hl'".
     iApply "HΦ". rewrite /is_stack. auto.
   Qed.
@@ -94,7 +94,7 @@ Section proof.
     iDestruct "Hxs" as (hd) "[Hs Hhd]".
     wp_load. iMod ("Hvs'" with "[Hs Hhd]") as "HP"; first by eauto with iFrame.
     iModIntro. wp_let. wp_alloc l as "Hl". wp_let.
-    iMod (mapsto_persist with "Hl") as "Hl".
+    iMod (pointsto_persist with "Hl") as "Hl".
     wp_bind (CmpXchg _ _ _)%E.
     iMod "HP" as (xs') "[Hxs' Hvs']".
     iDestruct "Hxs'" as (hd') "[Hs' Hhd']".
@@ -138,9 +138,9 @@ Section proof.
       destruct (decide (hd = hd'')) as [->|Hneq].
       + wp_cmpxchg_suc. iDestruct "Hvs'" as "[_ Hvs']".
         destruct xs'' as [|x'' xs'']; simpl.
-        { by iDestruct (mapsto_agree with "Hhd Hhd''") as %?. }
+        { by iDestruct (pointsto_agree with "Hhd Hhd''") as %?. }
         iDestruct "Hhd''" as (hd''') "[Hhd'' Hxs'']".
-        iDestruct (@mapsto_agree with "Hhd Hhd''") as %[= -> ->].
+        iDestruct (@pointsto_agree with "Hhd Hhd''") as %[= -> ->].
         iMod ("Hvs'" with "[-]") as "HQ".
         { eauto with iFrame.  }
         iModIntro. wp_pures. eauto.

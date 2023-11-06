@@ -130,7 +130,7 @@ Section atomic_snapshot.
     iIntros (Φ _) "Hx". rewrite /new_snapshot. wp_lam.
     repeat (wp_proj; wp_let).
     wp_alloc lx' as "Hlx'".
-    iMod (mapsto_persist with "Hlx'") as "Hlx'".
+    iMod (pointsto_persist with "Hlx'") as "Hlx'".
     wp_alloc lx as "Hlx".
     set (Excl' v) as p.
     iMod (own_alloc (● p ⋅ ◯ p)) as (γ1) "[Hx⚫ Hx◯]". {
@@ -231,8 +231,8 @@ Section atomic_snapshot.
     iDestruct "Ht" as %[Ht Hvt].
     destruct (decide (l1'' = l1')) as [-> | Hn].
     - wp_cmpxchg_suc.
-      iMod (mapsto_persist with "Hl1'new") as "Hl1'new".
-      iDestruct (mapsto_agree with "Hl1' Hl1''") as %[= -> ->].
+      iMod (pointsto_persist with "Hl1'new") as "Hl1'new".
+      iDestruct (pointsto_agree with "Hl1' Hl1''") as %[= -> ->].
       (* open AU *)
       iMod "AU" as (xv) "[Hx [_ Hclose]]".
         (* update snapshot ghost state to (x2, y') *)

@@ -30,10 +30,10 @@ Class cfgSG Σ := CFGSG { cfg_inG :: inG Σ (authR cfgUR); cfg_name : gname }.
 Section definitionsS.
   Context `{cfgSG Σ, invGS Σ}.
 
-  Definition heapS_mapsto (l : loc) (q : Qp) (v: val) : iProp Σ :=
+  Definition heapS_pointsto (l : loc) (q : Qp) (v: val) : iProp Σ :=
     own cfg_name (◯ (ε, {[ l := (q, to_agree v) ]})).
 
-  Definition tpool_mapsto (j : nat) (e: expr) : iProp Σ :=
+  Definition tpool_pointsto (j : nat) (e: expr) : iProp Σ :=
     own cfg_name (◯ ({[ j := Excl e ]}, ∅)).
 
   Definition spec_inv (ρ : cfg F_mu_ref_conc_lang) : iProp Σ :=
@@ -42,17 +42,17 @@ Section definitionsS.
   Definition spec_ctx : iProp Σ :=
     (∃ ρ, inv specN (spec_inv ρ))%I.
 
-  Global Instance heapS_mapsto_timeless l q v : Timeless (heapS_mapsto l q v).
+  Global Instance heapS_pointsto_timeless l q v : Timeless (heapS_pointsto l q v).
   Proof. apply _. Qed.
   Global Instance spec_ctx_persistent : Persistent spec_ctx.
   Proof. apply _. Qed.
 End definitionsS.
-Global Typeclasses Opaque heapS_mapsto tpool_mapsto.
+Global Typeclasses Opaque heapS_pointsto tpool_pointsto.
 
-Notation "l ↦ₛ{ q } v" := (heapS_mapsto l q v)
+Notation "l ↦ₛ{ q } v" := (heapS_pointsto l q v)
   (at level 20, q at level 50, format "l  ↦ₛ{ q }  v") : bi_scope.
-Notation "l ↦ₛ v" := (heapS_mapsto l 1 v) (at level 20) : bi_scope.
-Notation "j ⤇ e" := (tpool_mapsto j e) (at level 20) : bi_scope.
+Notation "l ↦ₛ v" := (heapS_pointsto l 1 v) (at level 20) : bi_scope.
+Notation "j ⤇ e" := (tpool_pointsto j e) (at level 20) : bi_scope.
 
 Ltac iAsimpl :=
   repeat match goal with
@@ -166,7 +166,7 @@ Section cfg.
   Lemma mapstoS_agree l q1 q2 v1 v2 : l ↦ₛ{q1} v1 -∗ l ↦ₛ{q2} v2 -∗ ⌜v1 = v2⌝.
   Proof.
     apply entails_wand, wand_intro_r.
-    rewrite /heapS_mapsto -own_op own_valid uPred.discrete_valid. f_equiv.
+    rewrite /heapS_pointsto -own_op own_valid uPred.discrete_valid. f_equiv.
     rewrite auth_frag_op_valid -pair_op singleton_op -pair_op.
     rewrite pair_valid singleton_valid pair_valid to_agree_op_valid_L.
     by intros [_ [_ [=]]].
@@ -175,11 +175,11 @@ Section cfg.
     l ↦ₛ{q1} v1 -∗ l ↦ₛ{q2} v2 -∗ l ↦ₛ{q1 + q2} v1 ∗ ⌜v1 = v2⌝.
   Proof.
     iIntros "Hl1 Hl2". iDestruct (mapstoS_agree with "Hl1 Hl2") as %->.
-    rewrite /heapS_mapsto. iCombine "Hl1 Hl2" as "Hl". eauto with iFrame.
+    rewrite /heapS_pointsto. iCombine "Hl1 Hl2" as "Hl". eauto with iFrame.
   Qed.
   Lemma mapstoS_valid l q v : l ↦ₛ{q} v -∗ ✓ q.
   Proof.
-    rewrite /heapS_mapsto own_valid !discrete_valid auth_frag_valid.
+    rewrite /heapS_pointsto own_valid !discrete_valid auth_frag_valid.
     by apply entails_wand, pure_mono=> -[_] /singleton_valid [??].
   Qed.
   Lemma mapstoS_valid_2 l q1 q2 v1 v2 :
@@ -198,7 +198,7 @@ Section cfg.
   Qed.
 
   Lemma step_insert K tp j e σ κ e' σ' efs :
-    tp !! j = Some (fill K e) → head_step e σ κ e' σ' efs →
+    tp !! j = Some (fill K e) → base_step e σ κ e' σ' efs →
     erased_step (tp, σ) (<[j:=fill K e']> tp ++ efs, σ').
   Proof.
     intros. rewrite -(take_drop_middle tp j (fill K e)) //.
@@ -209,7 +209,7 @@ Section cfg.
   Qed.
 
   Lemma step_insert_no_fork K tp j e σ κ e' σ' :
-    tp !! j = Some (fill K e) → head_step e σ κ e' σ' [] →
+    tp !! j = Some (fill K e) → base_step e σ κ e' σ' [] →
     erased_step (tp, σ) (<[j:=fill K e']> tp, σ').
   Proof. rewrite -(right_id_L [] (++) (<[_:=_]>_)). by apply step_insert. Qed.
 
@@ -232,7 +232,7 @@ Section cfg.
     spec_ctx ∗ j ⤇ fill K e ={E}=∗ j ⤇ fill K e'.
   Proof.
     iIntros (HP Hex ?) "[#Hinv Hj]". iDestruct "Hinv" as (ρ) "Hspec".
-    rewrite /spec_ctx /tpool_mapsto.
+    rewrite /spec_ctx /tpool_pointsto.
     iInv specN as (tp σ) ">[Hown Hrtc]" "Hclose".
     iDestruct "Hrtc" as %Hrtc.
     iCombine "Hown Hj" gives
@@ -281,7 +281,7 @@ Section cfg.
     spec_ctx ∗ j ⤇ fill K (Alloc e) ={E}=∗ ∃ l, j ⤇ fill K (Loc l) ∗ l ↦ₛ v.
   Proof.
     iIntros (??) "[#Hinv Hj]". iDestruct "Hinv" as (ρ) "Hinv".
-    rewrite /spec_ctx /tpool_mapsto.
+    rewrite /spec_ctx /tpool_pointsto.
     iInv specN as (tp σ) ">[Hown %]" "Hclose".
     destruct (exist_fresh (dom σ)) as [l Hl%not_elem_of_dom].
     iCombine "Hown Hj"
@@ -294,7 +294,7 @@ Section cfg.
     { eapply auth_update_alloc, prod_local_update_2,
         (alloc_singleton_local_update _ l (1%Qp,to_agree v)); last done.
       by apply lookup_to_heap_None. }
-    iExists l. rewrite /heapS_mapsto. iFrame "Hj Hl". iApply "Hclose". iNext.
+    iExists l. rewrite /heapS_pointsto. iFrame "Hj Hl". iApply "Hclose". iNext.
     iExists (<[j:=fill K (Loc l)]> tp), (<[l:=v]>σ).
     rewrite to_heap_insert to_tpool_insert'; last eauto. iFrame. iPureIntro.
     eapply rtc_r, step_insert_no_fork; eauto. econstructor; eauto.
@@ -306,7 +306,7 @@ Section cfg.
     ={E}=∗ j ⤇ fill K (of_val v) ∗ l ↦ₛ{q} v.
   Proof.
     iIntros (?) "(#Hinv & Hj & Hl)". iDestruct "Hinv" as (ρ) "Hinv".
-    rewrite /spec_ctx /tpool_mapsto /heapS_mapsto.
+    rewrite /spec_ctx /tpool_pointsto /heapS_pointsto.
     iInv specN as (tp σ) ">[Hown %]" "Hclose".
     iCombine "Hown Hj"
       gives %[[?%tpool_singleton_included' _]%prod_included ?]%auth_both_valid_discrete.
@@ -327,7 +327,7 @@ Section cfg.
     ={E}=∗ j ⤇ fill K Unit ∗ l ↦ₛ v.
   Proof.
     iIntros (??) "(#Hinv & Hj & Hl)". iDestruct "Hinv" as (ρ) "Hinv".
-    rewrite /spec_ctx /tpool_mapsto /heapS_mapsto.
+    rewrite /spec_ctx /tpool_pointsto /heapS_pointsto.
     iInv specN as (tp σ) ">[Hown %]" "Hclose".
     iCombine "Hown Hj"
       gives %[[?%tpool_singleton_included' _]
@@ -354,7 +354,7 @@ Section cfg.
     ={E}=∗ j ⤇ fill K (#♭ false) ∗ l ↦ₛ{q} v'.
   Proof.
     iIntros (????) "(#Hinv & Hj & Hl)". iDestruct "Hinv" as (ρ) "Hinv".
-    rewrite /spec_ctx /tpool_mapsto /heapS_mapsto.
+    rewrite /spec_ctx /tpool_pointsto /heapS_pointsto.
     iInv specN as (tp σ) ">[Hown %]" "Hclose".
     iCombine "Hown Hj"
       gives %[[?%tpool_singleton_included' _]%prod_included ?]
@@ -376,7 +376,7 @@ Section cfg.
     ={E}=∗ j ⤇ fill K (#♭ true) ∗ l ↦ₛ v2.
   Proof.
     iIntros (????) "(#Hinv & Hj & Hl)"; subst. iDestruct "Hinv" as (ρ) "Hinv".
-    rewrite /spec_ctx /tpool_mapsto /heapS_mapsto.
+    rewrite /spec_ctx /tpool_pointsto /heapS_pointsto.
     iInv specN as (tp σ) ">[Hown %]" "Hclose".
     iCombine "Hown Hj"
       gives %[[?%tpool_singleton_included' _]%prod_included _]
@@ -403,7 +403,7 @@ Section cfg.
     ={E}=∗ j ⤇ fill K (#n m) ∗ l ↦ₛ #nv (m + k).
   Proof.
     iIntros (??) "(#Hinv & Hj & Hl)"; subst. iDestruct "Hinv" as (ρ) "Hinv".
-    rewrite /spec_ctx /tpool_mapsto /heapS_mapsto.
+    rewrite /spec_ctx /tpool_pointsto /heapS_pointsto.
     iInv specN as (tp σ) ">[Hown %]" "Hclose".
     iCombine "Hown Hj"
       gives %[[?%tpool_singleton_included' _]%prod_included _]
@@ -506,7 +506,7 @@ Section cfg.
     spec_ctx ∗ j ⤇ fill K (Fork e) ={E}=∗ ∃ j', j ⤇ fill K Unit ∗ j' ⤇ e.
   Proof.
     iIntros (?) "[#Hinv Hj]". iDestruct "Hinv" as (ρ) "Hinv".
-    rewrite /spec_ctx /tpool_mapsto.
+    rewrite /spec_ctx /tpool_pointsto.
     iInv specN as (tp σ) ">[Hown %]" "Hclose".
     iCombine "Hown Hj"
       gives %[[?%tpool_singleton_included' _] %prod_included ?]

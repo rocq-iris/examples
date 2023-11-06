@@ -22,13 +22,13 @@ Global Instance heapIG_irisG `{heapIG Σ} : irisGS F_mu_ref_conc_lang Σ := {
   state_interp_mono _ _ _ _ := fupd_intro _ _
 }.
 
-Notation "l ↦ᵢ{ dq } v" := (mapsto (L:=loc) (V:=val) l dq v)
+Notation "l ↦ᵢ{ dq } v" := (pointsto (L:=loc) (V:=val) l dq v)
   (at level 20, format "l  ↦ᵢ{ dq }  v") : bi_scope.
-Notation "l ↦ᵢ□ v" := (mapsto (L:=loc) (V:=val) l DfracDiscarded v)
+Notation "l ↦ᵢ□ v" := (pointsto (L:=loc) (V:=val) l DfracDiscarded v)
   (at level 20, format "l  ↦ᵢ□  v") : bi_scope.
-Notation "l ↦ᵢ{# q } v" := (mapsto (L:=loc) (V:=val) l (DfracOwn q) v)
+Notation "l ↦ᵢ{# q } v" := (pointsto (L:=loc) (V:=val) l (DfracOwn q) v)
   (at level 20, format "l  ↦ᵢ{# q }  v") : bi_scope.
-Notation "l ↦ᵢ v" := (mapsto (L:=loc) (V:=val) l (DfracOwn 1) v)
+Notation "l ↦ᵢ v" := (pointsto (L:=loc) (V:=val) l (DfracOwn 1) v)
   (at level 20, format "l  ↦ᵢ  v") : bi_scope.
 
 Section lang_rules.
@@ -39,22 +39,22 @@ Section lang_rules.
   Implicit Types e : expr.
   Implicit Types v w : val.
 
-  Ltac inv_head_step :=
+  Ltac inv_base_step :=
   repeat match goal with
   | _ => progress simplify_map_eq/= (* simplify memory stuff *)
   | H : to_val _ = Some _ |- _ => apply of_to_val in H
   | H : _ = of_val ?v |- _ =>
      is_var v; destruct v; first[discriminate H|injection H as H]
-  | H : head_step ?e _ _ _ _ _ |- _ =>
+  | H : base_step ?e _ _ _ _ _ |- _ =>
      try (is_var e; fail 1); (* inversion yields many goals if [e] is a variable
      and can thus better be avoided. *)
      inversion H; subst; clear H
   end.
 
   Local Hint Extern 0 (atomic _) => solve_atomic : core.
-  Local Hint Extern 0 (head_reducible _ _) => eexists _, _, _, _; simpl : core.
+  Local Hint Extern 0 (base_reducible _ _) => eexists _, _, _, _; simpl : core.
 
-  Local Hint Constructors head_step : core.
+  Local Hint Constructors base_step : core.
   Local Hint Resolve alloc_fresh : core.
   Local Hint Resolve to_of_val : core.
 
@@ -63,9 +63,9 @@ Section lang_rules.
     IntoVal e v →
     {{{ True }}} Alloc e @ E {{{ l, RET (LocV l); l ↦ᵢ v }}}.
   Proof.
-    iIntros (<- Φ) "_ HΦ". iApply wp_lift_atomic_head_step_no_fork; auto.
+    iIntros (<- Φ) "_ HΦ". iApply wp_lift_atomic_base_step_no_fork; auto.
     iIntros (σ1 ????) "Hσ !>"; iSplit; first by auto.
-    iNext; iIntros (v2 σ2 efs Hstep) "_"; inv_head_step.
+    iNext; iIntros (v2 σ2 efs Hstep) "_"; inv_base_step.
     iMod (@gen_heap_alloc with "Hσ") as "(Hσ & Hl & _)"; first done.
     iModIntro; iSplit=> //. iFrame. by iApply "HΦ".
   Qed.
@@ -73,10 +73,10 @@ Section lang_rules.
   Lemma wp_load E l dq v :
     {{{ ▷ l ↦ᵢ{dq} v }}} Load (Loc l) @ E {{{ RET v; l ↦ᵢ{dq} v }}}.
   Proof.
-    iIntros (Φ) ">Hl HΦ". iApply wp_lift_atomic_head_step_no_fork; auto.
+    iIntros (Φ) ">Hl HΦ". iApply wp_lift_atomic_base_step_no_fork; auto.
     iIntros (σ1 ????) "Hσ !>". iDestruct (@gen_heap_valid with "Hσ Hl") as %?.
     iSplit; first by eauto.
-    iNext; iIntros (v2 σ2 efs Hstep) "_"; inv_head_step.
+    iNext; iIntros (v2 σ2 efs Hstep) "_"; inv_base_step.
     iModIntro; iSplit=> //. iFrame. by iApply "HΦ".
   Qed.
 
@@ -86,9 +86,9 @@ Section lang_rules.
     {{{ RET UnitV; l ↦ᵢ v }}}.
   Proof.
     iIntros (<- Φ) ">Hl HΦ".
-    iApply wp_lift_atomic_head_step_no_fork; auto.
+    iApply wp_lift_atomic_base_step_no_fork; auto.
     iIntros (σ1 ????) "Hσ !>". iDestruct (@gen_heap_valid with "Hσ Hl") as %?.
-    iSplit; first by eauto. iNext; iIntros (v2 σ2 efs Hstep) "_"; inv_head_step.
+    iSplit; first by eauto. iNext; iIntros (v2 σ2 efs Hstep) "_"; inv_base_step.
     iMod (@gen_heap_update with "Hσ Hl") as "[$ Hl]".
     iModIntro. iSplit=>//. by iApply "HΦ".
   Qed.
@@ -99,10 +99,10 @@ Section lang_rules.
     {{{ RET (BoolV false); l ↦ᵢ{dq} v' }}}.
   Proof.
     iIntros (<- <- ? Φ) ">Hl HΦ".
-    iApply wp_lift_atomic_head_step_no_fork; auto.
+    iApply wp_lift_atomic_base_step_no_fork; auto.
     iIntros (σ1 ????) "Hσ !>". iDestruct (@gen_heap_valid with "Hσ Hl") as %?.
     iSplit; first by eauto.
-    iNext; iIntros (v2' σ2 efs Hstep) "_"; inv_head_step.
+    iNext; iIntros (v2' σ2 efs Hstep) "_"; inv_base_step.
     iModIntro; iSplit=> //. iFrame. by iApply "HΦ".
   Qed.
 
@@ -112,9 +112,9 @@ Section lang_rules.
     {{{ RET (BoolV true); l ↦ᵢ v2 }}}.
   Proof.
     iIntros (<- <- Φ) ">Hl HΦ".
-    iApply wp_lift_atomic_head_step_no_fork; auto.
+    iApply wp_lift_atomic_base_step_no_fork; auto.
     iIntros (σ1 ????) "Hσ !>". iDestruct (@gen_heap_valid with "Hσ Hl") as %?.
-    iSplit; first by eauto. iNext; iIntros (v2' σ2 efs Hstep) "_"; inv_head_step.
+    iSplit; first by eauto. iNext; iIntros (v2' σ2 efs Hstep) "_"; inv_base_step.
     iMod (@gen_heap_update with "Hσ Hl") as "[$ Hl]".
     iModIntro. iSplit=>//. by iApply "HΦ".
   Qed.
@@ -125,9 +125,9 @@ Section lang_rules.
     {{{ RET (#nv m); l ↦ᵢ #nv (m + k) }}}.
   Proof.
     iIntros (<- Φ) ">Hl HΦ".
-    iApply wp_lift_atomic_head_step_no_fork; auto.
+    iApply wp_lift_atomic_base_step_no_fork; auto.
     iIntros (σ1 ????) "Hσ !>". iDestruct (@gen_heap_valid with "Hσ Hl") as %?.
-    iSplit; first by eauto. iNext; iIntros (v2' σ2 efs Hstep) "_"; inv_head_step.
+    iSplit; first by eauto. iNext; iIntros (v2' σ2 efs Hstep) "_"; inv_base_step.
     iMod (@gen_heap_update with "Hσ Hl") as "[$ Hl]".
     iModIntro. iSplit=>//. by iApply "HΦ".
   Qed.
@@ -135,17 +135,17 @@ Section lang_rules.
   Lemma wp_fork E e Φ :
     ▷ (|={E}=> Φ UnitV) ∗ ▷ WP e {{ _, True }} ⊢ WP Fork e @ E {{ Φ }}.
   Proof.
-    iIntros "[He HΦ]". iApply wp_lift_atomic_head_step; [done|].
+    iIntros "[He HΦ]". iApply wp_lift_atomic_base_step; [done|].
     iIntros (σ1 ????) "Hσ !>"; iSplit; first by eauto.
-    iNext; iIntros (v2 σ2 efs Hstep) "_"; inv_head_step. by iFrame.
+    iNext; iIntros (v2 σ2 efs Hstep) "_"; inv_base_step. by iFrame.
   Qed.
 
   Local Ltac solve_exec_safe := intros; subst; do 3 eexists; econstructor; eauto.
-  Local Ltac solve_exec_puredet := simpl; intros; by inv_head_step.
+  Local Ltac solve_exec_puredet := simpl; intros; by inv_base_step.
   Local Ltac solve_pure_exec :=
     unfold IntoVal in *;
     repeat match goal with H : AsVal _ |- _ => destruct H as [??] end; subst;
-    intros ?; apply nsteps_once, pure_head_step_pure_step;
+    intros ?; apply nsteps_once, pure_base_step_pure_step;
       constructor; [solve_exec_safe | solve_exec_puredet].
 
   Global Instance pure_rec e1 e2 `{!AsVal e2} :

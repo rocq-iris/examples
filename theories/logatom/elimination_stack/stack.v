@@ -212,7 +212,7 @@ Section stack.
       [->%stack_elem_to_val_inj|_].
     - (* The CAS succeeded. Update everything accordingly. *)
       iMod "AU" as (l') "[Hl' [_ Hclose]]".
-      iMod (mapsto_persist with "Hhead_new") as "#Hhead_new".
+      iMod (pointsto_persist with "Hhead_new") as "#Hhead_new".
       iCombine "Hs● Hl'" gives
         %[->%Excl_included%leibniz_equiv _]%auth_both_valid_discrete.
       iMod (own_update_2 with "Hs● Hl'") as "[Hs● Hl']".
@@ -314,7 +314,7 @@ Section stack.
         destruct l as [|v' l]; simpl.
         { (* Contradiction. *) iDestruct "Hlist" as ">%". done. }
         iDestruct "Hlist" as (tail' rep') "[>% [>Htail' Hlist]]". simplify_eq.
-        iDestruct (mapsto_agree with "Htail Htail'") as %[= <- <-%stack_elem_to_val_inj].
+        iDestruct (pointsto_agree with "Htail Htail'") as %[= <- <-%stack_elem_to_val_inj].
         iMod (own_update_2 with "Hs● Hl'") as "[Hs● Hl']".
         { eapply auth_update, option_local_update, (exclusive_local_update _ (Excl _)). done. }
         iMod ("Hclose" with "Hl'") as "HΦ {Htail Htail'}".

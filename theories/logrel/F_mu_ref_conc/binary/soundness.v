@@ -40,10 +40,10 @@ Proof.
     simpl.
     replace e with e.[env_subst[]] at 2 by by asimpl.
     iApply ("Hrel" $! 0 []).
-    { rewrite /tpool_mapsto. asimpl. by iFrame. }
+    { rewrite /tpool_pointsto. asimpl. by iFrame. }
   - iModIntro. iIntros (v1); iDestruct 1 as (v2) "[Hj #Hinterp]".
     iInv specN as (tp σ) ">[Hown Hsteps]" "Hclose"; iDestruct "Hsteps" as %Hsteps'.
-    rewrite /tpool_mapsto /=.
+    rewrite /tpool_pointsto /=.
     iCombine "Hown Hj" gives %Hvalid.
     move: Hvalid=> /auth_both_valid_discrete
       [/prod_included [/tpool_singleton_included Hv2 _] _].

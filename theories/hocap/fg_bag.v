@@ -78,7 +78,7 @@ Section proof.
       destruct ys as [| y ys]; eauto. simpl.
       iDestruct 1 as (tl) "(Hro & Hls)".
       iDestruct 1 as (tl') "(Hro' & Hls')".
-      iDestruct (mapsto_agree with "Hro Hro'") as %?; simplify_eq/=.
+      iDestruct (pointsto_agree with "Hro Hro'") as %?; simplify_eq/=.
       iDestruct ("IH" with "Hls Hls'") as %->. done.
   Qed.
 
@@ -157,7 +157,7 @@ Section proof.
     iInv N as (o' ls) "[Ho [Hls >Hb]]" "Hcl".
     destruct (decide (o = o')) as [->|?].
     - wp_cmpxchg_suc. { destruct o'; left; done. }
-      iMod (mapsto_persist with "Hn") as "#Hn".
+      iMod (pointsto_persist with "Hn") as "#Hn".
       iMod ("Hvs" with "[$Hb $HP]") as "[Hb HQ]".
       iMod ("Hcl" with "[Ho Hn Hls Hb]") as "_".
       { iNext. iExists (Some _),(v::ls). iFrame "Ho Hb".

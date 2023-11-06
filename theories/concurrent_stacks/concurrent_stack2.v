@@ -312,7 +312,7 @@ Section stack_works.
       iInv N as (list) "(Hl & Hlist)" "Hclose".
       destruct (decide (v'' = list)) as [ -> |].
       * wp_cmpxchg_suc. { destruct list; left; done. }
-        iMod (mapsto_persist with "Hl'") as "#Hl'".
+        iMod (pointsto_persist with "Hl'") as "#Hl'".
         iMod ("Hclose" with "[HP Hl Hlist]") as "_".
         { iNext; iExists (Some _); iFrame.
           rewrite (is_list_unfold _ (Some _)). iExists _, _; iFrame; eauto. }
@@ -362,7 +362,7 @@ Section stack_works.
         + rewrite is_list_unfold.
           iDestruct "Hlist" as (h' t') "(Hl'' & HP & Hlist)".
           wp_cmpxchg_suc.
-          iDestruct (mapsto_agree with "Hl'' Hl'") as "%"; simplify_eq.
+          iDestruct (pointsto_agree with "Hl'' Hl'") as "%"; simplify_eq.
           iMod ("Hclose" with "[Hl Hlist]") as "_".
           { iNext; iExists _; by iFrame. }
           iModIntro.

@@ -66,7 +66,7 @@ Section stack_works.
   Proof.
     destruct xs; first by iIntros "? %".
     iIntros "Hl Hstack"; iDestruct "Hstack" as (t') "(Hl' & Hrest)".
-    iDestruct (mapsto_agree with "Hl Hl'") as "%"; simplify_eq; iExists _; auto.
+    iDestruct (pointsto_agree with "Hl Hl'") as "%"; simplify_eq; iExists _; auto.
   Qed.
 
   Definition stack_inv P l :=
@@ -103,7 +103,7 @@ Section stack_works.
     iInv N as (list' xs) "(Hl & Hlist & HP)" "Hclose".
     destruct (decide (list = list')) as [ -> |].
     - wp_cmpxchg_suc. { destruct list'; left; done. }
-      iMod (mapsto_persist with "Hl'") as "#Hl'".
+      iMod (pointsto_persist with "Hl'") as "#Hl'".
       iMod ("Hupd" with "HP") as "[HP HΨ]".
       iMod ("Hclose" with "[Hl HP Hlist]") as "_".
       { iNext; iExists (Some _), (v :: xs); iFrame; iExists _; iFrame; auto. }
@@ -162,7 +162,7 @@ Section stack_works.
         iDestruct "Hupd" as "[Hupdcons _]".
         iMod ("Hupdcons" with "HP") as "[HP HΨ]".
         iDestruct "Hlist" as (t') "(Hl'' & Hlist)".
-        iDestruct (mapsto_agree with "Hl' Hl''") as "%"; simplify_eq.
+        iDestruct (pointsto_agree with "Hl' Hl''") as "%"; simplify_eq.
         iMod ("Hclose" with "[Hlist Hl HP]") as "_".
         { iNext; iExists _, _; iFrame. }
         iModIntro.

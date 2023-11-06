@@ -47,7 +47,7 @@ Section Stack_refinement.
     iApply wp_alloc; first done. iNext; iIntros (stk) "Hstk".
     simpl. iApply wp_pure_step_later; trivial. iIntros "!> _". simpl.
     iAsimpl.
-    iMod (mapsto_persist with "Histk") as "#Histk".
+    iMod (pointsto_persist with "Histk") as "#Histk".
     (* establishing the invariant *)
     iAssert (StackLink τi (LocV istk, FoldV (InjLV UnitV))) with "[]" as "HLK".
     { rewrite StackLink_unfold.
@@ -107,7 +107,7 @@ Section Stack_refinement.
           { rewrite CG_locked_push_of_val. by iFrame "Hspec Hstk' Hj". }
           iApply (wp_cas_suc with "Hstk"); auto.
           iNext. iIntros "Hstk".
-          iMod (mapsto_persist with "Hltmp") as "#Hltmp".
+          iMod (pointsto_persist with "Hltmp") as "#Hltmp".
           iMod ("Hclose" with "[-Hj]") as "_".
           { iNext. iExists ltmp, _.
             iFrame "Hstk' Hstk Hl".
@@ -196,7 +196,7 @@ Section Stack_refinement.
             iNext. iIntros "Hstk {HLK'}". iPoseProof "HLK" as "HLK'".
             rewrite {2}StackLink_unfold.
             iDestruct "HLK'" as (istk4 w2) "[% [Hmpt' HLK']]"; simplify_eq/=.
-            iDestruct (mapsto_agree with "Hmpt Hmpt'") as %<-.
+            iDestruct (pointsto_agree with "Hmpt Hmpt'") as %<-.
             iDestruct "HLK'" as "[[% %]|HLK']"; simplify_eq/=.
             iDestruct "HLK'" as (yn1 yn2 zn1 zn2)
                                    "[% [% [#Hrel HLK'']]]"; simplify_eq/=.

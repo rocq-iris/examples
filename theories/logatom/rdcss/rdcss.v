@@ -389,8 +389,8 @@ Section rdcss.
        while a [descr] protocol is not [done], it owns enough of
        the [rdcss] protocol to ensure that does not move anywhere else. *)
     destruct s as [n' | l_descr' l_m' m1' n1' n2' p'].
-    { simpl. iDestruct (mapsto_agree with "Hln Hln'") as %Heq. inversion Heq. }
-    iDestruct (mapsto_agree with "Hln Hln'") as %[= ->].
+    { simpl. iDestruct (pointsto_agree with "Hln Hln'") as %Heq. inversion Heq. }
+    iDestruct (pointsto_agree with "Hln Hln'") as %[= ->].
     simpl.
     iDestruct "Hrest" as (q Q' tid_ghost' γ_t' γ_s' γ_a') "(_ & [>Hld >Hld'] & Hrest)".
     (* We perform the CmpXchg. *)
@@ -427,7 +427,7 @@ Section rdcss.
          succeed, and our prophecy would have told us that.
          So here we can prove that the prophecy was wrong. *)
         iDestruct "NotDone" as "(_ & >Hln' & State)".
-        iDestruct (mapsto_agree with "Hln Hln'") as %[=->].
+        iDestruct (pointsto_agree with "Hln Hln'") as %[=->].
         iCombine "Hln Hln'" as "Hln".
         wp_apply (wp_resolve with "Hp"); first done; wp_cmpxchg_suc.
         iIntros "!>" (vs'' ->). simpl.
@@ -454,9 +454,9 @@ Section rdcss.
         iDestruct "Done" as "(_ & _ & >Hld & _)".
         iDestruct "Hld" as (v') "Hld".
         iDestruct "Hrest" as (q Q' tid_ghost' γ_t' γ_s' γ_a') "(_ & >[Hld' Hld''] & Hrest)".
-        iDestruct (mapsto_combine with "Hld Hld'") as "[Hld _]".
+        iDestruct (pointsto_combine with "Hld Hld'") as "[Hld _]".
         rewrite dfrac_op_own Qp.half_half.
-        by iDestruct (mapsto_ne with "Hld Hld''") as %[].
+        by iDestruct (pointsto_ne with "Hld Hld''") as %[].
       + (* l_descr' ≠ l_descr: The CmpXchg fails. *)
         wp_apply (wp_resolve with "Hp"); first done. wp_cmpxchg_fail.
         iIntros "!>" (vs'' ->) "Hp". iModIntro.
@@ -499,7 +499,7 @@ Section rdcss.
       + (* Pending: update to accepted *)
         iDestruct "Pending" as "[AU >(Hvs & Hn● & Token_a)]".
         iMod (lc_fupd_elim_later with "Hlc AU") as "AU".
-        iMod (inv_mapsto_own_acc_strong with "InvGC") as "Hgc"; first solve_ndisj.
+        iMod (inv_pointsto_own_acc_strong with "InvGC") as "Hgc"; first solve_ndisj.
         (* open and *COMMIT* AU, sync B location l_n and A location l_m *)
         iMod "AU" as (m' n') "[CC [_ Hclose]]".
         iDestruct "CC" as "[Hgc_lm Hn◯]".
@@ -538,7 +538,7 @@ Section rdcss.
         by iDestruct (proph_exclusive with "Htid_ghost Htid_ghost_inv") as %?.
     - (* we are the failing thread *)
       (* close invariant *)
-      iMod (inv_mapsto_acc with "InvGC isGC") as (v) "(_ & Hlm & Hclose)"; first solve_ndisj.
+      iMod (inv_pointsto_acc with "InvGC isGC") as (v) "(_ & Hlm & Hclose)"; first solve_ndisj.
       wp_load.
       iMod ("Hclose" with "Hlm") as "_". iModIntro.
       iModIntro.
@@ -580,7 +580,7 @@ Section rdcss.
         wp_cmpxchg_suc.
         (* Take a "peek" at [AU] and abort immediately to get [gc_is_gc f]. *)
         iMod "AU" as (b' n') "[[Hf CC] [Hclose _]]".
-        iDestruct (inv_mapsto_own_inv with "Hf") as "#Hgc".
+        iDestruct (inv_pointsto_own_inv with "Hf") as "#Hgc".
         iMod ("Hclose" with "[Hf CC]") as "AU"; first by iFrame.
         (* Initialize new [descr] protocol .*)
         iMod (own_alloc (Excl ())) as (γ_t) "Token_t"; first done.

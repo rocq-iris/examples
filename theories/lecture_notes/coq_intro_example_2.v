@@ -208,7 +208,7 @@ Section monotone_counter.
   Lemma mcounterRA_update m n: ((● m ⋅ ◯ n) : mcounterRA) ~~> (● (1 + m) ⋅ ◯ (1 + n)).
   Proof.
     (* Use the specialized definition of update, since our RA is a nice one. *)
-    apply cmra_discrete_update.
+    apply cmra_discrete_total_update.
     intros [[] k].
     - rewrite /op /cmra_op !mcounterRA_valid; lia.
     - intros [].

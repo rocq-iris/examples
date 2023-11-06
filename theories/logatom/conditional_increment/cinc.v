@@ -226,10 +226,10 @@ Section conditional_counter.
 
   (** A few more helper lemmas that will come up later *)
 
-  Lemma mapsto_valid_3 l v1 v2 q :
+  Lemma pointsto_valid_3 l v1 v2 q :
     l ↦ v1 -∗ l ↦{q} v2 -∗ ⌜False⌝.
   Proof.
-    iIntros "Hl1 Hl2". iDestruct (mapsto_ne with "Hl1 Hl2") as %?; done.
+    iIntros "Hl1 Hl2". iDestruct (pointsto_ne with "Hl1 Hl2") as %?; done.
   Qed.
 
   (** Once a [state] protocol is [done] (as reflected by the [γ_s] token here),
@@ -285,7 +285,7 @@ Section conditional_counter.
     (* So, we are [Accepted]. Now we can show that l = l', because
        while a [state] protocol is not [done], it owns enough of
        the [counter] protocol to ensure that does not move anywhere else. *)
-    iDestruct (mapsto_agree with "Hc Hc'") as %[= ->].
+    iDestruct (pointsto_agree with "Hc Hc'") as %[= ->].
     (* We perform the CmpXchg. *)
     iCombine "Hc Hc'" as "Hc".
     wp_apply (wp_resolve with "Hp"); first done; wp_cmpxchg_suc.
@@ -299,7 +299,7 @@ Section conditional_counter.
     (* Update state to Done. *)
     { iNext. iExists _. iFrame "Hp'". iRight. unfold done_state.
       iFrame "#∗". iDestruct "Hl_ghost_inv" as (v) "Hl_ghost_inv".
-      iDestruct (mapsto_agree with "Hl_ghost Hl_ghost_inv") as %<-.
+      iDestruct (pointsto_agree with "Hl_ghost Hl_ghost_inv") as %<-.
       iSplitR "Hl"; iExists _; iFrame. }
     iModIntro. iSplitR "HQ".
     { iNext. iDestruct "Hc" as "[Hc1 Hc2]".
@@ -325,7 +325,7 @@ Section conditional_counter.
          succeed, and our prophecy would have told us that.
          So here we can prove that the prophecy was wrong. *)
         iDestruct "NotDone" as "(_ & >Hc' & State)".
-        iDestruct (mapsto_agree with "Hc Hc'") as %[=->].
+        iDestruct (pointsto_agree with "Hc Hc'") as %[=->].
         iCombine "Hc Hc'" as "Hc".
         wp_apply (wp_resolve with "Hp"); first done; wp_cmpxchg_suc.
         iIntros "!>" (vs' ->). iDestruct "State" as "[Pending | Accepted]".
@@ -338,9 +338,9 @@ Section conditional_counter.
          of the [counter]?  Impossible, now we will own more than the whole location! *)
       iDestruct "Done" as "(_ & _ & >Hl'')".
       iDestruct "Hl''" as (v') "Hl''".
-      iDestruct (mapsto_combine with "Hl Hl''") as "[Hl _]".
+      iDestruct (pointsto_combine with "Hl Hl''") as "[Hl _]".
       rewrite dfrac_op_own Qp.half_half.
-      iDestruct (mapsto_valid_3 with "Hl Hl'") as "[]".
+      iDestruct (pointsto_valid_3 with "Hl Hl'") as "[]".
     }
     (* The CmpXchg fails. *)
     wp_apply (wp_resolve with "Hp"); first done. wp_cmpxchg_fail.
@@ -381,7 +381,7 @@ Section conditional_counter.
       + (* Pending: update to accepted *)
         iDestruct "Pending" as "[AU >[Hvs Hn●]]".
         iMod (lc_fupd_elim_later with "Hlc AU") as "AU".
-        iMod (inv_mapsto_own_acc_strong with "GC") as "Hgc"; first solve_ndisj.
+        iMod (inv_pointsto_own_acc_strong with "GC") as "Hgc"; first solve_ndisj.
         (* open and *COMMIT* AU, sync flag and counter *)
         iMod "AU" as (b n2) "[[Hn◯ Hf] [_ Hclose]]".
         iDestruct ("Hgc" with "Hf") as "(_ & Hf & Hfclose)".
@@ -415,7 +415,7 @@ Section conditional_counter.
         iCombine "Hl_ghost'" "Hl_ghost'2" as "Hl_ghost'".
         by iCombine "Hlghost Hl_ghost'" gives %[??].
     - (* we are the failing thread. exploit that [f] is a GC location. *)
-      iMod (inv_mapsto_acc with "GC isGC") as (b) "(_ & H↦ & Hclose)"; first solve_ndisj.
+      iMod (inv_pointsto_acc with "GC isGC") as (b) "(_ & H↦ & Hclose)"; first solve_ndisj.
       wp_load.
       iMod ("Hclose" with "H↦") as "_". iModIntro.
       (* close invariant *)
@@ -452,12 +452,12 @@ Section conditional_counter.
       iInv counterN as (l'' q2 s) "(>Hc & >Hl & Hrest)".
       destruct (decide (l' = l'')) as [<- | Hn].
       + (* CAS succeeds *)
-        iDestruct (mapsto_agree with "Hl' Hl") as %<-%state_to_val_inj.
+        iDestruct (pointsto_agree with "Hl' Hl") as %<-%state_to_val_inj.
         iDestruct "Hrest" as ">[Hc' Hn●]". iCombine "Hc Hc'" as "Hc".
         wp_cmpxchg_suc.
         (* Take a "peek" at [AU] and abort immediately to get [gc_is_gc f]. *)
         iMod "AU" as (b' n') "[[CC Hf] [Hclose _]]".
-        iDestruct (inv_mapsto_own_inv with "Hf") as "#Hgc".
+        iDestruct (inv_pointsto_own_inv with "Hf") as "#Hgc".
         iMod ("Hclose" with "[CC Hf]") as "AU"; first by iFrame.
         (* Initialize new [state] protocol .*)
         iMod (own_alloc (Excl ())) as (γ_t) "Token"; first done.

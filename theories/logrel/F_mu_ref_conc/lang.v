@@ -199,82 +199,82 @@ Module F_mu_ref_conc.
 
   Definition state : Type := gmap loc val.
 
-  Inductive head_step : expr → state → list Empty_set → expr → state → list expr → Prop :=
+  Inductive base_step : expr → state → list Empty_set → expr → state → list expr → Prop :=
   (* β *)
   | BetaS e1 e2 v2 σ :
       to_val e2 = Some v2 →
-      head_step (App (Rec e1) e2) σ [] e1.[(Rec e1), e2/] σ []
+      base_step (App (Rec e1) e2) σ [] e1.[(Rec e1), e2/] σ []
   (* Lam-β *)
   | LamBetaS e1 e2 v2 σ :
       to_val e2 = Some v2 →
-      head_step (App (Lam e1) e2) σ [] e1.[e2/] σ []
+      base_step (App (Lam e1) e2) σ [] e1.[e2/] σ []
   (* LetIn-β *)
   | LetInBetaS e1 e2 v2 σ :
       to_val e1 = Some v2 →
-      head_step (LetIn e1 e2) σ [] e2.[e1/] σ []
+      base_step (LetIn e1 e2) σ [] e2.[e1/] σ []
   (* Seq-β *)
   | SeqBetaS e1 e2 v2 σ :
       to_val e1 = Some v2 →
-      head_step (Seq e1 e2) σ [] e2 σ []
+      base_step (Seq e1 e2) σ [] e2 σ []
   (* Products *)
   | FstS e1 v1 e2 v2 σ :
       to_val e1 = Some v1 → to_val e2 = Some v2 →
-      head_step (Fst (Pair e1 e2)) σ [] e1 σ []
+      base_step (Fst (Pair e1 e2)) σ [] e1 σ []
   | SndS e1 v1 e2 v2 σ :
       to_val e1 = Some v1 → to_val e2 = Some v2 →
-      head_step (Snd (Pair e1 e2)) σ [] e2 σ []
+      base_step (Snd (Pair e1 e2)) σ [] e2 σ []
   (* Sums *)
   | CaseLS e0 v0 e1 e2 σ :
       to_val e0 = Some v0 →
-      head_step (Case (InjL e0) e1 e2) σ [] e1.[e0/] σ []
+      base_step (Case (InjL e0) e1 e2) σ [] e1.[e0/] σ []
   | CaseRS e0 v0 e1 e2 σ :
       to_val e0 = Some v0 →
-      head_step (Case (InjR e0) e1 e2) σ [] e2.[e0/] σ []
+      base_step (Case (InjR e0) e1 e2) σ [] e2.[e0/] σ []
     (* nat bin op *)
   | BinOpS op a b σ :
-      head_step (BinOp op (#n a) (#n b)) σ [] (of_val (binop_eval op a b)) σ []
+      base_step (BinOp op (#n a) (#n b)) σ [] (of_val (binop_eval op a b)) σ []
   (* If then else *)
   | IfFalse e1 e2 σ :
-      head_step (If (#♭ false) e1 e2) σ [] e2 σ []
+      base_step (If (#♭ false) e1 e2) σ [] e2 σ []
   | IfTrue e1 e2 σ :
-      head_step (If (#♭ true) e1 e2) σ [] e1 σ []
+      base_step (If (#♭ true) e1 e2) σ [] e1 σ []
   (* Recursive Types *)
   | Unfold_Fold e v σ :
       to_val e = Some v →
-      head_step (Unfold (Fold e)) σ [] e σ []
+      base_step (Unfold (Fold e)) σ [] e σ []
   (* Polymorphic Types *)
   | TBeta e σ :
-      head_step (TApp (TLam e)) σ [] e σ []
+      base_step (TApp (TLam e)) σ [] e σ []
   (* Existential Types *)
   | UnpackS e1 v e2 σ :
       to_val e1 = Some v →
-      head_step (UnpackIn (Pack e1) e2) σ [] e2.[e1/] σ []
+      base_step (UnpackIn (Pack e1) e2) σ [] e2.[e1/] σ []
   (* Concurrency *)
   | ForkS e σ:
-      head_step (Fork e) σ [] Unit σ [e]
+      base_step (Fork e) σ [] Unit σ [e]
   (* Reference Types *)
   | AllocS e v σ l :
      to_val e = Some v → σ !! l = None →
-     head_step (Alloc e) σ [] (Loc l) (<[l:=v]>σ) []
+     base_step (Alloc e) σ [] (Loc l) (<[l:=v]>σ) []
   | LoadS l v σ :
      σ !! l = Some v →
-     head_step (Load (Loc l)) σ [] (of_val v) σ []
+     base_step (Load (Loc l)) σ [] (of_val v) σ []
   | StoreS l e v σ :
      to_val e = Some v → is_Some (σ !! l) →
-     head_step (Store (Loc l) e) σ [] Unit (<[l:=v]>σ) []
+     base_step (Store (Loc l) e) σ [] Unit (<[l:=v]>σ) []
   (* Compare and swap *)
   | CasFailS l e1 v1 e2 v2 vl σ :
      to_val e1 = Some v1 → to_val e2 = Some v2 →
      σ !! l = Some vl → vl ≠ v1 →
-     head_step (CAS (Loc l) e1 e2) σ [] (#♭ false) σ []
+     base_step (CAS (Loc l) e1 e2) σ [] (#♭ false) σ []
   | CasSucS l e1 v1 e2 v2 σ :
      to_val e1 = Some v1 → to_val e2 = Some v2 →
      σ !! l = Some v1 →
-     head_step (CAS (Loc l) e1 e2) σ [] (#♭ true) (<[l:=v2]>σ) []
+     base_step (CAS (Loc l) e1 e2) σ [] (#♭ true) (<[l:=v2]>σ) []
   | FAAS l m e2 k σ :
       to_val e2 = Some (NatV k) →
       σ !! l = Some (NatV m) →
-      head_step (FAA (Loc l) e2) σ [] (#n m) (<[l:=NatV (m + k)]>σ) [].
+      base_step (FAA (Loc l) e2) σ [] (#n m) (<[l:=NatV (m + k)]>σ) [].
 
   (** Basic properties about the language *)
   Lemma to_of_val v : to_val (of_val v) = Some v.
@@ -296,11 +296,11 @@ Module F_mu_ref_conc.
   Proof. destruct Ki; intros ???; simplify_eq; auto with f_equal. Qed.
 
   Lemma val_stuck e1 σ1 κs e2 σ2 ef :
-    head_step e1 σ1 κs e2 σ2 ef → to_val e1 = None.
+    base_step e1 σ1 κs e2 σ2 ef → to_val e1 = None.
   Proof. destruct 1; naive_solver. Qed.
 
-  Lemma head_ctx_step_val Ki e σ1 κs e2 σ2 ef :
-    head_step (fill_item Ki e) σ1 κs e2 σ2 ef → is_Some (to_val e).
+  Lemma base_ctx_step_val Ki e σ1 κs e2 σ2 ef :
+    base_step (fill_item Ki e) σ1 κs e2 σ2 ef → is_Some (to_val e).
   Proof. destruct Ki; inversion_clear 1; simplify_option_eq; eauto. Qed.
 
   Lemma fill_item_no_val_inj Ki1 Ki2 e1 e2 :
@@ -315,16 +315,16 @@ Module F_mu_ref_conc.
 
   Lemma alloc_fresh e v σ :
     let l := fresh (dom σ) in
-    to_val e = Some v → head_step (Alloc e) σ [] (Loc l) (<[l:=v]>σ) [].
+    to_val e = Some v → base_step (Alloc e) σ [] (Loc l) (<[l:=v]>σ) [].
   Proof. by intros; apply AllocS, (not_elem_of_dom (D:=gset loc)), is_fresh. Qed.
 
-  Lemma val_head_stuck e1 σ1 κs e2 σ2 efs : head_step e1 σ1 κs e2 σ2 efs → to_val e1 = None.
+  Lemma val_base_stuck e1 σ1 κs e2 σ2 efs : base_step e1 σ1 κs e2 σ2 efs → to_val e1 = None.
   Proof. destruct 1; naive_solver. Qed.
 
-  Lemma lang_mixin : EctxiLanguageMixin of_val to_val fill_item head_step.
+  Lemma lang_mixin : EctxiLanguageMixin of_val to_val fill_item base_step.
   Proof.
-    split; apply _ || eauto using to_of_val, of_to_val, val_head_stuck,
-           fill_item_val, fill_item_no_val_inj, head_ctx_step_val.
+    split; apply _ || eauto using to_of_val, of_to_val, val_base_stuck,
+           fill_item_val, fill_item_no_val_inj, base_ctx_step_val.
   Qed.
 
   Canonical Structure stateO := leibnizO state.
