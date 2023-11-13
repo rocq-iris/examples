@@ -89,8 +89,7 @@ Section stack_spec.
     wp_store.
     iApply "HΦ".
     iExists ℓ, (SOMEV #ℓ'); iFrame.
-    iSplitR; first done.
-    iExists ℓ', hd; by iFrame.
+    iSplitR; done.
   Qed.
 
   Lemma pop_spec_nonempty s (x : val) xs:
@@ -183,8 +182,7 @@ Proof.
   wp_store.
   iApply "HΨ".
   iExists ℓ, (SOMEV #ℓ'); iFrame.
-  iSplitR; first done.
-  iExists ℓ', x, hd; by iFrame.
+  iSplitR; done.
 Qed.
 
 Lemma pop_ownership_spec_nonempty s Φ Φs:

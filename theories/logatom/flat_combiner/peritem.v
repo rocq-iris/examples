@@ -46,8 +46,7 @@ Section proofs.
     iMod (pointsto_persist with "Hl") as "#Hl".
     wp_alloc s as "Hs".
     iAssert (∃ xs, is_bag_R N R xs s)%I with "[-HΦ]" as "Hxs".
-    { iFrame. iExists [], l.
-      iFrame. simpl. eauto. }
+    { iFrame. iExists []. eauto. }
     iMod (inv_alloc N _ (∃ xs : list val, is_bag_R N R xs s)%I with "[-HΦ]") as "#?"; first eauto.
     iApply "HΦ". iFrame "#". done.
   Qed.
@@ -61,7 +60,7 @@ Section proofs.
     iInv N as "H1" "Hclose".
     iDestruct "H1" as (xs hd) "[>Hs H1]".
     wp_load. iMod ("Hclose" with "[Hs H1]").
-    { iNext. iFrame. iExists xs, hd. iFrame. }
+    { iFrame. }
     iModIntro. wp_let. wp_alloc l as "Hl".
     wp_let. wp_bind (CmpXchg _ _ _)%E.
     iInv N as "H1" "Hclose".
@@ -71,13 +70,11 @@ Section proofs.
       iMod (pointsto_persist with "Hl") as "#Hl".
       iMod (inv_alloc N _ (R x) with "[HRx]") as "#HRx"; first eauto.
       iMod ("Hclose" with "[Hs Hl H1]").
-      { iNext. iFrame. iExists (x::xs'), l.
-        iFrame. simpl. iExists hd'. iFrame.
-        by iFrame "#". }
+      { iExists (x::xs'). iFrame "#∗". }
       iModIntro. wp_pures. by iApply "HΦ".
     - wp_cmpxchg_fail.
       iMod ("Hclose" with "[Hs H1]").
-      { iNext. iFrame. iExists (xs'), hd'. iFrame. }
+      { iFrame. }
       iModIntro. wp_pures. iApply ("IH" with "HRx").
       by iNext.
   Qed.

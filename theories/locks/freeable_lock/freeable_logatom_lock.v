@@ -137,8 +137,7 @@ Section tada.
         rewrite {1}/sum_loans /= map_fold_sum_loans_add Qp.div_2. done.
       - iApply big_sepM_insert; first done. iFrame "Hloans".
         iExists _. by iFrame. }
-    iModIntro. iExists _. iFrame.
-    iExists _, _. by iFrame.
+    iModIntro. iExists _. iFrame "#∗".
   Qed.
 
   Local Lemma return_lock_loan γ q Q :
