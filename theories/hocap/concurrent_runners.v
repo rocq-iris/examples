@@ -228,7 +228,7 @@ Section contents.
     iMod (inv_alloc (N.@"task") _ (task_inv γ γ' status res (Q a))%I with "[-HP HΦ Htask Hinit]") as "#Hinv".
     { iNext. iLeft. iFrame. }
     wp_pures. iModIntro. iApply "HΦ".
-    unfold isTask, task. iFrame "#∗". eauto.
+    iFrame "#∗". eauto.
   Qed.
 
   Lemma task_Join_spec γb γ γ' (r t a : val) P Q :
