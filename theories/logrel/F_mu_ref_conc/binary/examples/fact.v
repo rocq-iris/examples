@@ -9,7 +9,7 @@ Definition fact : expr :=
           (#n 1)
           (BinOp Mult (Var 1) (App (Var 0) (BinOp Sub (Var 1) (#n 1))))).
 
-Lemma fact_typed : [] ⊢ₜ fact : TArrow TNat TNat.
+Lemma fact_typed : [] ⊢ₜ fact : TArrow TInt TInt.
 Proof. repeat econstructor. Qed.
 
 Definition fact_acc_body : expr :=
@@ -26,7 +26,7 @@ Definition fact_acc_body : expr :=
          )
       ).
 
-Lemma fact_acc_body_typed : [] ⊢ₜ fact_acc_body : TArrow TNat (TArrow TNat TNat).
+Lemma fact_acc_body_typed : [] ⊢ₜ fact_acc_body : TArrow TInt (TArrow TInt TInt).
 Proof. repeat econstructor. Qed.
 
 Lemma fact_acc_body_subst f : fact_acc_body.[f] = fact_acc_body.
@@ -56,7 +56,7 @@ Global Opaque fact_acc_body.
 Definition fact_acc : expr :=
   Lam (App (App fact_acc_body (Var 0)) (#n 1)).
 
-Lemma fact_acc_typed : [] ⊢ₜ fact_acc : TArrow TNat TNat.
+Lemma fact_acc_typed : [] ⊢ₜ fact_acc : TArrow TInt TInt.
 Proof.
   repeat econstructor.
   apply (closed_context_weakening [_] []); eauto.
@@ -67,7 +67,7 @@ Section fact_equiv.
   Context `{heapIG Σ, cfgSG Σ}.
 
   Lemma fact_fact_acc_refinement :
-    ⊢ [] ⊨ fact ≤log≤ fact_acc : (TArrow TNat TNat).
+    ⊢ [] ⊨ fact ≤log≤ fact_acc : (TArrow TInt TInt).
   Proof.
     iIntros (? vs) "!# [#HE HΔ]".
     iDestruct (interp_env_length with "HΔ") as %?; destruct vs; simplify_eq.
@@ -82,9 +82,11 @@ Section fact_equiv.
     asimpl.
     iApply (wp_mono _ _ _ (λ v, ∃ m, j ⤇ fill K (#n (1 * m)) ∗ ⌜v = #nv m⌝))%I.
     { iIntros (?). iDestruct 1 as (m) "[Hm %]"; subst.
+      replace (1 * m)%Z with m by lia.
       iExists (#nv _); iFrame; eauto. }
-    generalize 1 as l => l.
-    iInduction n as [|n] "IH" forall (l).
+    generalize 1%Z as l => l.
+    iLöb as "IH" forall (n l).
+    destruct (decide (n = 0)) as [->|].
     - iApply wp_pure_step_later; auto.
       iIntros "!> _"; simpl; asimpl.
       rewrite fact_acc_body_unfold.
@@ -102,7 +104,7 @@ Section fact_equiv.
       iIntros "!> _"; simpl.
       iMod (do_step_pure with "[$Hj]") as "Hj"; auto.
       iApply wp_value.
-      iExists 1. replace (l * 1) with l by lia.
+      iExists 1%Z. replace (l * 1)%Z with l by lia.
       auto.
     - iApply wp_pure_step_later; auto.
       iIntros "!> _"; simpl; asimpl.
@@ -115,10 +117,12 @@ Section fact_equiv.
       iApply wp_pure_step_later; auto.
       iIntros "!> _"; simpl.
       iApply wp_value. simpl.
+      destruct Z.eq_dec; first lia.
       iMod (do_step_pure _ _ (IfCtx _ _ :: _) with "[$Hj]") as "Hj"; auto.
       simpl.
       iApply wp_pure_step_later; auto.
       iIntros "!> _"; simpl.
+      destruct Z.eq_dec; first lia.
       iMod (do_step_pure with "[$Hj]") as "Hj"; auto.
       asimpl.
       iApply (wp_bind (fill [BinOpRCtx _ (#nv _)])).
@@ -133,19 +137,17 @@ Section fact_equiv.
       simpl.
       iMod (do_step_pure with "[$Hj]") as "Hj"; auto.
       asimpl.
-      replace (n -0) with n by lia.
       iApply wp_wand_r; iSplitL; first iApply ("IH" with "[Hj]"); eauto.
       iIntros (v). iDestruct 1 as (m) "[H %]"; simplify_eq.
       iApply wp_pure_step_later; auto.
       iIntros "!> _"; simpl; iApply wp_value.
-      iExists ((S n) * m); simpl.
-      replace (l * (m + n * m)) with ((l + n * l) * m)
-        by lia.
-      iFrame; auto.
+      iExists _; iSplit; last done.
+      replace (l * (n * m))%Z with (n * l * m)%Z by lia.
+      iFrame.
   Qed.
 
   Lemma fact_acc_fact_refinement :
-    ⊢ [] ⊨ fact_acc ≤log≤ fact : (TArrow TNat TNat).
+    ⊢ [] ⊨ fact_acc ≤log≤ fact : (TArrow TInt TInt).
   Proof.
     iIntros (? vs) "!# [#HE HΔ]".
     iDestruct (interp_env_length with "HΔ") as %?; destruct vs; simplify_eq.
@@ -160,10 +162,11 @@ Section fact_equiv.
     rewrite -/fact.
     iApply (wp_mono _ _ _ (λ v, ∃ m, j ⤇ fill K (#n m) ∗ ⌜v = #nv (1 * m)⌝))%I.
     { iIntros (?). iDestruct 1 as (m) "[? %]"; simplify_eq.
-      replace (1 * m) with m by lia.
+      replace (1 * m)%Z with m by lia.
       iExists (#nv _); iFrame; eauto. }
-    generalize 1 as l => l.
-    iInduction n as [|n] "IH" forall (K l).
+    generalize 1%Z as l => l.
+    iLöb as "IH" forall (K n l).
+    destruct (decide (n = 0)) as [->|].
     - rewrite fact_acc_body_unfold.
       iApply (wp_bind (fill [AppLCtx _])).
       iApply wp_pure_step_later; auto.
@@ -183,8 +186,7 @@ Section fact_equiv.
       iApply wp_pure_step_later; auto.
       iIntros "!> _"; simpl.
       iApply wp_value.
-      iExists 1.
-      replace (l * 1) with l by lia; auto.
+      iExists 1%Z. replace (l * 1)%Z with l by lia; auto.
     - rewrite {2}fact_acc_body_unfold.
       iApply (wp_bind (fill [AppLCtx _])).
       iApply wp_pure_step_later; auto.
@@ -199,10 +201,12 @@ Section fact_equiv.
       iApply wp_pure_step_later; auto.
       iIntros "!> _"; simpl.
       iApply wp_value. simpl.
+      destruct Z.eq_dec; first done.
       iMod (do_step_pure _ _ (IfCtx _ _ :: _) with "[$Hj]") as "Hj"; auto.
       simpl.
       iApply wp_pure_step_later; auto.
       iIntros "!> _"; simpl.
+      destruct Z.eq_dec; first done.
       iMod (do_step_pure with "[$Hj]") as "Hj"; auto.
       iMod (do_step_pure _ _ (AppRCtx (RecV _):: BinOpRCtx _ (#nv _) :: _)
               with "[$Hj]") as "Hj"; eauto.
@@ -217,7 +221,6 @@ Section fact_equiv.
       iIntros "!> _"; simpl; iApply wp_value; simpl.
       iApply wp_pure_step_later; auto.
       iIntros "!> _"; simpl. asimpl.
-      replace (n -0) with n by lia.
       iApply wp_fupd.
       iApply wp_wand_r; iSplitL;
         first iApply ("IH" $! (BinOpRCtx _ (#nv _) :: K) with "[$Hj]"); eauto.
@@ -226,16 +229,16 @@ Section fact_equiv.
       iMod (do_step_pure with "[$Hj]") as "Hj"; auto.
       simpl.
       iModIntro.
-      iExists (S n * m).
-      iFrame.
-      eauto with lia.
+      iExists _; iSplit; first by iFrame.
+      replace (l * (n * m))%Z with (n * l * m)%Z by lia.
+      done.
   Qed.
 
 End fact_equiv.
 
 Theorem fact_ctx_equiv :
-  [] ⊨ fact ≤ctx≤ fact_acc : (TArrow TNat TNat) ∧
-  [] ⊨ fact_acc ≤ctx≤ fact : (TArrow TNat TNat).
+  [] ⊨ fact ≤ctx≤ fact_acc : (TArrow TInt TInt) ∧
+  [] ⊨ fact_acc ≤ctx≤ fact : (TArrow TInt TInt).
 Proof.
   set (Σ := #[invΣ ; gen_heapΣ loc val ; soundness_binaryΣ]).
   set (HG := soundness.HeapPreIG Σ _ _).

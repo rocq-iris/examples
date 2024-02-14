@@ -3,7 +3,7 @@ From iris.prelude Require Import options.
 
 Inductive type :=
   | TUnit : type
-  | TNat : type
+  | TInt : type
   | TBool : type
   | TProd : type → type → type
   | TSum : type → type → type
@@ -21,13 +21,13 @@ Global Instance SubstLemmas_typer : SubstLemmas type. derive. Qed.
 
 Definition binop_res_type (op : binop) : type :=
   match op with
-  | Add => TNat | Sub => TNat | Mult => TNat
+  | Add => TInt | Sub => TInt | Mult => TInt
   | Eq => TBool | Le => TBool | Lt => TBool
   end.
 
 Inductive EqType : type → Prop :=
   | EqTUnit : EqType TUnit
-  | EqTNat : EqType TNat
+  | EqTNat : EqType TInt
   | EqTBool : EqType TBool
   | EQRef τ : EqType (Tref τ).
 
@@ -36,11 +36,21 @@ Reserved Notation "Γ ⊢ₜ e : τ" (at level 74, e, τ at next level).
 Inductive typed (Γ : list type) : expr → type → Prop :=
   | Var_typed x τ : Γ !! x = Some τ → Γ ⊢ₜ Var x : τ
   | Unit_typed : Γ ⊢ₜ Unit : TUnit
-  | Nat_typed n : Γ ⊢ₜ #n n : TNat
+  | Int_typed n : Γ ⊢ₜ #n n : TInt
   | Bool_typed b : Γ ⊢ₜ #♭ b : TBool
-  | BinOp_typed op e1 e2 :
-     Γ ⊢ₜ e1 : TNat → Γ ⊢ₜ e2 : TNat → Γ ⊢ₜ BinOp op e1 e2 : binop_res_type op
-  | Pair_typed e1 e2 τ1 τ2 : Γ ⊢ₜ e1 : τ1 → Γ ⊢ₜ e2 : τ2 → Γ ⊢ₜ Pair e1 e2 : TProd τ1 τ2
+  | Int_BinOp_typed op e1 e2 :
+     Γ ⊢ₜ e1 : TInt →
+     Γ ⊢ₜ e2 : TInt →
+     Γ ⊢ₜ BinOp op e1 e2 : binop_res_type op
+  | Eq_typed e1 e2 τ :
+     EqType τ →
+     Γ ⊢ₜ e1 : τ →
+     Γ ⊢ₜ e2 : τ →
+     Γ ⊢ₜ BinOp Eq e1 e2 : TBool
+  | Pair_typed e1 e2 τ1 τ2 :
+     Γ ⊢ₜ e1 : τ1 →
+     Γ ⊢ₜ e2 : τ2 →
+     Γ ⊢ₜ Pair e1 e2 : TProd τ1 τ2
   | Fst_typed e τ1 τ2 : Γ ⊢ₜ e : TProd τ1 τ2 → Γ ⊢ₜ Fst e : τ1
   | Snd_typed e τ1 τ2 : Γ ⊢ₜ e : TProd τ1 τ2 → Γ ⊢ₜ Snd e : τ2
   | InjL_typed e τ1 τ2 : Γ ⊢ₜ e : τ1 → Γ ⊢ₜ InjL e : TSum τ1 τ2
@@ -78,7 +88,7 @@ Inductive typed (Γ : list type) : expr → type → Prop :=
   | TCAS e1 e2 e3 τ :
      EqType τ → Γ ⊢ₜ e1 : Tref τ → Γ ⊢ₜ e2 : τ → Γ ⊢ₜ e3 : τ →
      Γ ⊢ₜ CAS e1 e2 e3 : TBool
-  | TFAA e1 e2 : Γ ⊢ₜ e1 : Tref TNat → Γ ⊢ₜ e2 : TNat → Γ ⊢ₜ FAA e1 e2 : TNat
+  | TFAA e1 e2 : Γ ⊢ₜ e1 : Tref TInt → Γ ⊢ₜ e2 : TInt → Γ ⊢ₜ FAA e1 e2 : TInt
 where "Γ ⊢ₜ e : τ" := (typed Γ e τ).
 
 Fixpoint env_subst (vs : list val) : var → expr :=

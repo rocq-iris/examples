@@ -125,12 +125,18 @@ Inductive typed_ctx_item :
   | TP_CTX_IfR Γ e0 e1 τ :
      typed Γ e0 (TBool) → typed Γ e1 τ →
      typed_ctx_item (CTX_IfR e0 e1) Γ τ Γ τ
-  | TP_CTX_BinOpL op Γ e2 :
-     typed Γ e2 TNat →
-     typed_ctx_item (CTX_BinOpL op e2) Γ TNat Γ (binop_res_type op)
-  | TP_CTX_BinOpR op e1 Γ :
-     typed Γ e1 TNat →
-     typed_ctx_item (CTX_BinOpR op e1) Γ TNat Γ (binop_res_type op)
+  | TP_CTX_int_BinOpL op Γ e2 :
+     typed Γ e2 TInt →
+     typed_ctx_item (CTX_BinOpL op e2) Γ TInt Γ (binop_res_type op)
+  | TP_CTX_int_BinOpR op e1 Γ :
+     typed Γ e1 TInt →
+     typed_ctx_item (CTX_BinOpR op e1) Γ TInt Γ (binop_res_type op)
+  | TP_CTX_Eq_BinOpL Γ e2 τ :
+     EqType τ → typed Γ e2 τ →
+     typed_ctx_item (CTX_BinOpL Eq e2) Γ τ Γ TBool
+  | TP_CTX_Eq_BinOpR e1 Γ τ :
+     EqType τ → typed Γ e1 τ →
+     typed_ctx_item (CTX_BinOpR Eq e1) Γ τ Γ TBool
   | TP_CTX_Fold Γ τ :
      typed_ctx_item CTX_Fold Γ τ.[(TRec τ)/] Γ (TRec τ)
   | TP_CTX_Unfold Γ τ :
@@ -269,8 +275,10 @@ Section bin_log_related_under_typed_ctx.
         [iApply binary_fundamental| |iApply binary_fundamental]; done.
     - iApply bin_log_related_if;
         [iApply binary_fundamental|iApply binary_fundamental|]; done.
-    - iApply bin_log_related_nat_binop; [|iApply binary_fundamental]; done.
-    - iApply bin_log_related_nat_binop; [iApply binary_fundamental|]; done.
+    - iApply bin_log_related_int_binop; [|iApply binary_fundamental]; done.
+    - iApply bin_log_related_int_binop; [iApply binary_fundamental|]; done.
+    - iApply bin_log_related_Eq_binop; [| |iApply binary_fundamental]; done.
+    - iApply bin_log_related_Eq_binop; [|iApply binary_fundamental|]; done.
     - iApply bin_log_related_fold; done.
     - iApply bin_log_related_unfold; done.
     - iApply bin_log_related_tlam; done.

@@ -41,7 +41,7 @@ Section CG_Counter.
 
   (* Coarse-grained increment *)
   Lemma CG_increment_type x Γ :
-    typed Γ x (Tref TNat) →
+    typed Γ x (Tref TInt) →
     typed Γ (CG_increment x) (TArrow TUnit TUnit).
   Proof.
     intros H1. repeat econstructor.
@@ -64,7 +64,7 @@ Section CG_Counter.
   Lemma steps_CG_increment E j K x n:
     nclose specN ⊆ E →
     spec_ctx ∗ x ↦ₛ (#nv n) ∗ j ⤇ fill K (App (CG_increment (Loc x)) Unit)
-      ⊢ |={E}=> j ⤇ fill K (Unit) ∗ x ↦ₛ (#nv (S n)).
+      ⊢ |={E}=> j ⤇ fill K (Unit) ∗ x ↦ₛ (#nv (1 + n)).
   Proof.
     iIntros (HNE) "[#Hspec [Hx Hj]]". unfold CG_increment.
     iMod (do_step_pure with "[$Hj]") as "Hj"; eauto.
@@ -92,7 +92,7 @@ Section CG_Counter.
   Global Opaque CG_locked_incrementV.
 
   Lemma CG_locked_increment_type x l Γ :
-    typed Γ x (Tref TNat) →
+    typed Γ x (Tref TInt) →
     typed Γ l LockType →
     typed Γ (CG_locked_increment x l) (TArrow TUnit TUnit).
   Proof.
@@ -113,7 +113,7 @@ Section CG_Counter.
     nclose specN ⊆ E →
     spec_ctx ∗ x ↦ₛ (#nv n) ∗ l ↦ₛ (#♭v false)
       ∗ j ⤇ fill K (App (CG_locked_increment (Loc x) (Loc l)) Unit)
-    ={E}=∗ j ⤇ fill K Unit ∗ x ↦ₛ (#nv S n) ∗ l ↦ₛ (#♭v false).
+    ={E}=∗ j ⤇ fill K Unit ∗ x ↦ₛ (#nv (1 + n)) ∗ l ↦ₛ (#♭v false).
   Proof.
     iIntros (HNE) "[#Hspec [Hx [Hl Hj]]]".
     iMod (steps_with_lock
@@ -134,7 +134,7 @@ Section CG_Counter.
   Global Opaque counter_readV.
 
   Lemma counter_read_type x Γ :
-    typed Γ x (Tref TNat) → typed Γ (counter_read x) (TArrow TUnit TNat).
+    typed Γ x (Tref TInt) → typed Γ (counter_read x) (TArrow TUnit TInt).
   Proof.
     intros H1. repeat econstructor.
     eapply (context_weakening [_]); trivial.
@@ -168,10 +168,10 @@ Section CG_Counter.
   Local Opaque counter_read.
 
   Lemma CG_counter_body_type x l Γ :
-    typed Γ x (Tref TNat) →
+    typed Γ x (Tref TInt) →
     typed Γ l LockType →
     typed Γ (CG_counter_body x l)
-            (TProd (TArrow TUnit TUnit) (TArrow TUnit TNat)).
+            (TProd (TArrow TUnit TUnit) (TArrow TUnit TInt)).
   Proof.
     intros H1 H2; repeat econstructor;
       eauto using CG_locked_increment_type, counter_read_type.
@@ -184,7 +184,7 @@ Section CG_Counter.
   Hint Rewrite CG_counter_body_subst : autosubst.
 
   Lemma CG_counter_type Γ :
-    typed Γ CG_counter (TProd (TArrow TUnit TUnit) (TArrow TUnit TNat)).
+    typed Γ CG_counter (TProd (TArrow TUnit TUnit) (TArrow TUnit TInt)).
   Proof.
     econstructor; eauto using newlock_type.
     econstructor; first eauto using typed.
@@ -198,7 +198,7 @@ Section CG_Counter.
 
   (* Fine-grained increment *)
   Lemma FG_increment_type x Γ :
-    typed Γ x (Tref TNat) →
+    typed Γ x (Tref TInt) →
     typed Γ (FG_increment x) (TArrow TUnit TUnit).
   Proof.
     intros Hx. do 3 econstructor; eauto using typed.
@@ -216,9 +216,9 @@ Section CG_Counter.
   Hint Rewrite FG_increment_subst : autosubst.
 
   Lemma FG_counter_body_type x Γ :
-    typed Γ x (Tref TNat) →
+    typed Γ x (Tref TInt) →
     typed Γ (FG_counter_body x)
-            (TProd (TArrow TUnit TUnit) (TArrow TUnit TNat)).
+            (TProd (TArrow TUnit TUnit) (TArrow TUnit TInt)).
   Proof.
     intros H1; econstructor.
     - apply FG_increment_type; trivial.
@@ -232,7 +232,7 @@ Section CG_Counter.
   Hint Rewrite FG_counter_body_subst : autosubst.
 
   Lemma FG_counter_type Γ :
-    Γ ⊢ₜ FG_counter : (TProd (TArrow TUnit TUnit) (TArrow TUnit TNat)).
+    Γ ⊢ₜ FG_counter : (TProd (TArrow TUnit TUnit) (TArrow TUnit TInt)).
   Proof.
     econstructor; eauto using newlock_type, typed.
     apply FG_counter_body_type; by constructor.
@@ -246,7 +246,7 @@ Section CG_Counter.
   Definition counterN : namespace := nroot .@ "counter".
 
   Lemma FG_CG_counter_refinement :
-    ⊢ [] ⊨ FG_counter ≤log≤ CG_counter : TProd (TArrow TUnit TUnit) (TArrow TUnit TNat).
+    ⊢ [] ⊨ FG_counter ≤log≤ CG_counter : TProd (TArrow TUnit TUnit) (TArrow TUnit TInt).
   Proof.
     iIntros (Δ [|??]) "!# #(Hspec & HΓ)"; iIntros (j K) "Hj"; last first.
     { iDestruct (interp_env_length with "HΓ") as %[=]. }
@@ -296,7 +296,7 @@ Section CG_Counter.
       { iNext. iExists _. iFrame "Hl Hcnt Hcnt'". }
       iApply wp_pure_step_later; trivial. iAsimpl. iIntros "!> !> _".
       (* fine-grained performs increment *)
-      iApply (wp_bind (fill [CasRCtx (LocV _) (NatV _); IfCtx _ _]));
+      iApply (wp_bind (fill [CasRCtx (LocV _) (#nv _); IfCtx _ _]));
         iApply wp_wand_l; iSplitR; [iIntros (v) "Hv"; iExact "Hv"|].
       iApply wp_pure_step_later; auto. iIntros "!> _". iApply wp_value.
       iApply (wp_bind (fill [IfCtx _ _]));
@@ -348,7 +348,7 @@ End CG_Counter.
 
 Theorem counter_ctx_refinement :
   [] ⊨ FG_counter ≤ctx≤ CG_counter :
-         TProd (TArrow TUnit TUnit) (TArrow TUnit TNat).
+         TProd (TArrow TUnit TUnit) (TArrow TUnit TInt).
 Proof.
   set (Σ := #[invΣ ; gen_heapΣ loc val ; soundness_binaryΣ ]).
   set (HG := soundness.HeapPreIG Σ _ _).
