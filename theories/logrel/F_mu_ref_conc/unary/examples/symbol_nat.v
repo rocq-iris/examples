@@ -66,11 +66,11 @@ Section symbol_nat_sem_typ.
     iNext. iIntros (l) "Hl".
     iApply wp_pure_step_later; auto. iIntros "!> _". asimpl.
     iMod Token_init as (γ) "Hmt".
-    iMod (inv_alloc (nroot .@ "tk") _ (∃ t, l ↦ᵢ (#nv t) ∗ Max_token γ t)
+    iMod (inv_alloc (nroot .@ "tk") _ (∃ t : nat, l ↦ᵢ (#nv t) ∗ Max_token γ t)
             with "[Hl Hmt]") as "#Hinv".
     { unfold Max_token. by iNext; iExists _; iFrame. }
     iApply wp_value.
-    iExists (PersPred (λ v, ∃ m, ⌜v = #nv m⌝ ∗ Token γ m))%I; simpl.
+    iExists (PersPred (λ v, ∃ m : nat, ⌜v = #nv m⌝ ∗ Token γ m))%I; simpl.
     iExists _; iSplit; first done.
     iExists _, _; iSplit; first done.
     iSplit.
@@ -84,6 +84,7 @@ Section symbol_nat_sem_typ.
       iNext. iIntros "Hl".
       iMod (Token_alloc with "Hmt") as "[Hmt Htk]".
       iMod ("Hcl" with "[Hl Hmt]") as "_"; last by eauto.
+      replace (t + 1)%Z with ((t + 1)%nat : Z) by lia.
       iNext; iExists _; iFrame.
     - iModIntro.
       iIntros (w). iDestruct 1 as (m ?) "Htk"; simplify_eq.
@@ -101,7 +102,9 @@ Section symbol_nat_sem_typ.
       iModIntro.
       simpl.
       iApply wp_pure_step_later; auto. iIntros "!> _".
-      simpl. destruct lt_dec; last done. simpl.
+      simpl.
+      destruct (decide (m < t)%Z); last lia.
+      rewrite bool_decide_eq_true_2; last done.
       iApply wp_value.
       iApply wp_pure_step_later; auto. iIntros "!> _".
       iApply wp_value; eauto.

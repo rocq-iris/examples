@@ -23,7 +23,7 @@ Module F_mu_ref_conc.
   | Seq (e1 e2 : expr)
   (* Base Types *)
   | Unit
-  | Nat (n : nat)
+  | Int (n : Z)
   | Bool (b : bool)
   | BinOp (op : binop) (e1 e2 : expr)
   (* If then else *)
@@ -63,7 +63,7 @@ Module F_mu_ref_conc.
 
   (* Notation for bool and nat *)
   Notation "#♭ b" := (Bool b) (at level 20).
-  Notation "#n n" := (Nat n) (at level 20).
+  Notation "#n n" := (Int n) (at level 20).
 
   Global Instance expr_dec_eq (e e' : expr) : Decision (e = e').
   Proof. solve_decision. Defined.
@@ -74,7 +74,7 @@ Module F_mu_ref_conc.
   | TLamV (e : {bind 1 of expr})
   | PackV (v : val)
   | UnitV
-  | NatV (n : nat)
+  | IntV (n : Z)
   | BoolV (b : bool)
   | PairV (v1 v2 : val)
   | InjLV (v : val)
@@ -84,20 +84,30 @@ Module F_mu_ref_conc.
 
   (* Notation for bool and nat *)
   Notation "'#♭v' b" := (BoolV b) (at level 20).
-  Notation "'#nv' n" := (NatV n) (at level 20).
+  Notation "'#nv' n" := (IntV n) (at level 20).
 
-  Definition binop_eval (op : binop) : nat → nat → val :=
+  Global Instance val_dec_eq (v v' : val) : Decision (v = v').
+  Proof. solve_decision. Defined.
+
+  Definition int_binop_eval (op : binop) : Z → Z → val :=
     match op with
     | Add => λ a b, #nv(a + b)
     | Sub => λ a b, #nv(a - b)
     | Mult => λ a b, #nv(a * b)
-    | Eq => λ a b, if (eq_nat_dec a b) then #♭v true else #♭v false
-    | Le => λ a b, if (le_dec a b) then #♭v true else #♭v false
-    | Lt => λ a b, if (lt_dec a b) then #♭v true else #♭v false
+    | Eq => λ a b, #♭v (bool_decide (a = b))
+    | Le => λ a b, #♭v (bool_decide (a ≤ b)%Z)
+    | Lt => λ a b, #♭v (bool_decide (a < b)%Z)
     end.
 
-  Global Instance val_dec_eq (v v' : val) : Decision (v = v').
-  Proof. solve_decision. Defined.
+  Definition binop_eval (op : binop) : val → val → option val :=
+    match op with
+    | Eq => λ a b, Some (#♭v (bool_decide (a = b)))
+    | _ => λ a b,
+        match a, b with
+        | IntV an, IntV bn => Some (int_binop_eval op an bn)
+        | _, _ => None
+        end
+    end.
 
   Global Instance val_inh : Inhabited val := populate UnitV.
 
@@ -108,7 +118,7 @@ Module F_mu_ref_conc.
     | TLamV e => TLam e
     | PackV v => Pack (of_val v)
     | UnitV => Unit
-    | NatV v => Nat v
+    | IntV v => Int v
     | BoolV v => Bool v
     | PairV v1 v2 => Pair (of_val v1) (of_val v2)
     | InjLV v => InjL (of_val v)
@@ -124,7 +134,7 @@ Module F_mu_ref_conc.
     | TLam e => Some (TLamV e)
     | Pack e => PackV <$> to_val e
     | Unit => Some UnitV
-    | Nat n => Some (NatV n)
+    | Int n => Some (IntV n)
     | Bool b => Some (BoolV b)
     | Pair e1 e2 => v1 ← to_val e1; v2 ← to_val e2; Some (PairV v1 v2)
     | InjL e => InjLV <$> to_val e
@@ -231,8 +241,11 @@ Module F_mu_ref_conc.
       to_val e0 = Some v0 →
       base_step (Case (InjR e0) e1 e2) σ [] e2.[e0/] σ []
     (* nat bin op *)
-  | BinOpS op a b σ :
-      base_step (BinOp op (#n a) (#n b)) σ [] (of_val (binop_eval op a b)) σ []
+  | BinOpS op a av b bv rv σ :
+      to_val a = Some av →
+      to_val b = Some bv →
+      binop_eval op av bv = Some rv →
+      base_step (BinOp op a b) σ [] (of_val rv) σ []
   (* If then else *)
   | IfFalse e1 e2 σ :
       base_step (If (#♭ false) e1 e2) σ [] e2 σ []
@@ -272,9 +285,9 @@ Module F_mu_ref_conc.
      σ !! l = Some v1 →
      base_step (CAS (Loc l) e1 e2) σ [] (#♭ true) (<[l:=v2]>σ) []
   | FAAS l m e2 k σ :
-      to_val e2 = Some (NatV k) →
-      σ !! l = Some (NatV m) →
-      base_step (FAA (Loc l) e2) σ [] (#n m) (<[l:=NatV (m + k)]>σ) [].
+      to_val e2 = Some (IntV k) →
+      σ !! l = Some (IntV m) →
+      base_step (FAA (Loc l) e2) σ [] (#n m) (<[l:=IntV (m + k)]>σ) [].
 
   (** Basic properties about the language *)
   Lemma to_of_val v : to_val (of_val v) = Some v.

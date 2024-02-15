@@ -39,8 +39,8 @@ Section logrel.
 
   Program Definition interp_unit : listO D -n> D :=
     λne Δ, PersPred (λ ww, ⌜ww.1 = UnitV⌝ ∧ ⌜ww.2 = UnitV⌝)%I.
-  Program Definition interp_nat : listO D -n> D :=
-    λne Δ, PersPred (λ ww, ∃ n : nat, ⌜ww.1 = #nv n⌝ ∧ ⌜ww.2 = #nv n⌝)%I.
+  Program Definition interp_int : listO D -n> D :=
+    λne Δ, PersPred (λ ww, ∃ n : Z, ⌜ww.1 = #nv n⌝ ∧ ⌜ww.2 = #nv n⌝)%I.
 
   Program Definition interp_bool : listO D -n> D :=
     λne Δ, PersPred (λ ww, ∃ b : bool, ⌜ww.1 = #♭v b⌝ ∧ ⌜ww.2 = #♭v b⌝)%I.
@@ -125,7 +125,7 @@ Section logrel.
   Fixpoint interp (τ : type) : listO D -n> D :=
     match τ return _ with
     | TUnit => interp_unit
-    | TNat => interp_nat
+    | TInt => interp_int
     | TBool => interp_bool
     | TProd τ1 τ2 => interp_prod (interp τ1) (interp τ2)
     | TSum τ1 τ2 => interp_sum (interp τ1) (interp τ2)
@@ -230,7 +230,38 @@ Section logrel.
     apply sep_proper; auto. apply (interp_weaken [] [τi] Δ).
   Qed.
 
-  Lemma interp_EqType_one_to_one Δ τ l l' u u' v v' w w' :
+  Lemma EqType_interp_one_to_one Δ τ v v' w w' :
+    EqType τ →
+    ⟦ τ ⟧ Δ (v, v') -∗
+    ⟦ τ ⟧ Δ (w, w') ={⊤}=∗
+    ⌜v = w ↔ v' = w'⌝.
+  Proof.
+    iIntros (Heqt) "Hvv Hww".
+    destruct τ; inversion Heqt; simplify_eq/=.
+    { iDestruct "Hvv"as "[% %]"; simplify_eq.
+      iDestruct "Hww"as "[% %]"; simplify_eq.
+      by iFrame. }
+    { iDestruct "Hvv"as "(%&%&%)"; simplify_eq.
+      iDestruct "Hww"as "(%&%&%)"; simplify_eq.
+      by iFrame. }
+    { iDestruct "Hvv"as "(%&%&%)"; simplify_eq.
+      iDestruct "Hww"as "(%&%&%)"; simplify_eq.
+      by iFrame. }
+    iDestruct "Hvv" as ([l1 l1']) "[% Hll1]"; simplify_eq/=.
+    iDestruct "Hww" as ([l2 l2']) "[% Hll2]"; simplify_eq/=.
+    destruct (decide (l1 = l2)) as [->|].
+    - destruct (decide (l1' = l2')) as [->|]; first done.
+      + iInv (logN.@(l2, l1')) as ([v v']) "(>Hlx & >Hlx' & Hvv) /=" "Hclose".
+        iInv (logN.@(l2, l2')) as ([w w']) "(>Hly & >Hly' & Hww) /=" "Hclose'".
+        iCombine "Hlx Hly" gives %[? ?]; done.
+    - destruct (decide (l1' = l2')) as [->|]; last first.
+      { iPureIntro; intuition; simplify_eq. }
+      iInv (logN.@(l1, l2')) as ([v v']) "(>Hlx & >Hlx' & Hvv) /=" "Hclose".
+      iInv (logN.@(l2, l2')) as ([w w']) "(>Hly & >Hly' & Hww) /=" "Hclose'".
+      iCombine "Hlx' Hly'" gives %[? ?]; done.
+  Qed.
+
+  Lemma EqType_interp_CAS Δ τ l l' u u' v v' w w' :
     EqType τ →
     l ↦ᵢ u -∗
     l' ↦ₛ u' -∗

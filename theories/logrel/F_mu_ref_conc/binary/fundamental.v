@@ -77,7 +77,7 @@ Section fundamental.
     iApply wp_value. iExists UnitV; eauto.
   Qed.
 
-  Lemma bin_log_related_nat Γ n : ⊢ Γ ⊨ #n n ≤log≤ #n n : TNat.
+  Lemma bin_log_related_int Γ n : ⊢ Γ ⊨ #n n ≤log≤ #n n : TInt.
   Proof.
     iIntros (Δ vvs) "!# #(Hs & HΓ)"; iIntros (j K) "Hj /=".
     iApply wp_value. iExists (#nv _); eauto.
@@ -197,9 +197,9 @@ Section fundamental.
       iApply (bin_log_related_alt with "IH3"); eauto.
   Qed.
 
-  Lemma bin_log_related_nat_binop Γ op e1 e2 e1' e2' :
-    Γ ⊨ e1 ≤log≤ e1' : TNat -∗
-    Γ ⊨ e2 ≤log≤ e2' : TNat -∗
+  Lemma bin_log_related_int_binop Γ op e1 e2 e1' e2' :
+    Γ ⊨ e1 ≤log≤ e1' : TInt -∗
+    Γ ⊨ e2 ≤log≤ e2' : TInt -∗
     Γ ⊨ BinOp op e1 e2 ≤log≤ BinOp op e1' e2' : binop_res_type op.
   Proof.
     iIntros "#IH1 #IH2" (Δ vvs) "!# #(Hs & HΓ)".
@@ -211,11 +211,34 @@ Section fundamental.
     iDestruct "Hvv" as (n) "[% %]"; simplify_eq/=.
     iDestruct "Hww" as (n') "[% %]"; simplify_eq/=.
     iApply fupd_wp.
-    iMod (step_nat_binop _ j K with "[-]") as "Hz"; eauto.
+    iMod (step_int_binop _ j K with "[-]") as "Hz"; eauto.
     iApply wp_pure_step_later; auto. iIntros "!> !> _".
     iApply wp_value. iExists _; iSplitL; eauto.
-    destruct op; simpl; try destruct eq_nat_dec; try destruct le_dec;
-      try destruct lt_dec; eauto.
+    destruct op; simpl; try destruct Z.eq_dec; try destruct Z.le_dec;
+      try destruct Z.lt_dec; eauto.
+  Qed.
+
+  Lemma bin_log_related_Eq_binop Γ e1 e2 e1' e2' τ :
+    EqType τ →
+    Γ ⊨ e1 ≤log≤ e1' : τ -∗
+    Γ ⊨ e2 ≤log≤ e2' : τ -∗
+    Γ ⊨ BinOp Eq e1 e2 ≤log≤ BinOp Eq e1' e2' : TBool.
+  Proof.
+    intros HEQT.
+    iIntros "#IH1 #IH2" (Δ vvs) "!# #(Hs & HΓ)".
+    iApply (interp_expr_bind' [BinOpLCtx _ _] [BinOpLCtx _ _]); first by iApply "IH1"; iFrame "#".
+    iIntros ([v v']) "#Hvv".
+    iApply (interp_expr_bind' [BinOpRCtx _ _] [BinOpRCtx _ _]); first by iApply "IH2"; iFrame "#".
+    iIntros ([w w']) "#Hww /=".
+    iIntros (j K) "Hj /=".
+    iMod (EqType_interp_one_to_one with "Hvv Hww") as "%Hvals"; first done.
+    iMod (step_Eq_binop _ j K with "[-]") as "Hz"; eauto; try apply _.
+    iApply wp_pure_step_later; auto. iIntros "!> _".
+    iApply wp_value. iExists _; iSplitL; eauto.
+    destruct (decide (v = w)) as [Hvw|Hvw];
+      pose proof Hvw as Hvw'; rewrite Hvals in Hvw'.
+    - rewrite !bool_decide_eq_true_2; auto with f_equal.
+    - rewrite !bool_decide_eq_false_2; try intros ?%of_val_inj; done.
   Qed.
 
   Lemma bin_log_related_rec Γ e e' τ1 τ2 :
@@ -490,7 +513,8 @@ Section fundamental.
     destruct (decide (v = w)) as [|Hneq]; simplify_eq.
     - iApply (wp_cas_suc with "Hl"); eauto using to_of_val; eauto.
       iNext. iIntros "Hl".
-      iMod (interp_EqType_one_to_one with "Hl Hl' Hvv Hww") as "(Hl & Hl' & %)"; first done.
+      iMod (EqType_interp_CAS with "Hl Hl' Hvv Hww") as "(Hl & Hl' & %Hvw)";
+        first done.
       destruct (decide (v' = w')); simplify_eq; last by intuition simplify_eq.
       iMod (step_cas_suc with "[$]") as "[Hw Hl']"; simpl; eauto; first solve_ndisj.
       iMod ("Hclose" with "[Hl Hl']").
@@ -498,7 +522,8 @@ Section fundamental.
       iExists (#♭v true); iFrame; eauto.
     - iApply (wp_cas_fail with "Hl"); eauto using to_of_val; eauto.
       iNext. iIntros "Hl".
-      iMod (interp_EqType_one_to_one with "Hl Hl' Hvv Hww") as "(Hl & Hl' & %)"; first done.
+      iMod (EqType_interp_CAS with "Hl Hl' Hvv Hww") as "(Hl & Hl' & %)";
+        first done.
       destruct (decide (v' = w')); simplify_eq; first by intuition simplify_eq.
       iMod (step_cas_fail with "[$]") as "[Hw Hl']"; simpl; eauto; first solve_ndisj.
       iMod ("Hclose" with "[Hl Hl']").
@@ -507,9 +532,9 @@ Section fundamental.
   Qed.
 
   Lemma bin_log_related_FAA Γ e1 e2 e1' e2' :
-    Γ ⊨ e1 ≤log≤ e1' : Tref TNat -∗
-    Γ ⊨ e2 ≤log≤ e2' : TNat -∗
-    Γ ⊨ FAA e1 e2 ≤log≤ FAA e1' e2' : TNat.
+    Γ ⊨ e1 ≤log≤ e1' : Tref TInt -∗
+    Γ ⊨ e2 ≤log≤ e2' : TInt -∗
+    Γ ⊨ FAA e1 e2 ≤log≤ FAA e1' e2' : TInt.
   Proof.
     iIntros "#IH1 #IH2" (Δ vvs) "!# #(Hs & HΓ)".
     iApply (interp_expr_bind' [FAALCtx _] [FAALCtx _]); first by iApply "IH1"; iFrame "#".
@@ -538,9 +563,10 @@ Section fundamental.
     induction 1.
     - iApply bin_log_related_var; done.
     - iApply bin_log_related_unit.
-    - iApply bin_log_related_nat.
+    - iApply bin_log_related_int.
     - iApply bin_log_related_bool.
-    - iApply bin_log_related_nat_binop; done.
+    - iApply bin_log_related_int_binop; done.
+    - iApply bin_log_related_Eq_binop; done.
     - iApply bin_log_related_pair; done.
     - iApply bin_log_related_fst; done.
     - iApply bin_log_related_snd; done.

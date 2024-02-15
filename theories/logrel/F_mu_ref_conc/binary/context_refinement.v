@@ -7,6 +7,11 @@ Export F_mu_ref_conc.
 
 Inductive ctx_item :=
   | CTX_Rec
+  | CTX_Lam
+  | CTX_LetInL (e2 : expr)
+  | CTX_LetInR (e1 : expr)
+  | CTX_SeqL (e2 : expr)
+  | CTX_SeqR (e1 : expr)
   | CTX_AppL (e2 : expr)
   | CTX_AppR (e1 : expr)
   (* Products *)
@@ -33,6 +38,10 @@ Inductive ctx_item :=
   (* Polymorphic Types *)
   | CTX_TLam
   | CTX_TApp
+  (* Existential Types *)
+  | CTX_Pack
+  | CTX_UnpackInL (e2 : expr)
+  | CTX_UnpackInR (e1 : expr)
   (* Concurrency *)
   | CTX_Fork
   (* Reference Types *)
@@ -43,11 +52,19 @@ Inductive ctx_item :=
   (* Compare and swap used for fine-grained concurrency *)
   | CTX_CAS_L (e1 : expr) (e2 : expr)
   | CTX_CAS_M (e0 : expr) (e2 : expr)
-  | CTX_CAS_R (e0 : expr) (e1 : expr).
+  | CTX_CAS_R (e0 : expr) (e1 : expr)
+  (* Fetch and add for fine-grained concurrency *)
+  | CTX_FAA_L (e2 : expr)
+  | CTX_FAA_R (e1 : expr).
 
 Definition fill_ctx_item (ctx : ctx_item) (e : expr) : expr :=
   match ctx with
   | CTX_Rec => Rec e
+  | CTX_Lam => Lam e
+  | CTX_LetInL e2 => LetIn e e2
+  | CTX_LetInR e1 => LetIn e1 e
+  | CTX_SeqL e2 => Seq e e2
+  | CTX_SeqR e1 => Seq e1 e
   | CTX_AppL e2 => App e e2
   | CTX_AppR e1 => App e1 e
   | CTX_PairL e2 => Pair e e2
@@ -68,6 +85,9 @@ Definition fill_ctx_item (ctx : ctx_item) (e : expr) : expr :=
   | CTX_Unfold => Unfold e
   | CTX_TLam => TLam e
   | CTX_TApp => TApp e
+  | CTX_Pack => Pack e
+  | CTX_UnpackInL e2 => UnpackIn e e2
+  | CTX_UnpackInR e1 => UnpackIn e1 e
   | CTX_Fork => Fork e
   | CTX_Alloc => Alloc e
   | CTX_Load => Load e
@@ -76,6 +96,8 @@ Definition fill_ctx_item (ctx : ctx_item) (e : expr) : expr :=
   | CTX_CAS_L e1 e2 => CAS e e1 e2
   | CTX_CAS_M e0 e2 => CAS e0 e e2
   | CTX_CAS_R e0 e1 => CAS e0 e1 e
+  | CTX_FAA_L e2 => FAA e e2
+  | CTX_FAA_R e1 => FAA e1 e
   end.
 
 Definition ctx := list ctx_item.
@@ -87,6 +109,20 @@ Inductive typed_ctx_item :
     ctx_item → list type → type → list type → type → Prop :=
   | TP_CTX_Rec Γ τ τ' :
      typed_ctx_item CTX_Rec (TArrow τ τ' :: τ :: Γ) τ' Γ (TArrow τ τ')
+  | TP_CTX_Lam Γ τ τ' :
+     typed_ctx_item CTX_Lam (τ :: Γ) τ' Γ (TArrow τ τ')
+  | TP_CTX_LetInL Γ e2 τ τ' :
+     typed (τ :: Γ) e2 τ' →
+     typed_ctx_item (CTX_LetInL e2) Γ τ Γ τ'
+  | TP_CTX_LetInR Γ e1 τ τ' :
+     typed Γ e1 τ →
+     typed_ctx_item (CTX_LetInR e1) (τ :: Γ) τ' Γ τ'
+  | TP_CTX_SeqL Γ e2 τ τ' :
+     typed Γ e2 τ' →
+     typed_ctx_item (CTX_SeqL e2) Γ τ Γ τ'
+  | TP_CTX_SeqR Γ e1 τ τ' :
+     typed Γ e1 τ →
+     typed_ctx_item (CTX_SeqR e1) Γ τ' Γ τ'
   | TP_CTX_AppL Γ e2 τ τ' :
      typed Γ e2 τ →
      typed_ctx_item (CTX_AppL e2) Γ (TArrow τ τ') Γ τ'
@@ -125,12 +161,18 @@ Inductive typed_ctx_item :
   | TP_CTX_IfR Γ e0 e1 τ :
      typed Γ e0 (TBool) → typed Γ e1 τ →
      typed_ctx_item (CTX_IfR e0 e1) Γ τ Γ τ
-  | TP_CTX_BinOpL op Γ e2 :
-     typed Γ e2 TNat →
-     typed_ctx_item (CTX_BinOpL op e2) Γ TNat Γ (binop_res_type op)
-  | TP_CTX_BinOpR op e1 Γ :
-     typed Γ e1 TNat →
-     typed_ctx_item (CTX_BinOpR op e1) Γ TNat Γ (binop_res_type op)
+  | TP_CTX_int_BinOpL op Γ e2 :
+     typed Γ e2 TInt →
+     typed_ctx_item (CTX_BinOpL op e2) Γ TInt Γ (binop_res_type op)
+  | TP_CTX_int_BinOpR op e1 Γ :
+     typed Γ e1 TInt →
+     typed_ctx_item (CTX_BinOpR op e1) Γ TInt Γ (binop_res_type op)
+  | TP_CTX_Eq_BinOpL Γ e2 τ :
+     EqType τ → typed Γ e2 τ →
+     typed_ctx_item (CTX_BinOpL Eq e2) Γ τ Γ TBool
+  | TP_CTX_Eq_BinOpR e1 Γ τ :
+     EqType τ → typed Γ e1 τ →
+     typed_ctx_item (CTX_BinOpR Eq e1) Γ τ Γ TBool
   | TP_CTX_Fold Γ τ :
      typed_ctx_item CTX_Fold Γ τ.[(TRec τ)/] Γ (TRec τ)
   | TP_CTX_Unfold Γ τ :
@@ -139,6 +181,14 @@ Inductive typed_ctx_item :
      typed_ctx_item CTX_TLam (subst (ren (+1)) <$> Γ) τ Γ (TForall τ)
   | TP_CTX_TApp Γ τ τ' :
      typed_ctx_item CTX_TApp Γ (TForall τ) Γ τ.[τ'/]
+  | TP_CTX_Pack Γ τ τ':
+     typed_ctx_item CTX_Pack Γ τ.[τ'/] Γ (TExist τ)
+  | TP_CTX_UnpackInL Γ e2 τ τ':
+     typed (τ :: (subst (ren (+1)) <$> Γ)) e2 τ'.[ren (+1)] →
+     typed_ctx_item (CTX_UnpackInL e2) Γ (TExist τ) Γ τ'
+  | TP_CTX_UnpackInR Γ e1 τ τ':
+     typed Γ e1 (TExist τ) →
+     typed_ctx_item (CTX_UnpackInR e1) (τ :: (subst (ren (+1)) <$> Γ)) τ'.[ren (+1)] Γ τ'
   | TP_CTX_Fork Γ :
      typed_ctx_item CTX_Fork Γ TUnit Γ TUnit
   | TPCTX_Alloc Γ τ :
@@ -158,7 +208,13 @@ Inductive typed_ctx_item :
      typed_ctx_item (CTX_CAS_M e0 e2) Γ τ Γ TBool
   | TP_CTX_CasR Γ e0 e1 τ :
      EqType τ → typed Γ e0 (Tref τ) → typed Γ e1 τ →
-     typed_ctx_item (CTX_CAS_R e0 e1) Γ τ Γ TBool.
+     typed_ctx_item (CTX_CAS_R e0 e1) Γ τ Γ TBool
+  | TP_CTX_FAA_L Γ e2 :
+     typed Γ e2 TInt →
+     typed_ctx_item (CTX_FAA_L e2) Γ (Tref TInt) Γ TInt
+  | TP_CTX_FAA_R Γ e1 :
+     typed Γ e1 (Tref TInt) →
+     typed_ctx_item (CTX_FAA_R e1) Γ TInt Γ TInt.
 
 Lemma typed_ctx_item_typed k Γ τ Γ' τ' e :
   typed Γ e τ → typed_ctx_item k Γ τ Γ' τ' →
@@ -187,7 +243,12 @@ Proof.
     repeat match goal with H : _ |- _ => rewrite fmap_length in H end;
     try f_equal;
     eauto using typed_n_closed;
-    try match goal with H : _ |- _ => eapply (typed_n_closed _ _ _ H) end.
+    try match goal with
+      | H : _ |- _ => by eapply (typed_n_closed _ _ _ H)
+      | H : _ |- _ => by let H' := fresh in
+                      pose proof (typed_n_closed _ _ _ H) as H';
+                      rewrite /= fmap_length in H'; eauto
+      end.
 Qed.
 
 Definition ctx_refines (Γ : list type)
@@ -249,6 +310,11 @@ Section bin_log_related_under_typed_ctx.
     iClear "H".
     inversion Hx1; subst; simpl; try fold_interp.
     - iApply bin_log_related_rec; done.
+    - iApply bin_log_related_lam; done.
+    - iApply bin_log_related_letin; last iApply binary_fundamental; done.
+    - iApply bin_log_related_letin; first iApply binary_fundamental; done.
+    - iApply bin_log_related_seq; last iApply binary_fundamental; done.
+    - iApply bin_log_related_seq; first iApply binary_fundamental; done.
     - iApply bin_log_related_app; last iApply binary_fundamental; done.
     - iApply bin_log_related_app; first iApply binary_fundamental; done.
     - iApply bin_log_related_pair; last iApply binary_fundamental; done.
@@ -269,12 +335,17 @@ Section bin_log_related_under_typed_ctx.
         [iApply binary_fundamental| |iApply binary_fundamental]; done.
     - iApply bin_log_related_if;
         [iApply binary_fundamental|iApply binary_fundamental|]; done.
-    - iApply bin_log_related_nat_binop; [|iApply binary_fundamental]; done.
-    - iApply bin_log_related_nat_binop; [iApply binary_fundamental|]; done.
+    - iApply bin_log_related_int_binop; [|iApply binary_fundamental]; done.
+    - iApply bin_log_related_int_binop; [iApply binary_fundamental|]; done.
+    - iApply bin_log_related_Eq_binop; [| |iApply binary_fundamental]; done.
+    - iApply bin_log_related_Eq_binop; [|iApply binary_fundamental|]; done.
     - iApply bin_log_related_fold; done.
     - iApply bin_log_related_unfold; done.
     - iApply bin_log_related_tlam; done.
     - iApply bin_log_related_tapp; done.
+    - iApply bin_log_related_pack; done.
+    - iApply bin_log_related_unpack; last iApply binary_fundamental; done.
+    - iApply bin_log_related_unpack; first iApply binary_fundamental; done.
     - iApply bin_log_related_fork; done.
     - iApply bin_log_related_alloc; done.
     - iApply bin_log_related_load; done.
@@ -286,5 +357,7 @@ Section bin_log_related_under_typed_ctx.
         [done|iApply binary_fundamental| |iApply binary_fundamental]; done.
     - iApply bin_log_related_CAS;
         [done|iApply binary_fundamental|iApply binary_fundamental|]; done.
+    - iApply bin_log_related_FAA; last iApply binary_fundamental; done.
+    - iApply bin_log_related_FAA; first iApply binary_fundamental; done.
   Qed.
 End bin_log_related_under_typed_ctx.

@@ -495,10 +495,18 @@ Section cfg.
     spec_ctx ∗ j ⤇ fill K (If (#♭ true) e1 e2) ={E}=∗ j ⤇ fill K e1.
   Proof. by intros; apply: do_step_pure. Qed.
 
-  Lemma step_nat_binop E j K op a b :
+  Lemma step_int_binop E j K op a b :
     nclose specN ⊆ E →
     spec_ctx ∗ j ⤇ fill K (BinOp op (#n a) (#n b))
-      ={E}=∗ j ⤇ fill K (of_val (binop_eval op a b)).
+      ={E}=∗ j ⤇ fill K (of_val (int_binop_eval op a b)).
+  Proof. by intros; apply: do_step_pure. Qed.
+
+  Lemma step_Eq_binop E j K e1 e2 v1 v2 :
+    to_val e1 = Some v1 →
+    to_val e2 = Some v2 →
+    nclose specN ⊆ E →
+    spec_ctx ∗ j ⤇ fill K (BinOp Eq e1 e2)
+      ={E}=∗ j ⤇ fill K (#♭ (bool_decide (e1 = e2))).
   Proof. by intros; apply: do_step_pure. Qed.
 
   Lemma step_fork E j K e :

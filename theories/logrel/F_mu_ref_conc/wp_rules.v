@@ -140,8 +140,17 @@ Section lang_rules.
     iNext; iIntros (v2 σ2 efs Hstep) "_"; inv_base_step. by iFrame.
   Qed.
 
-  Local Ltac solve_exec_safe := intros; subst; do 3 eexists; econstructor; eauto.
-  Local Ltac solve_exec_puredet := simpl; intros; by inv_base_step.
+  Local Ltac solve_exec_safe :=
+    intros; subst; do 3 eexists; econstructor; simpl; eauto.
+  Local Ltac solve_exec_puredet :=
+    simpl; intros;
+      by inv_base_step;
+      repeat match goal with
+          |- context [bool_decide ?A] =>
+            destruct (decide A);
+            [rewrite (bool_decide_eq_true_2 A); last done|
+             rewrite (bool_decide_eq_false_2 A); last done]
+        end; simplify_eq/=; auto.
   Local Ltac solve_pure_exec :=
     unfold IntoVal in *;
     repeat match goal with H : AsVal _ |- _ => destruct H as [??] end; subst;
@@ -199,8 +208,12 @@ Section lang_rules.
     PureExec True 1 (If (#♭ false) e1 e2) e2.
   Proof. solve_pure_exec. Qed.
 
-  Global Instance wp_nat_binop op a b :
-    PureExec True 1 (BinOp op (#n a) (#n b)) (of_val (binop_eval op a b)).
+  Global Instance wp_int_binop op a b :
+    PureExec True 1 (BinOp op (#n a) (#n b)) (of_val (int_binop_eval op a b)).
+  Proof. destruct op; solve_pure_exec. Qed.
+
+  Global Instance wp_Eq_binop `{!AsVal e1} `{!AsVal e2} :
+    PureExec True 1 (BinOp Eq e1 e2) (#♭ (bool_decide (e1 = e2))).
   Proof. solve_pure_exec. Qed.
 
 End lang_rules.
