@@ -86,7 +86,7 @@ Section fact_equiv.
       iExists (#nv _); iFrame; eauto. }
     generalize 1%Z as l => l.
     iLöb as "IH" forall (n l).
-    destruct (decide (n = 0)) as [->|].
+    destruct (decide (n = 0)%Z) as [->|].
     - iApply wp_pure_step_later; auto.
       iIntros "!> _"; simpl; asimpl.
       rewrite fact_acc_body_unfold.
@@ -117,12 +117,14 @@ Section fact_equiv.
       iApply wp_pure_step_later; auto.
       iIntros "!> _"; simpl.
       iApply wp_value. simpl.
-      destruct Z.eq_dec; first lia.
+      destruct (decide (n = 0)%Z); first lia.
+      rewrite bool_decide_eq_false_2; last done.
       iMod (do_step_pure _ _ (IfCtx _ _ :: _) with "[$Hj]") as "Hj"; auto.
       simpl.
       iApply wp_pure_step_later; auto.
       iIntros "!> _"; simpl.
-      destruct Z.eq_dec; first lia.
+      destruct (decide (n = 0)%Z); first lia.
+      rewrite bool_decide_eq_false_2; last done.
       iMod (do_step_pure with "[$Hj]") as "Hj"; auto.
       asimpl.
       iApply (wp_bind (fill [BinOpRCtx _ (#nv _)])).
@@ -201,12 +203,14 @@ Section fact_equiv.
       iApply wp_pure_step_later; auto.
       iIntros "!> _"; simpl.
       iApply wp_value. simpl.
-      destruct Z.eq_dec; first done.
+      destruct (decide (n = 0)%Z); first lia.
+      rewrite bool_decide_eq_false_2; last done.
       iMod (do_step_pure _ _ (IfCtx _ _ :: _) with "[$Hj]") as "Hj"; auto.
       simpl.
       iApply wp_pure_step_later; auto.
       iIntros "!> _"; simpl.
-      destruct Z.eq_dec; first done.
+      destruct (decide (n = 0)%Z); first lia.
+      rewrite bool_decide_eq_false_2; last done.
       iMod (do_step_pure with "[$Hj]") as "Hj"; auto.
       iMod (do_step_pure _ _ (AppRCtx (RecV _):: BinOpRCtx _ (#nv _) :: _)
               with "[$Hj]") as "Hj"; eauto.

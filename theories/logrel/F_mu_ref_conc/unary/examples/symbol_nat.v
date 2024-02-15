@@ -102,7 +102,9 @@ Section symbol_nat_sem_typ.
       iModIntro.
       simpl.
       iApply wp_pure_step_later; auto. iIntros "!> _".
-      simpl. destruct Z.lt_dec; last lia.
+      simpl.
+      destruct (decide (m < t)%Z); last lia.
+      rewrite bool_decide_eq_true_2; last done.
       iApply wp_value.
       iApply wp_pure_step_later; auto. iIntros "!> _".
       iApply wp_value; eauto.

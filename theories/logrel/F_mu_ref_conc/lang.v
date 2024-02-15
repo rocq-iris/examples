@@ -94,22 +94,18 @@ Module F_mu_ref_conc.
     | Add => λ a b, #nv(a + b)
     | Sub => λ a b, #nv(a - b)
     | Mult => λ a b, #nv(a * b)
-    | Eq => λ a b, if (Z.eq_dec a b) then #♭v true else #♭v false
-    | Le => λ a b, if (Z.le_dec a b) then #♭v true else #♭v false
-    | Lt => λ a b, if (Z.lt_dec a b) then #♭v true else #♭v false
+    | Eq => λ a b, #♭v (bool_decide (a = b))
+    | Le => λ a b, #♭v (bool_decide (a ≤ b)%Z)
+    | Lt => λ a b, #♭v (bool_decide (a < b)%Z)
     end.
 
   Definition binop_eval (op : binop) : val → val → option val :=
     match op with
     | Eq => λ a b, Some (#♭v (bool_decide (a = b)))
     | _ => λ a b,
-        match a with
-        | IntV an =>
-            match b with
-            | IntV bn => Some (int_binop_eval op an bn)
-            | _ => None
-            end
-        | _ => None
+        match a, b with
+        | IntV an, IntV bn => Some (int_binop_eval op an bn)
+        | _, _ => None
         end
     end.
 

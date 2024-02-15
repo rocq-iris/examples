@@ -142,7 +142,15 @@ Section lang_rules.
 
   Local Ltac solve_exec_safe :=
     intros; subst; do 3 eexists; econstructor; simpl; eauto.
-  Local Ltac solve_exec_puredet := simpl; intros; by inv_base_step.
+  Local Ltac solve_exec_puredet :=
+    simpl; intros;
+      by inv_base_step;
+      repeat match goal with
+          |- context [bool_decide ?A] =>
+            destruct (decide A);
+            [rewrite (bool_decide_eq_true_2 A); last done|
+             rewrite (bool_decide_eq_false_2 A); last done]
+        end; simplify_eq/=; auto.
   Local Ltac solve_pure_exec :=
     unfold IntoVal in *;
     repeat match goal with H : AsVal _ |- _ => destruct H as [??] end; subst;
@@ -202,31 +210,10 @@ Section lang_rules.
 
   Global Instance wp_int_binop op a b :
     PureExec True 1 (BinOp op (#n a) (#n b)) (of_val (int_binop_eval op a b)).
-  Proof.
-    destruct op;
-      (unfold IntoVal in *;
-      repeat match goal with H : AsVal _ |- _ => destruct H as [??] end; subst;
-       intros ?; apply nsteps_once, pure_base_step_pure_step;
-       constructor; [solve_exec_safe |try solve_exec_puredet]); [].
-    intros; simpl in *; inv_base_step.
-    destruct Z.eq_dec as [->|];
-      [rewrite bool_decide_eq_true_2; done|
-       rewrite bool_decide_eq_false_2; eauto with congruence].
-  Qed.
+  Proof. destruct op; solve_pure_exec. Qed.
 
   Global Instance wp_Eq_binop `{!AsVal e1} `{!AsVal e2} :
     PureExec True 1 (BinOp Eq e1 e2) (#♭ (bool_decide (e1 = e2))).
-  Proof.
-    unfold IntoVal in *;
-      repeat match goal with H : AsVal _ |- _ => destruct H as [??] end; subst;
-       intros ?; apply nsteps_once, pure_base_step_pure_step;
-       constructor; [solve_exec_safe |]; [].
-    intros; simpl in *; inv_base_step.
-    match goal with |- context[ bool_decide (?A = ?B)] =>
-    destruct (decide (A = B)) as [->|] end;
-    [rewrite !bool_decide_eq_true_2; done|
-       rewrite !bool_decide_eq_false_2; eauto].
-    intros ?%of_val_inj; done.
-  Qed.
+  Proof. solve_pure_exec. Qed.
 
 End lang_rules.
