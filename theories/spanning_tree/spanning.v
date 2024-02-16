@@ -56,7 +56,7 @@ Section Helpers.
     wp_load.
     iDestruct "Hil1" as %Hil1. iDestruct "Hil2" as %Hil2.
     iDestruct (graph_close with "[Hi3 Hil3 Hil4]") as "Hi3"; eauto.
-    { iFrame. iExists _; eauto. iSplitR; eauto. iExists _; by iFrame. }
+    { by iFrame. }
     iMod ("Hcl" with "[Hi1 Hi2 Hi3 Hi4]") as "_".
     { iNext. unfold graph_inv at 2. iExists _; iFrame; auto. }
     iModIntro. wp_proj. wp_let.
@@ -78,7 +78,7 @@ Section Helpers.
     - wp_cmpxchg_fail.
       iDestruct (graph_close with "[Hi3 Hil3 Hil4]") as "Hi3";
       eauto.
-      { iFrame. iExists _; eauto. iSplitR; eauto. by iExists _; iFrame. }
+      { by iFrame. }
       iMod (already_marked with "Hi2") as "[Hi2 Hxm]"; [|iFrame "Hxm"].
       { by eapply in_dom_of_graph. }
       iMod ("Hclose" with "[Hi1 Hi2 Hi3]") as "_".
@@ -93,7 +93,7 @@ Section Helpers.
       erewrite delete_marked.
       iDestruct (auth_own_graph_valid with "Hi1") as %Hvl'.
       iDestruct (graph_close with "[Hi3 Hil3 Hil4]") as "Hi3".
-      { iFrame. iExists (_, _). iSplitR; [| iExists _; iFrame]; trivial.
+      { iFrame "Hi3". iExists (_, _). iFrame.
           rewrite mark_update_lookup; eauto. }
       iMod ("Hclose" with "[Hi1 Hi2 Hi3]") as "_".
       + iNext; unfold graph_inv at 2. iExists _; iFrame.
@@ -142,8 +142,7 @@ Section Helpers.
       as %Heq; try by iFrame.
     pose proof Hil1 as Hil1'. rewrite Heq in Hil1' Hvl.
     rewrite mark_update_lookup in Hil1'; trivial.
-    iDestruct (graph_close with "[Hi3 Hil3 Hil4]") as "Hi3"; [iFrame|].
-    { iExists _; iSplitR; auto. iExists _; by iFrame. }
+    iDestruct (graph_close with "[Hi3 Hil3 Hil4]") as "Hi3"; [by iFrame|].
     iMod ("Hclose" with "[Hi1 Hi2 Hi3]") as "_".
     { iNext. unfold graph_inv at 2. iExists _; iFrame; auto. }
     iFrame. inversion Hil1'; subst u'; simpl.
@@ -368,14 +367,13 @@ Section Helpers.
       iCombine "Hx" "Hxlr" as "Hx". rewrite -graph_divide.
       destruct u1; destruct u2; inversion Hl1eq; inversion Hl2eq; subst.
       iModIntro. iFrame; iLeft. iSplit; [trivial|].
-      iExists _; iSplit; [trivial|]. iFrame.
-      iDestruct (own_graph_valid with "Hx") as %Hvl.
-      iExists ({[l := Excl (Some l1, Some l2)]} ⋅ (G1 ⋅ G2)).
+      iExists _; iSplit; [trivial|]. iFrame "Hm".
+      iDestruct (own_graph_valid with "Hx") as %Hvl. iFrame "Hx".
       iDestruct (front_marked _ _ _ _ (Some l1, Some l2) _ _ G1 G2 with
       "[ml1 ml2 Hfml Hfmr]") as (mr)"[Hfr Hfm]"; eauto. iDestruct "Hfr" as %Hfr.
-      iExists mr.
+      iFrame "Hfm".
       unshelve iExists _; [eapply maximally_marked_tree_both; eauto|].
-      iFrame. iSplit; try iPureIntro; eauto.
+      iSplit; try iPureIntro; eauto.
       { rewrite dom_op dom_singleton elem_of_union elem_of_singleton; by left. }
       split; auto.
       { eapply maximally_marked_tree_both; eauto. }
@@ -393,9 +391,8 @@ Section Helpers.
       iCombine "Hx" "Hxlr" as "Hx". rewrite -graph_divide.
       wp_seq. iModIntro.
       iFrame; iLeft. iSplit; [trivial|].
-      iExists _; iSplit; [trivial|]. iFrame.
-      iDestruct (own_graph_valid with "Hx") as %Hvld.
-      iExists ({[l := Excl (u1, None)]} ⋅ G1).
+      iExists _; iSplit; [trivial|]. iFrame "Hm".
+      iDestruct (own_graph_valid with "Hx") as %Hvld. iFrame "Hx".
       destruct u1; inversion Hl1eq; subst.
       iDestruct (front_marked _ _ _ _ (Some l1, None) _ ∅ G1 ∅ with
       "[ml1 Hvr Hfml]") as (mr)"[Hfr Hfm]"; eauto.
@@ -405,10 +402,9 @@ Section Helpers.
         [iDestruct "Hvr" as %Hvr; inversion Hvr|
          iDestruct "Hvr" as (l2) "[Hvreq Hvr]"; iDestruct "Hvreq" as %Hvreq;
          by inversion Hvreq]. }
-      iDestruct "Hfr" as %Hfr. rewrite right_id_L in Hfr.
-      iExists mr.
+      iDestruct "Hfr" as %Hfr. rewrite right_id_L in Hfr. iFrame "Hfm".
       unshelve iExists _; [eapply maximally_marked_tree_left; eauto|].
-      iFrame. iSplit; try iPureIntro; eauto.
+      iSplit; try iPureIntro; eauto.
       { rewrite dom_op dom_singleton elem_of_union elem_of_singleton; by left. }
       split; auto.
       { eapply maximally_marked_tree_left; eauto. }
@@ -426,9 +422,8 @@ Section Helpers.
       iCombine "Hx" "Hxlr" as "Hx". rewrite -graph_divide.
       wp_seq. wp_proj. wp_op. wp_if. wp_seq. iModIntro.
       iFrame; iLeft. iSplit; [trivial|].
-      iExists _; iSplit; [trivial|]. iFrame.
-      iDestruct (own_graph_valid with "Hx") as %Hvld.
-      iExists ({[l := Excl (None, u2)]} ⋅ G2).
+      iExists _; iSplit; [trivial|]. iFrame "Hm".
+      iDestruct (own_graph_valid with "Hx") as %Hvld. iFrame "Hx".
       destruct u2; inversion Hl2eq; subst.
       iDestruct (front_marked _ _ _ _ (None, Some l2) ∅ _ ∅ G2 with
       "[ml2 Hvl Hfmr]") as (mr)"[Hfr Hfm]"; eauto.
@@ -439,9 +434,9 @@ Section Helpers.
          iDestruct "Hvl" as (l1) "[Hvleq Hvl]"; iDestruct "Hvleq" as %Hvleq;
          by inversion Hvleq]. }
       iDestruct "Hfr" as %Hfr. rewrite left_id_L in Hfr.
-      iExists mr.
+      iFrame "Hfm".
       unshelve iExists _; [eapply maximally_marked_tree_right; eauto|].
-      iFrame. iSplit; try iPureIntro; eauto.
+      iSplit; try iPureIntro; eauto.
       { rewrite dom_op dom_singleton elem_of_union elem_of_singleton; by left. }
       split; auto.
       { eapply maximally_marked_tree_right; eauto. }
@@ -459,9 +454,8 @@ Section Helpers.
       iCombine "Hx" "Hxlr" as "Hx". rewrite -graph_divide.
       wp_seq. iModIntro.
       iFrame; iLeft. iSplit; [trivial|].
-      iExists _; iSplit; [trivial|]. iFrame.
-      iDestruct (own_graph_valid with "Hx") as %Hvld.
-      iExists ({[l := Excl (None, None)]} ⋅ ∅).
+      iExists _; iSplit; [trivial|]. iFrame "Hm".
+      iDestruct (own_graph_valid with "Hx") as %Hvld. iFrame "Hx".
       iDestruct (front_marked _ _ _ _ (None, None) ∅ ∅ ∅ ∅ with
       "[Hvr Hvl]") as (mr)"[Hfr Hfm]"; eauto.
       { rewrite dom_empty_L; apply front_empty. }
@@ -477,10 +471,10 @@ Section Helpers.
             iDestruct "Hvreq" as %Hvreq; inversion Hvreq);
           iFrame; by repeat iSplit. }
       iDestruct "Hfr" as %Hfr. rewrite left_id_L in Hfr.
-      iExists mr.
+      iFrame "Hfm".
       rewrite right_id_L. rewrite right_id_L in Hvld Hfr.
       unshelve iExists _; [eapply maximally_marked_tree_none; eauto|].
-      iFrame. iSplit; try iPureIntro; eauto.
+      iSplit; try iPureIntro; eauto.
       { by rewrite dom_singleton elem_of_singleton. }
       split; auto.
       { eapply maximally_marked_tree_none; eauto. }

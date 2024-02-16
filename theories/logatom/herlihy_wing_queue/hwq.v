@@ -1512,7 +1512,7 @@ Proof.
     pose (cont := NoCont (map (λ i, (i, [])) pvs)).
     iNext. iExists 0, pvs, [], [], cont, ∅, ∅.
     rewrite array_content_empty Nat2Z.id fmap_empty /=.
-    iFrame. iSplitL. { iExists rs. by iFrame. }
+    iFrame.
     repeat (iSplit; first done). iPureIntro.
     repeat split_and; try done.
     - intros i. split; intros Hi; [ by lia | by inversion Hi].
@@ -2160,8 +2160,7 @@ Proof.
         intros ->. apply Hpref in Hk as (H1 & H2).
         rewrite Hi_free in H1. inversion H1. }
       iSplitL "Hbig Hpend_tok_i AU".
-      { iApply big_sepM_insert; first done. iFrame. iSplit; first done.
-        iExists (Φ #()). iFrame. done. }
+      { iApply big_sepM_insert; first done. iFrame "#∗". }
       iPureIntro. subst new_slots. repeat split_and; try done.
       - intros k. destruct sz as [|sz]; first by lia.
         split; intros Hk.
@@ -2675,8 +2674,6 @@ Proof.
         iNext. iExists back', new_pvs, new_pref, rest, cont', slots, new_deqs.
         subst new_deqs. iFrame. iSplitL "Hℓ_ar".
         { rewrite array_content_dequeue; [ done | by lia | done ]. }
-        iSplitL "Hp".
-        { iExists rs'. by iFrame "Hp". }
         iPureIntro. repeat split_and; try done.
         - intros k. split; intros Hk; first by apply Hstate.
           intros Hk_in_deqs. apply elem_of_union in Hk_in_deqs.
@@ -2743,8 +2740,8 @@ Proof.
       [ by rewrite Hi | by rewrite Hi | by right | ]. iIntros "Hℓa" (rs' ->) "Hp".
     (* We can close the invariant. *)
     iModIntro. iSplitR "AU Hback_snap Hi2_lower_bound".
-    { iNext. iExists _, _, _, _, cont', _, _. iFrame. iSplit; last done.
-      iExists rs'. rewrite Hpvs /= decide_True; last by lia. by iFrame. }
+    { iNext. iExists _, _, _, _, cont', _, _. iFrame. iSplit; last done. iPureIntro.
+      rewrite Hpvs /= decide_True; last by lia. done. }
     (* And conclude using the loop induction hypothesis. *)
     wp_pures. assert (S n - 1 = n)%Z as -> by lia. iClear "Hval_wit_i".
     iApply ("IH_loop" with "[] [] AU Hback_snap").

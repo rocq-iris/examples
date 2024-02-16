@@ -340,7 +340,7 @@ Section proofs.
         iMod ("Hupd" with "HP") as "[HP HΨ]".
         iMod "Hupd'" as "_".
         iMod ("Hclose" with "[Hl HP Hlist]") as "_".
-        { iNext; iExists (Some _), (v' :: xs); iFrame; iExists _; iFrame; auto. }
+        { iNext; iExists (Some _), (v' :: xs); iFrame "#∗". }
         iModIntro.
         wp_pures.
         by iApply ("HΦ" with "HΨ").

@@ -126,13 +126,10 @@ Section proof.
     iModIntro. wp_let. wp_bind (push _ _).
     iMod (inv_alloc N _ (p_inv R γm γr (γx, γ1, γ3, γ4, γq) p)
           with "[-HΦ Hx2 Ho3]") as "#HRx"; first eauto.
-    { iNext. iRight. iLeft. iExists f, x. iFrame.
-      iExists (λ _, P), (λ _ v, Q v).
-      iFrame. iFrame "#". }
+    { iNext. iRight. iLeft. iExists f, x. iFrame "#∗". }
     iApply (push_spec N (p_inv' R γm γr) s #p
             with "[-HΦ Hx2 Ho3]")=>//.
-    { iFrame "#". iExists (γx, γ1, γ3, γ4, γq), p.
-      iSplitR; first done. iFrame "#". }
+    { by iFrame "#". }
     iNext. iIntros "?".
     wp_seq. iApply ("HΦ" $! p (γx, γ1, γ3, γ4, γq)).
     iFrame. by iFrame "#".
@@ -172,7 +169,7 @@ Section proof.
         wp_store. iDestruct (m_frag_agree' with "Hx Hx2") as "[Hx %]".
         subst. rewrite Qp.div_2. iMod ("Hclose" with "[-HR Hor HΦ]").
         { iNext. iDestruct "Hp" as "[Hp1 Hp2]". iRight. iRight.
-          iRight. iExists _, v. iFrame. iExists Q. iFrame. }
+          iRight. iExists _, v. by iFrame. }
         iApply "HΦ". iFrame. done.
       * iDestruct "Hp" as (? ?) "[? Hs]". iDestruct "Hs" as (?) "(_ & _ & _ & >Ho1' & _)".
         iApply excl_falso. iFrame.
@@ -181,7 +178,7 @@ Section proof.
     - destruct ts as [[[[γx γ1] γ3] γ4] γq]. iDestruct "Hp" as (x' y) "[Hp Hs]".
         iDestruct "Hs" as (Q) "(>Hx & HoQ & HQxy & >Ho1 & >Ho4)".
         wp_load. iMod ("Hclose" with "[-HΦ HR Hor]").
-        { iNext. iRight. iRight. iRight. iExists x', y. iFrame. iExists Q. iFrame. }
+        { iNext. iRight. iRight. iRight. iExists x', y. by iFrame. }
         iModIntro. wp_match. iApply "HΦ". by iFrame.
   Qed.
 
@@ -230,7 +227,7 @@ Section proof.
     iDestruct "H" as (xs' hd') "[>Hs #Hxs]".
     wp_load.
     iMod ("Hclose" with "[Hs]").
-    { iNext. iFrame. iExists xs', hd'. by iFrame. }
+    { iFrame "#∗". }
     iModIntro. wp_let. wp_bind (treiber.iter _ _).
     iApply wp_wand_r. iSplitL "HR Ho2".
     { iApply (loop_iter_doOp_spec R _ _ _ _ (λ _, own γr (Excl ()) ∗ R)%I with "[-]")=>//.
@@ -262,8 +259,7 @@ Section proof.
       iFrame "#". wp_seq. iApply ("IH" with "Ho3"); eauto.
     + iDestruct "Hp" as (f x) "(Hp & Hx & Ho2 & Ho4)".
       wp_load. iMod ("Hclose" with "[-Ho3 HΦ]") as "_".
-      { iNext. (* FIXME: iFrame here divergses, with an enormous TC trace *)
-        iRight. iRight. iLeft. iExists f, x. iFrame. }
+      { iNext. iRight. iRight. iLeft. iFrame. }
       iModIntro. wp_match.
       wp_apply try_srv_spec=>//.
       iFrame "#". wp_seq. iApply ("IH" with "Ho3"); eauto.
@@ -271,8 +267,7 @@ Section proof.
       iDestruct "Hs'" as (Q) "(>Hx & HoQ & HQ & >Ho1 & >Ho4)".
       wp_load. iMod ("Hclose" with "[-Ho4 HΦ Hx HoQ HQ]").
       { iNext. iLeft. iExists y. iFrame. }
-      iModIntro. wp_match. iApply ("HΦ" with "[-]"). iFrame.
-      iExists Q. iFrame.
+      iModIntro. wp_match. iApply ("HΦ" with "[-]"). by iFrame.
   Qed.
 
   Lemma mk_flat_spec (γm: gname): mk_syncer_spec mk_flat.

@@ -106,7 +106,7 @@ Section stack_works.
       iMod (pointsto_persist with "Hl'") as "#Hl'".
       iMod ("Hupd" with "HP") as "[HP HΨ]".
       iMod ("Hclose" with "[Hl HP Hlist]") as "_".
-      { iNext; iExists (Some _), (v :: xs); iFrame; iExists _; iFrame; auto. }
+      { iNext; iExists (Some _), (v :: xs); iFrame "#∗". }
       iModIntro.
       wp_pures.
       by iApply ("HΦ" with "HΨ").

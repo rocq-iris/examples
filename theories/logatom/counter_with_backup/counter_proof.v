@@ -232,8 +232,7 @@ Section counter_proof.
       rewrite bool_decide_decide; destruct decide; first lia.
       iDestruct "Hget" as (O) "[Hmap Hset]".
       iMod (logicall_execute_gets_set with "[$Hc $Hset]") as "[Hc Hset]".
-      iModIntro. iFrame. iSplitL "Hset Hmap".
-      { iExists O. iFrame. }
+      iModIntro. iFrame.
       iApply (big_sepM_impl with "Hgets"). iModIntro.
       iIntros (k γ' Hel). iDestruct 1 as (O') "(Hmap & Hset)".
       iExists O'. iFrame. iApply (big_sepS_impl with "Hset").
@@ -245,9 +244,9 @@ Section counter_proof.
     - eapply delete_notin in Hlook. rewrite -Hlook. iModIntro. iFrame.
       iApply (big_sepM_impl with "Hgets"). iModIntro.
       iIntros (k γ' Hel). iDestruct 1 as (O') "(Hmap & Hset)".
-      iExists O'. iFrame. iApply (big_sepS_impl with "Hset").
+      iFrame. iApply (big_sepS_impl with "Hset").
       iModIntro. iIntros ([γ1' γ2'] Hel'). iDestruct 1 as (Ψ) "(I' & Hvar & Hcred)".
-      iExists Ψ. iFrame "I'". rewrite !bool_decide_decide.
+      iFrame "I'". rewrite !bool_decide_decide.
       destruct decide, decide; [iFrame| | lia | iFrame].
       assert (S n = k) as Heq by lia. rewrite Heq lookup_delete in Hel.
       naive_solver.
@@ -288,7 +287,6 @@ Section counter_proof.
     iSplitR ""; last done.
     iSplit; first done. rewrite !big_sepM_insert //.
     iFrame. iSplitR; first eauto with iFrame.
-    iExists ∅. iFrame.
     rewrite big_sepS_empty. done.
   Qed.
 
@@ -483,7 +481,7 @@ Section counter_proof.
     awp_apply load_spec.
     iInv "I" as (G P n_b n_p) "(>%Hn & >Hb & >Hp & >Hcnt & >Hprim & Hrest)".
     iAaccIntro with "Hp".
-    { iIntros "?". iModIntro. rewrite /counter_inv /counter_inv_inner. iFrame "Cnt Hone". iFrame. iNext. iExists G, P, n_b, n_p. eauto with iFrame. }
+    { iIntros "?". iModIntro. rewrite /counter_inv /counter_inv_inner. by iFrame. }
     iIntros "Hp". iDestruct (mono_nat_auth_own_agree with "Hcnt Cnt") as %[_ ->].
     iDestruct (mono_nat_lb_own_get with "Hprim") as "#Hn_p".
     iModIntro. iSplitR "Cnt Cnt2 Hone".
@@ -495,8 +493,7 @@ Section counter_proof.
     iDestruct (mono_nat_auth_own_agree with "Hcnt Cnt") as %[_ ->].
     iDestruct (mono_nat_lb_own_valid with "Hprim Hn_p") as %[_ Hle].
     iAaccIntro with "Hb".
-    { iIntros "Hb". iFrame. iModIntro. iNext. rewrite /counter_inv /counter_inv_inner.
-      iExists G, P, n, n_p'. iFrame. iPureIntro. lia. }
+    { iIntros "Hb". iFrame. iPureIntro. lia. }
     iIntros "Hb". iMod (lc_fupd_elim_later with "Hone Hrest") as "(HG & #Hlook & HP & Hgets & Hputs)".
     iMod (logically_execute_gets_and_puts _ _ _ _ _ n_p with "Hputs Hgets Cnt Cnt2 Hcnt") as "(Hputs & Hgets & Cnt & Cnt2 & Hcnt)"; first (split; by eauto).
     iModIntro. iSplitR "Cnt Cnt2".
@@ -539,7 +536,7 @@ Section counter_proof.
     awp_apply load_spec.
     iInv "I" as (G P n_b n_p) "(>% & >Hb & >Hp & Hrest)".
     iAaccIntro with "Hp".
-    { iIntros "Hp". iModIntro. iFrame. iNext. rewrite /counter_inv /counter_inv_inner. iExists G, P, n_b, n_p. eauto with iFrame. }
+    { iIntros "Hp". iModIntro. iFrame. eauto. }
     iIntros "Hp". iMod (lc_fupd_elim_later with "Hone' Hrest") as "(Hcnt & Hprim & HG & #Hlook & HP & Hget & Hput)".
      assert (n_b = n_p ∨ n_b < n_p) as [->|Hlt] by lia.
     - (* we are reading the latest value, we can linearize now *)
@@ -576,7 +573,7 @@ Section counter_proof.
     awp_apply load_spec.
     iInv "I" as (G P n_b n_p) "(>% & >Hb & >Hp & Hrest)".
     iAaccIntro with "Hb".
-    { iIntros "Hb". iModIntro. iFrame. iNext. rewrite /counter_inv /counter_inv_inner. iExists G, P, n_b, n_p. eauto with iFrame. }
+    { iIntros "Hb". iModIntro. by iFrame. }
     iIntros "Hb".
      iMod (lc_fupd_elim_later with "Hone' Hrest") as "(Hcnt & Hprim & HG & #Hlook & HP & Hget & Hput)".
      iMod "AU" as (n) "[[Hc Hex] [_ Hclose]]".
@@ -597,7 +594,7 @@ Section counter_proof.
     awp_apply faa_spec.
     iInv "I" as (G P n_b n_p) "(>% & >Hb & >Hp & Hrest)".
     iAaccIntro with "Hp".
-    { iIntros "Hp". iModIntro. iFrame. iNext. rewrite /counter_inv /counter_inv_inner. iExists G, P, n_b, n_p. eauto with iFrame. }
+    { iIntros "Hp". iModIntro. by iFrame. }
     iIntros "Hp". iMod (lc_fupd_elim_later with "Hone' Hrest") as "(Hcnt & Hprim & HG & #Hlook & HP & Hget & Hput)".
     iMod (counter_inv_inner_register_put _ _ (γ_cnt, γ_ex) with "AU Hone Hb [Hp] Hcnt Hprim HG Hlook HP Hget Hput") as "Hupd"; first lia.
     { replace (n_p + 1)%Z with (S n_p : Z) by lia. iExact "Hp". }
