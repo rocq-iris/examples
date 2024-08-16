@@ -1017,7 +1017,7 @@ Lemma length_array_content sz slots deqs :
   length (array_content sz slots deqs) = sz.
 Proof.
   induction sz as [|sz IH]; first done.
-  by rewrite /= app_length Nat.add_comm /= IH.
+  by rewrite /= length_app Nat.add_comm /= IH.
 Qed.
 
 Lemma array_content_lookup sz slots deqs i :

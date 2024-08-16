@@ -240,14 +240,14 @@ Proof.
   intros H1 H2; induction H2; simpl; auto.
   rename select (typed_ctx_item _ _ _ _ _) into Hty.
   induction Hty => f; asimpl; simpl in *;
-    repeat match goal with H : _ |- _ => rewrite fmap_length in H end;
+    repeat match goal with H : _ |- _ => rewrite length_fmap in H end;
     try f_equal;
     eauto using typed_n_closed;
     try match goal with
       | H : _ |- _ => by eapply (typed_n_closed _ _ _ H)
       | H : _ |- _ => by let H' := fresh in
                       pose proof (typed_n_closed _ _ _ H) as H';
-                      rewrite /= fmap_length in H'; eauto
+                      rewrite /= length_fmap in H'; eauto
       end.
 Qed.
 

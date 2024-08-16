@@ -113,8 +113,8 @@ Proof.
   - rename select (_ !! _ = Some _) into H.
     apply lookup_lt_Some in H. rewrite iter_up. destruct lt_dec; auto with lia.
   - f_equal. eauto.
-  - f_equal. rewrite ->fmap_length in *. done.
-  - rewrite ->fmap_length in *; by f_equal.
+  - f_equal. rewrite ->length_fmap in *. done.
+  - rewrite ->length_fmap in *; by f_equal.
 Qed.
 
 (** Weakening *)

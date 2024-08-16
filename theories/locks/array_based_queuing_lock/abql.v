@@ -196,7 +196,7 @@ Section array_model.
     iIntros (ϕ) "[% isArr] Post".
     unfold is_array.
     iApply (wp_store_offset with "isArr").
-    { apply lookup_lt_is_Some_2. by rewrite fmap_length. }
+    { apply lookup_lt_is_Some_2. by rewrite length_fmap. }
     rewrite (list_fmap_insert ((λ b : bool, #b) : bool → val) xs i v).
     iAssumption.
   Qed.
@@ -367,7 +367,7 @@ Section proof.
     wp_apply array_repeat; first done.
     iIntros (arr) "isArr".
     wp_pures.
-    wp_apply (array_store with "[$isArr]"); first by rewrite replicate_length.
+    wp_apply (array_store with "[$isArr]"); first by rewrite length_replicate.
     iIntros "isArr".
     (* We allocate the ghost states for the tickets and value of o. *)
     iMod (own_alloc (● (Excl' 0, GSet ∅) ⋅ ◯ (Excl' 0, GSet ∅))) as (γ) "[Hγ Hγ']".
@@ -381,7 +381,7 @@ Section proof.
     iMod (inv_alloc _ _ (lock_inv γ ι κ arr cap p R) with "[-Post Hinvites]").
     { iNext. rewrite /lock_inv. iExists 0, 0, (<[0:=true]> (replicate cap false)).
       iFrame. iSplitR.
-      - by rewrite insert_length replicate_length.
+      - by rewrite length_insert length_replicate.
       - iLeft. iFrame. rewrite Nat.Div0.mod_0_l //. }
     wp_pures.
     iApply "Post".
@@ -443,7 +443,7 @@ Section proof.
     iInv N as (o i xs) "(>%lenEq & >nextPts & isArr & >Inv & Auth & Part)" "Close".
     rewrite /is_array rem_mod_eq //.
     pose proof (lookup_lt_is_Some_2 ((λ b : bool, #b) <$> xs) ((t `mod` cap))) as [x1 Hsome].
-    { subst. rewrite fmap_length. apply Nat.mod_upper_bound. lia. }
+    { subst. rewrite length_fmap. apply Nat.mod_upper_bound. lia. }
     wp_apply (wp_load_offset with "isArr"); first apply Hsome.
     iIntros "isArr".
     apply list_lookup_fmap_inv in Hsome as (x & -> & xsLookup).
@@ -462,7 +462,7 @@ Section proof.
         { iNext. iExists o, i, (list_with_one cap (o `mod` cap)).
           rewrite /is_array xsEq. iFrame.
           iSplit.
-          - by rewrite /list_with_one insert_length replicate_length.
+          - by rewrite /list_with_one length_insert length_replicate.
           - iRight. iRight. iFrame. done. }
         iModIntro. wp_pures. iApply "Post". by iFrame.
       * (* The case where the lock is in the clopen state. In this state all the
@@ -552,7 +552,7 @@ Section proof.
     { iDestruct (right_right_false with "Right Right'") as %[]. }
     iMod ("Close" with "[nextPts Invs Auth psPts Issued Right]") as "_".
     { iNext. iExists o, i, (<[(o `mod` cap) := false]> xs).
-      rewrite insert_length.
+      rewrite length_insert.
       iFrame. iSplit; first done.
       iRight. iLeft. iFrame. iPureIntro. subst.
       rewrite -> xsEq at 2.
@@ -572,7 +572,7 @@ Section proof.
           %[[<-%Excl_included%leibniz_equiv _]%prod_included _]%auth_both_valid_discrete.
       rewrite rem_mod_eq //.
       iApply (wp_store_offset with "arrPts").
-      { apply lookup_lt_is_Some_2. rewrite fmap_length Hlen. apply Nat.mod_upper_bound. lia. }
+      { apply lookup_lt_is_Some_2. rewrite length_fmap Hlen. apply Nat.mod_upper_bound. lia. }
       iModIntro. iIntros "isArr".
       (* Combine the left and right we have into a both. *)
       iDestruct (left_right_to_both with "Left Right") as "Both".
@@ -586,7 +586,7 @@ Section proof.
       { iNext. iExists (o + 1), (i - 1), (list_with_one cap ((o + 1) `mod` cap)).
         assert (o + 1 + (i - 1) = o + i) as -> by lia.
         iFrame.
-        iSplit. { by rewrite /list_with_one insert_length replicate_length. }
+        iSplit. { by rewrite /list_with_one length_insert length_replicate. }
         iSplitL "isArr". { by rewrite /list_with_one /is_array list_fmap_insert xsEq. }
         iLeft. iFrame. done. }
       iModIntro. iApply "Post". done.

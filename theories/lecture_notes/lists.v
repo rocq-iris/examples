@@ -479,12 +479,12 @@ Proof.
     iAssert (⌜ys = (List.map (λ n : Z, #n) (List.map Z.succ xs))⌝)%I with "[-H_isList]" as %->.
     { iInduction ys as [| y ys'] "IH" forall (xs); iDestruct "H_length" as %H.
        - simpl. destruct xs; first by simpl. inversion H.
-       - rewrite fmap_length in H. symmetry in H. simpl in H.
+       - rewrite length_fmap in H. symmetry in H. simpl in H.
          destruct (about_length _ _ H) as (x & xs' & ->). simpl.
          iDestruct "H_post" as "(H_head & H_tail)".
          iDestruct "H_head" as (n') "(% & %)". iSimplifyEq.
          iDestruct ("IH" with "H_tail []") as %->.
-         {  by rewrite fmap_length. }
+         {  by rewrite length_fmap. }
          done.
     }
     iFrame.

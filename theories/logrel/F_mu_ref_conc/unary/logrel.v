@@ -187,7 +187,7 @@ Section logrel.
   Lemma interp_env_ren Δ (Γ : list type) (vs : list val) τi :
     ⟦ subst (ren (+1)) <$> Γ ⟧* (τi :: Δ) vs ⊣⊢ ⟦ Γ ⟧* Δ vs.
   Proof.
-    apply sep_proper; [apply pure_proper; by rewrite fmap_length|].
+    apply sep_proper; [apply pure_proper; by rewrite length_fmap|].
     revert Δ vs τi; induction Γ=> Δ [|v vs] τi; csimpl; auto.
     apply sep_proper; auto. apply (interp_weaken [] [τi] Δ).
   Qed.

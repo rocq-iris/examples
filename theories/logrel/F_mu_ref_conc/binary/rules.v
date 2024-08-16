@@ -112,7 +112,7 @@ Section conversions.
     - rewrite lookup_insert_ne; last lia. by rewrite !tpool_lookup lookup_app_l.
     - by rewrite lookup_insert tpool_lookup lookup_app_r // Nat.sub_diag.
     - rewrite lookup_insert_ne; last lia.
-      rewrite !tpool_lookup ?lookup_ge_None_2 ?app_length //=;
+      rewrite !tpool_lookup ?lookup_ge_None_2 ?length_app //=;
          change (ofe_car exprO) with expr; lia.
   Qed.
 
@@ -202,7 +202,7 @@ Section cfg.
     erased_step (tp, σ) (<[j:=fill K e']> tp ++ efs, σ').
   Proof.
     intros. rewrite -(take_drop_middle tp j (fill K e)) //.
-    rewrite insert_app_r_alt take_length_le ?Nat.sub_diag /=;
+    rewrite insert_app_r_alt length_take_le ?Nat.sub_diag /=;
       eauto using lookup_lt_Some, Nat.lt_le_incl.
     rewrite -(assoc_L (++)) /=. eexists.
     eapply step_atomic; eauto. by apply: Ectx_step'.
@@ -530,7 +530,7 @@ Section cfg.
       by rewrite lookup_ge_None_2. }
     iExists (length tp). iFrame "Hj Hfork". iApply "Hclose". iNext.
     iExists (<[j:=fill K Unit]> tp ++ [e]), σ.
-    rewrite to_tpool_snoc insert_length to_tpool_insert //. iFrame. iPureIntro.
+    rewrite to_tpool_snoc length_insert to_tpool_insert //. iFrame. iPureIntro.
     eapply rtc_r, step_insert; eauto. econstructor; eauto.
   Qed.
 End cfg.
