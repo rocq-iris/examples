@@ -147,7 +147,7 @@ Proof.
     match goal with H : context[_ → _ ⊢ₜ _ : _] |- _ => rename H into IH end.
     specialize (IH
       (subst (ren (+1)) <$> Γ1) (subst (ren (+1)) <$> Γ2) (subst (ren (+1)) <$> ξ)).
-    rewrite ?map_length in IH.
+    rewrite ?length_map in IH.
     repeat rewrite fmap_app. apply IH.
     by repeat rewrite fmap_app.
   - econstructor; eauto.
@@ -155,7 +155,7 @@ Proof.
     match goal with H : context[_ → _ ⊢ₜ _ : TExist ?t] |- _ => rename t into τ end.
     specialize (IH
       (τ :: (subst (ren (+1)) <$> Γ1)) (subst (ren (+1)) <$> Γ2) (subst (ren (+1)) <$> ξ)).
-    asimpl in IH. rewrite ?map_length in IH.
+    asimpl in IH. rewrite ?length_map in IH.
     repeat rewrite fmap_app. apply IH.
     by repeat rewrite fmap_app.
 Qed.
