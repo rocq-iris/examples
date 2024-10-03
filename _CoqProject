@@ -4,6 +4,8 @@
 # Cannot use non-canonical projections as it causes massive unification failures
 # (https://github.com/coq/coq/issues/6294).
 -arg -w -arg -redundant-canonical-projection
+# Warning is often incorrect, see https://gitlab.mpi-sws.org/iris/stdpp/-/issues/216
+-arg -w -arg -notation-incompatible-prefix
 
 theories/barrier/proof.v
 theories/barrier/specification.v
