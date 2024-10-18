@@ -385,31 +385,30 @@ Proof.
 Qed.
 
 
-Lemma filter_spec (hd p : val) (xs : list val) (P : val -> bool) :
+Lemma filter_spec (hd p : val) (xs : list val) (R : val -> bool) (Q : val → iProp Σ) :
   {{{ is_list hd xs
       ∗ (∀ x : val ,
-           {{{ True }}}
+           {{{ Q x }}}
            p x
-           {{{r, RET r; ⌜r = #(P x)⌝ }}})
+           {{{r, RET r; ⌜r = #(R x)⌝ }}}) ∗ [∗ list] x ∈ xs, Q x
   }}}
   filter p hd
   {{{ v, RET v; is_list hd xs
-                ∗ is_list v (List.filter P xs)
+                ∗ is_list v (List.filter R xs)
   }}}.
 Proof.
-  iIntros (ϕ) "[H_isList #H_p] H_ϕ". wp_rec. wp_pures.
-  iApply (foldr_spec_PI (fun x => True)%I
-                        (fun xs' acc => is_list acc (List.filter P xs'))%I
-                  with "[$H_isList] [H_ϕ]").
-  - iSplitL.
-    + iIntros (x a' ?) "!# %ϕ'". iIntros "[_ H_isList] H_ϕ'".
-      repeat (wp_pure _). wp_bind (p x). iApply "H_p"; first done.
-      iNext. iIntros (r) "H". iSimplifyEq. destruct (P x); wp_if.
+  iIntros (ϕ) "(H_isList & #H_p & HQs) H_ϕ". wp_rec. wp_pures.
+  iApply (foldr_spec_PI Q
+                        (fun xs' acc => is_list acc (List.filter R xs'))%I
+                  with "[$H_isList HQs] [H_ϕ]").
+  - iSplitR.
+    + iIntros (x a' ?) "!# %ϕ'". iIntros "[HQ H_isList] H_ϕ'".
+      repeat (wp_pure _). wp_bind (p x). iApply ("H_p" with "[$HQ]").
+      iNext. iIntros (r) "H". iSimplifyEq. destruct (R x); wp_if.
       * wp_rec. wp_pures. wp_alloc l. wp_pures. iApply "H_ϕ'".
         iExists l, a'. by iFrame.
       * by iApply "H_ϕ'".
-    + iSplit; last done.
-      rewrite big_sepL_forall. eauto.
+    + by iSplit.
   - iNext. iApply "H_ϕ".
 Qed.
 
