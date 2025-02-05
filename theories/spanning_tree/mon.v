@@ -70,7 +70,7 @@ Definition Gmon := gmapR loc (exclR chlO).
 Definition excl_chlC_chl (ch : exclR chlO) : option (option loc * option loc) :=
   match ch with
   | Excl w => Some w
-  | ExclBot => None
+  | ExclInvalid => None
   end.
 
 Definition Gmon_graph (G : Gmon) : graph loc := omap excl_chlC_chl G.
