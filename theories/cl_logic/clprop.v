@@ -1,4 +1,4 @@
-From iris.algebra Require Export ofe.
+From iris.algebra Require Export ofe stepindex_finite.
 From iris.bi Require Import notation.
 From iris.prelude Require Import options.
 
