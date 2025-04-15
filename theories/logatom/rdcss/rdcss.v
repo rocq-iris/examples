@@ -80,7 +80,8 @@ Definition complete : val :=
     let: "n1"  := Snd (Fst (Fst ("data"))) in
     let: "n2"  := Snd (Fst ("data")) in
     let: "p"   := Snd ("data") in
-    (* Create a thread identifier using NewProph. *)
+    (* Create a thread identifier using NewProph.
+    We don't actually need a prophecy ID here, just some unique identifier. *)
     let: "tid_ghost" := NewProph in
     let: "n_new" := (if: !"l_m" = "m1" then "n2" else "n1") in
     Resolve (CmpXchg "l_n" (InjR "l_descr") (InjL "n_new")) "p" "tid_ghost";;
