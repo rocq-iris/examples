@@ -69,6 +69,7 @@ Section fact_equiv.
   Lemma fact_fact_acc_refinement :
     ⊢ [] ⊨ fact ≤log≤ fact_acc : (TArrow TInt TInt).
   Proof.
+    rewrite bin_log_related_unseal.
     iIntros (? vs) "!# [#HE HΔ]".
     iDestruct (interp_env_length with "HΔ") as %?; destruct vs; simplify_eq.
     iClear "HΔ". simpl.
@@ -151,6 +152,7 @@ Section fact_equiv.
   Lemma fact_acc_fact_refinement :
     ⊢ [] ⊨ fact_acc ≤log≤ fact : (TArrow TInt TInt).
   Proof.
+    rewrite bin_log_related_unseal.
     iIntros (? vs) "!# [#HE HΔ]".
     iDestruct (interp_env_length with "HΔ") as %?; destruct vs; simplify_eq.
     iClear "HΔ". simpl.

@@ -8,13 +8,21 @@ Section bin_log_def.
   Context `{heapIG Σ, cfgSG Σ}.
   Notation D := (persistent_predO (val * val) (iPropI Σ)).
 
-  Definition bin_log_related (Γ : list type) (e e' : expr) (τ : type) : iProp Σ :=
+  Local Definition bin_log_related_def (Γ : list type) (e e' : expr) (τ : type) : iProp Σ :=
     tc_opaque (□ ∀ Δ vvs,
       spec_ctx ∧ ⟦ Γ ⟧* Δ vvs -∗
       ⟦ τ ⟧ₑ Δ (e.[env_subst (vvs.*1)], e'.[env_subst (vvs.*2)]))%I.
+  Local Definition bin_log_related_aux : seal (@bin_log_related_def).
+  Proof. by eexists. Qed.
+
+  Definition bin_log_related (Γ : list type) (e e' : expr) (τ : type) : iProp Σ :=
+    bin_log_related_aux.(unseal) Γ e e' τ.
+
+  Definition bin_log_related_unseal : @bin_log_related = @bin_log_related_def :=
+    bin_log_related_aux.(seal_eq).
 
   Global Instance: ∀ Γ e e' τ, Persistent (bin_log_related Γ e e' τ).
-  Proof. rewrite/bin_log_related /=. apply _. Qed.
+  Proof. rewrite bin_log_related_unseal /bin_log_related_def /=. apply _. Qed.
 
 End bin_log_def.
 
@@ -36,6 +44,7 @@ Section fundamental.
         j ⤇ fill K (of_val v') ∗ interp τ Δ (v, v') }}.
   Proof.
     iIntros "#Hlog (#Hs & HΓ & Hj)".
+    rewrite bin_log_related_unseal.
     iApply ("Hlog" with "[HΓ]"); iFrame; eauto.
   Qed.
 
@@ -64,6 +73,7 @@ Section fundamental.
   Lemma bin_log_related_var Γ x τ :
     Γ !! x = Some τ → ⊢ Γ ⊨ Var x ≤log≤ Var x : τ.
   Proof.
+    rewrite bin_log_related_unseal.
     iIntros (? Δ vvs) "!# #(Hs & HΓ)"; iIntros (j K) "Hj /=".
     iDestruct (interp_env_Some_l with "HΓ") as ([v v']) "[Heq ?]"; first done.
     iDestruct "Heq" as %Heq.
@@ -73,18 +83,21 @@ Section fundamental.
 
   Lemma bin_log_related_unit Γ : ⊢ Γ ⊨ Unit ≤log≤ Unit : TUnit.
   Proof.
+    rewrite bin_log_related_unseal.
     iIntros (Δ vvs) "!# #(Hs & HΓ)"; iIntros (j K) "Hj /=".
     iApply wp_value. iExists UnitV; eauto.
   Qed.
 
   Lemma bin_log_related_int Γ n : ⊢ Γ ⊨ #n n ≤log≤ #n n : TInt.
   Proof.
+    rewrite bin_log_related_unseal.
     iIntros (Δ vvs) "!# #(Hs & HΓ)"; iIntros (j K) "Hj /=".
     iApply wp_value. iExists (#nv _); eauto.
   Qed.
 
   Lemma bin_log_related_bool Γ b : ⊢ Γ ⊨ #♭ b ≤log≤ #♭ b : TBool.
   Proof.
+    rewrite bin_log_related_unseal.
     iIntros (Δ vvs) "!# #(Hs & HΓ)"; iIntros (j K) "Hj /=".
     iApply wp_value. iExists (#♭v _); eauto.
   Qed.
@@ -94,10 +107,13 @@ Section fundamental.
     Γ ⊨ e2 ≤log≤ e2' : τ2 -∗
     Γ ⊨ Pair e1 e2 ≤log≤ Pair e1' e2' : TProd τ1 τ2.
   Proof.
+    rewrite {3}bin_log_related_unseal.
     iIntros "#IH1 #IH2" (Δ vvs) "!# #(Hs & HΓ)".
-    iApply (interp_expr_bind' [PairLCtx _] [PairLCtx _]); first by iApply "IH1"; iFrame "#".
+    iApply (interp_expr_bind' [PairLCtx _] [PairLCtx _]).
+    { rewrite bin_log_related_unseal; iApply "IH1"; by iFrame "#". }
     iIntros ([v v']) "Hvv".
-    iApply (interp_expr_bind' [PairRCtx _] [PairRCtx _]); first by iApply "IH2"; iFrame "#".
+    iApply (interp_expr_bind' [PairRCtx _] [PairRCtx _]).
+    { rewrite bin_log_related_unseal; iApply "IH2"; by iFrame "#". }
     iIntros ([w w']) "Hww".
     iApply (interp_expr_val (PairV _ _, PairV _ _)).
     iExists (v, v'), (w, w'); simpl; repeat iSplit; trivial.
@@ -106,8 +122,10 @@ Section fundamental.
   Lemma bin_log_related_fst Γ e e' τ1 τ2 :
     Γ ⊨ e ≤log≤ e' : TProd τ1 τ2 -∗ Γ ⊨ Fst e ≤log≤ Fst e' : τ1.
   Proof.
+    rewrite {2}bin_log_related_unseal.
     iIntros "#IH" (Δ vvs) "!# #(Hs & HΓ)".
-    iApply (interp_expr_bind' [FstCtx] [FstCtx]); first by iApply "IH"; iFrame "#".
+    iApply (interp_expr_bind' [FstCtx] [FstCtx]).
+    { rewrite bin_log_related_unseal; iApply "IH"; by iFrame "#". }
     iIntros ([v v']) "Hvv"; cbn [interp].
     iDestruct "Hvv" as ([w1 w1'] [w2 w2']) "#[% [Hw1 Hw2]]"; simplify_eq/=.
     iIntros (j K) "Hj /=".
@@ -119,8 +137,10 @@ Section fundamental.
   Lemma bin_log_related_snd Γ e e' τ1 τ2 :
     Γ ⊨ e ≤log≤ e' : TProd τ1 τ2 -∗ Γ ⊨ Snd e ≤log≤ Snd e' : τ2.
   Proof.
+    rewrite {2}bin_log_related_unseal.
     iIntros "#IH" (Δ vvs) "!# #(Hs & HΓ)".
-    iApply (interp_expr_bind' [SndCtx] [SndCtx]); first by iApply "IH"; iFrame "#".
+    iApply (interp_expr_bind' [SndCtx] [SndCtx]).
+    { rewrite bin_log_related_unseal; iApply "IH"; by iFrame "#". }
     iIntros ([v v']) "Hvv"; cbn [interp].
     iDestruct "Hvv" as ([w1 w1'] [w2 w2']) "#[% [Hw1 Hw2]]"; simplify_eq.
     iIntros (j K) "Hj /=".
@@ -132,8 +152,10 @@ Section fundamental.
   Lemma bin_log_related_injl Γ e e' τ1 τ2 :
     Γ ⊨ e ≤log≤ e' : τ1 -∗ Γ ⊨ InjL e ≤log≤ InjL e' : (TSum τ1 τ2).
   Proof.
+    rewrite {2}bin_log_related_unseal.
     iIntros "#IH" (Δ vvs) "!# #(Hs & HΓ)".
-    iApply (interp_expr_bind' [InjLCtx] [InjLCtx]); first by iApply "IH"; iFrame "#".
+    iApply (interp_expr_bind' [InjLCtx] [InjLCtx]).
+    { rewrite bin_log_related_unseal; iApply "IH"; by iFrame "#". }
     iIntros ([v v']) "Hvv".
     iApply (interp_expr_val (InjLV _, InjLV _)).
     iLeft; iExists (_,_); eauto 10.
@@ -142,8 +164,10 @@ Section fundamental.
   Lemma bin_log_related_injr Γ e e' τ1 τ2 :
       Γ ⊨ e ≤log≤ e' : τ2 -∗ Γ ⊨ InjR e ≤log≤ InjR e' : TSum τ1 τ2.
   Proof.
+    rewrite {2}bin_log_related_unseal.
     iIntros "#IH" (Δ vvs) "!# #(Hs & HΓ)".
-    iApply (interp_expr_bind' [InjRCtx] [InjRCtx]); first by iApply "IH"; iFrame "#".
+    iApply (interp_expr_bind' [InjRCtx] [InjRCtx]).
+    { rewrite bin_log_related_unseal; iApply "IH"; by iFrame "#". }
     iIntros ([v v']) "Hvv".
     iApply (interp_expr_val (InjRV _, InjRV _)).
     iRight; iExists (_,_); eauto 10.
@@ -155,9 +179,11 @@ Section fundamental.
     τ2 :: Γ ⊨ e2 ≤log≤ e2' : τ3 -∗
     Γ ⊨ Case e0 e1 e2 ≤log≤ Case e0' e1' e2' : τ3.
   Proof.
+    rewrite {4}bin_log_related_unseal.
     iIntros "#IH1 #IH2 #IH3" (Δ vvs) "!# #(Hs & HΓ)".
     iDestruct (interp_env_length with "HΓ") as %?.
-    iApply (interp_expr_bind' [CaseCtx _ _] [CaseCtx _ _]); first by iApply "IH1"; iFrame "#".
+    iApply (interp_expr_bind' [CaseCtx _ _] [CaseCtx _ _]).
+    { rewrite bin_log_related_unseal; iApply "IH1"; by iFrame "#". }
     iIntros ([v v']) "Hvv /=".
     iIntros (j K) "Hj /=".
     iDestruct "Hvv" as "[Hvv|Hvv]";
@@ -184,8 +210,10 @@ Section fundamental.
     Γ ⊨ e2 ≤log≤ e2' : τ -∗
     Γ ⊨ If e0 e1 e2 ≤log≤ If e0' e1' e2' : τ.
   Proof.
+    rewrite {4}bin_log_related_unseal.
     iIntros "#IH1 #IH2 #IH3" (Δ vvs) "!# #(Hs & HΓ)".
-    iApply (interp_expr_bind' [IfCtx _ _] [IfCtx _ _]); first by iApply "IH1"; iFrame "#".
+    iApply (interp_expr_bind' [IfCtx _ _] [IfCtx _ _]).
+    { rewrite bin_log_related_unseal; iApply "IH1"; by iFrame "#". }
     iIntros ([v v']) "Hvv /=".
     iIntros (j K) "Hj /=".
     iDestruct "Hvv" as ([]) "[% %]"; simplify_eq/=; iApply fupd_wp.
@@ -202,10 +230,13 @@ Section fundamental.
     Γ ⊨ e2 ≤log≤ e2' : TInt -∗
     Γ ⊨ BinOp op e1 e2 ≤log≤ BinOp op e1' e2' : binop_res_type op.
   Proof.
+    rewrite {3}bin_log_related_unseal.
     iIntros "#IH1 #IH2" (Δ vvs) "!# #(Hs & HΓ)".
-    iApply (interp_expr_bind' [BinOpLCtx _ _] [BinOpLCtx _ _]); first by iApply "IH1"; iFrame "#".
+    iApply (interp_expr_bind' [BinOpLCtx _ _] [BinOpLCtx _ _]).
+    { rewrite bin_log_related_unseal; iApply "IH1"; by iFrame "#". }
     iIntros ([v v']) "Hvv /=".
-    iApply (interp_expr_bind' [BinOpRCtx _ _] [BinOpRCtx _ _]); first by iApply "IH2"; iFrame "#".
+    iApply (interp_expr_bind' [BinOpRCtx _ _] [BinOpRCtx _ _]).
+    { rewrite bin_log_related_unseal; iApply "IH2"; by iFrame "#". }
     iIntros ([w w']) "Hww /=".
     iIntros (j K) "Hj /=".
     iDestruct "Hvv" as (n) "[% %]"; simplify_eq/=.
@@ -225,10 +256,13 @@ Section fundamental.
     Γ ⊨ BinOp Eq e1 e2 ≤log≤ BinOp Eq e1' e2' : TBool.
   Proof.
     intros HEQT.
+    rewrite {3}bin_log_related_unseal.
     iIntros "#IH1 #IH2" (Δ vvs) "!# #(Hs & HΓ)".
-    iApply (interp_expr_bind' [BinOpLCtx _ _] [BinOpLCtx _ _]); first by iApply "IH1"; iFrame "#".
+    iApply (interp_expr_bind' [BinOpLCtx _ _] [BinOpLCtx _ _]).
+    { rewrite bin_log_related_unseal; iApply "IH1"; by iFrame "#". }
     iIntros ([v v']) "#Hvv".
-    iApply (interp_expr_bind' [BinOpRCtx _ _] [BinOpRCtx _ _]); first by iApply "IH2"; iFrame "#".
+    iApply (interp_expr_bind' [BinOpRCtx _ _] [BinOpRCtx _ _]).
+    { rewrite bin_log_related_unseal; iApply "IH2"; by iFrame "#". }
     iIntros ([w w']) "#Hww /=".
     iIntros (j K) "Hj /=".
     iMod (EqType_interp_one_to_one with "Hvv Hww") as "%Hvals"; first done.
@@ -245,6 +279,7 @@ Section fundamental.
     TArrow τ1 τ2 :: τ1 :: Γ ⊨ e ≤log≤ e' : τ2 -∗
     Γ ⊨ Rec e ≤log≤ Rec e' : TArrow τ1 τ2.
   Proof.
+    rewrite {2}bin_log_related_unseal.
     iIntros "#IH" (Δ vvs) "!# #(Hs & HΓ)".
     iApply (interp_expr_val (RecV _, RecV _)).
     simpl.
@@ -264,6 +299,7 @@ Section fundamental.
     τ1 :: Γ ⊨ e ≤log≤ e' : τ2 -∗
     Γ ⊨ Lam e ≤log≤ Lam e' : TArrow τ1 τ2.
   Proof.
+    rewrite {2}bin_log_related_unseal.
     iIntros "#IH" (Δ vvs) "!# #(Hs & HΓ)".
     iApply (interp_expr_val (LamV _, LamV _)).
     simpl.
@@ -284,9 +320,11 @@ Section fundamental.
     τ1 :: Γ ⊨ e2 ≤log≤ e2' : τ2 -∗
     Γ ⊨ LetIn e1 e2 ≤log≤ LetIn e1' e2': τ2.
   Proof.
+    rewrite {3}bin_log_related_unseal.
     iIntros "#IH1 #IH2" (Δ vvs) "!# #(Hs & HΓ)".
     iDestruct (interp_env_length with "HΓ") as %?.
-    iApply (interp_expr_bind' [LetInCtx _] [LetInCtx _]); first by iApply "IH1"; iFrame "#".
+    iApply (interp_expr_bind' [LetInCtx _] [LetInCtx _]).
+    { rewrite bin_log_related_unseal; iApply "IH1"; by iFrame "#". }
     iIntros ([v v']) "#Hvv /=".
     iIntros (j K) "Hj /=".
     iMod (step_letin _ j K with "[-]") as "Hz"; eauto.
@@ -302,9 +340,11 @@ Section fundamental.
     Γ ⊨ e2 ≤log≤ e2' : τ2 -∗
     Γ ⊨ Seq e1 e2 ≤log≤ Seq e1' e2': τ2.
   Proof.
+    rewrite {3}bin_log_related_unseal.
     iIntros "#IH1 #IH2" (Δ vvs) "!# #(Hs & HΓ)".
     iDestruct (interp_env_length with "HΓ") as %?.
-    iApply (interp_expr_bind' [SeqCtx _] [SeqCtx _]); first by iApply "IH1"; iFrame "#".
+    iApply (interp_expr_bind' [SeqCtx _] [SeqCtx _]).
+    { rewrite bin_log_related_unseal; iApply "IH1"; by iFrame "#". }
     iIntros ([v v']) "#Hvv /=".
     iIntros (j K) "Hj /=".
     iMod (step_seq _ j K with "[-]") as "Hz"; eauto.
@@ -318,11 +358,14 @@ Section fundamental.
     Γ ⊨ e2 ≤log≤ e2' : τ1 -∗
     Γ ⊨ App e1 e2 ≤log≤ App e1' e2' :  τ2.
   Proof.
+    rewrite {3}bin_log_related_unseal.
     iIntros "#IH1 #IH2" (Δ vvs) "!# #(Hs & HΓ) /=".
-    iApply (interp_expr_bind' [AppLCtx _] [AppLCtx _]); first by iApply "IH1"; iFrame "#".
+    iApply (interp_expr_bind' [AppLCtx _] [AppLCtx _]).
+    { rewrite bin_log_related_unseal; iApply "IH1"; by iFrame "#". }
     simpl.
     iIntros ([v v']) "#Hvv /=".
-    iApply (interp_expr_bind' [AppRCtx _] [AppRCtx _]); first by iApply "IH2"; iFrame "#".
+    iApply (interp_expr_bind' [AppRCtx _] [AppRCtx _]).
+    { rewrite bin_log_related_unseal; iApply "IH2"; by iFrame "#". }
     iIntros ([w w']) "#Hww/=".
     iApply ("Hvv" $! (w, w') with "Hww"); simpl; eauto.
   Qed.
@@ -331,6 +374,7 @@ Section fundamental.
     (subst (ren (+1)) <$> Γ) ⊨ e ≤log≤ e' : τ -∗
     Γ ⊨ TLam e ≤log≤ TLam e' : TForall τ.
   Proof.
+    rewrite {2}bin_log_related_unseal.
     iIntros "#IH" (Δ vvs) "!# #(Hs & HΓ)"; iIntros (j K) "Hj /=".
     iApply wp_value. iExists (TLamV _).
     iIntros "{$Hj} /= !#"; iIntros (τi j' K') "Hv /=".
@@ -345,8 +389,10 @@ Section fundamental.
   Lemma bin_log_related_tapp Γ e e' τ τ' :
     Γ ⊨ e ≤log≤ e' : TForall τ -∗ Γ ⊨ TApp e ≤log≤ TApp e' : τ.[τ'/].
   Proof.
+    rewrite {2}bin_log_related_unseal.
     iIntros "#IH" (Δ vvs) "!# #(Hs & HΓ)".
-    iApply (interp_expr_bind' [TAppCtx] [TAppCtx]); first by iApply "IH"; iFrame "#".
+    iApply (interp_expr_bind' [TAppCtx] [TAppCtx]).
+    { rewrite bin_log_related_unseal; iApply "IH"; by iFrame "#". }
     simpl.
     iIntros ([v v']) "#Hvv /=".
     iIntros (j K) "Hj /=".
@@ -359,8 +405,10 @@ Section fundamental.
   Lemma bin_log_related_pack Γ e e' τ τ' :
     Γ ⊨ e ≤log≤ e' : τ.[τ'/] -∗ Γ ⊨ Pack e ≤log≤ Pack e' : TExist τ.
   Proof.
+    rewrite {2}bin_log_related_unseal.
     iIntros "#IH" (Δ vvs) "!# #(Hs & HΓ)".
-    iApply (interp_expr_bind' [PackCtx] [PackCtx]); first by iApply "IH"; iFrame "#".
+    iApply (interp_expr_bind' [PackCtx] [PackCtx]).
+    { rewrite bin_log_related_unseal; iApply "IH"; by iFrame "#". }
     iIntros ([v v']) "#Hvv".
     iApply (interp_expr_val (PackV _, PackV _)).
     rewrite -interp_subst /=.
@@ -372,8 +420,10 @@ Section fundamental.
     τ :: (subst (ren (+1)) <$> Γ) ⊨ e2 ≤log≤ e2' : τ'.[ren (+1)] -∗
     Γ ⊨ UnpackIn e1 e2 ≤log≤ UnpackIn e1' e2' : τ'.
   Proof.
+    rewrite {3}bin_log_related_unseal.
     iIntros "#IH1 #IH2" (Δ vvs) "!# #(Hs & HΓ)".
-    iApply (interp_expr_bind' [UnpackInCtx _] [UnpackInCtx _]); first by iApply "IH1"; iFrame "#".
+    iApply (interp_expr_bind' [UnpackInCtx _] [UnpackInCtx _]).
+    { rewrite bin_log_related_unseal; iApply "IH1"; by iFrame "#". }
     iIntros ([v v']) "#Hvv /=".
     iDestruct "Hvv" as (τi (v1, v2) Hvv) "#Hvv"; simplify_eq /=.
     iIntros (j K) "Hj /=".
@@ -395,8 +445,10 @@ Section fundamental.
   Lemma bin_log_related_fold Γ e e' τ :
     Γ ⊨ e ≤log≤ e' : τ.[(TRec τ)/] -∗ Γ ⊨ Fold e ≤log≤ Fold e' : TRec τ.
   Proof.
+    rewrite {2}bin_log_related_unseal.
     iIntros "#IH" (Δ vvs) "!# #(Hs & HΓ)".
-    iApply (interp_expr_bind' [FoldCtx] [FoldCtx]); first by iApply "IH"; iFrame "#".
+    iApply (interp_expr_bind' [FoldCtx] [FoldCtx]).
+    { rewrite bin_log_related_unseal; iApply "IH"; by iFrame "#". }
     iIntros ([v v']) "#Hvv".
     iApply (interp_expr_val (FoldV _, FoldV _)).
     rewrite /= fixpoint_interp_rec1_eq /= -interp_subst.
@@ -406,8 +458,10 @@ Section fundamental.
   Lemma bin_log_related_unfold Γ e e' τ :
     Γ ⊨ e ≤log≤ e' : TRec τ -∗ Γ ⊨ Unfold e ≤log≤ Unfold e' : τ.[(TRec τ)/].
   Proof.
+    rewrite {2}bin_log_related_unseal.
     iIntros "#IH" (Δ vvs) "!# #(Hs & HΓ)".
-    iApply (interp_expr_bind' [UnfoldCtx] [UnfoldCtx]); first by iApply "IH"; iFrame "#".
+    iApply (interp_expr_bind' [UnfoldCtx] [UnfoldCtx]).
+    { rewrite bin_log_related_unseal; iApply "IH"; by iFrame "#". }
     iIntros ([v v']) "#Hvv".
     iIntros (j K) "Hj /=".
     rewrite /= fixpoint_interp_rec1_eq /=.
@@ -422,6 +476,7 @@ Section fundamental.
   Lemma bin_log_related_fork Γ e e' :
     Γ ⊨ e ≤log≤ e' : TUnit -∗ Γ ⊨ Fork e ≤log≤ Fork e' : TUnit.
   Proof.
+    rewrite {2}bin_log_related_unseal.
     iIntros "#IH" (Δ vvs) "!# #(Hs & HΓ)"; iIntros (j K) "Hj /=".
     iApply fupd_wp.
     iMod (step_fork _ j K with "[-]") as (j') "[Hj Hj']"; eauto.
@@ -433,8 +488,10 @@ Section fundamental.
   Lemma bin_log_related_alloc Γ e e' τ :
       Γ ⊨ e ≤log≤ e' : τ -∗ Γ ⊨ Alloc e ≤log≤ Alloc e' : Tref τ.
   Proof.
+    rewrite {2}bin_log_related_unseal.
     iIntros "#IH" (Δ vvs) "!# #(Hs & HΓ)".
-    iApply (interp_expr_bind' [AllocCtx] [AllocCtx]); first by iApply "IH"; iFrame "#".
+    iApply (interp_expr_bind' [AllocCtx] [AllocCtx]).
+    { rewrite bin_log_related_unseal; iApply "IH"; by iFrame "#". }
     iIntros ([v v']) "#Hvv".
     iIntros (j K) "Hj /=".
     iApply fupd_wp.
@@ -451,8 +508,10 @@ Section fundamental.
   Lemma bin_log_related_load Γ e e' τ :
     Γ ⊨ e ≤log≤ e' : (Tref τ) -∗ Γ ⊨ Load e ≤log≤ Load e' : τ.
   Proof.
+    rewrite {2}bin_log_related_unseal.
     iIntros "#IH" (Δ vvs) "!# #(Hs & HΓ)".
-    iApply (interp_expr_bind' [LoadCtx] [LoadCtx]); first by iApply "IH"; iFrame "#".
+    iApply (interp_expr_bind' [LoadCtx] [LoadCtx]).
+    { rewrite bin_log_related_unseal; iApply "IH"; by iFrame "#". }
     iIntros ([v v']) "#Hvv".
     iIntros (j K) "Hj /=".
     iDestruct "Hvv" as ([l l']) "[% Hinv]"; simplify_eq/=.
@@ -472,10 +531,13 @@ Section fundamental.
     Γ ⊨ e2 ≤log≤ e2' : τ -∗
     Γ ⊨ Store e1 e2 ≤log≤ Store e1' e2' : TUnit.
   Proof.
+    rewrite {3}bin_log_related_unseal.
     iIntros "#IH1 #IH2" (Δ vvs) "!# #(Hs & HΓ)".
-    iApply (interp_expr_bind' [StoreLCtx _] [StoreLCtx _]); first by iApply "IH1"; iFrame "#".
+    iApply (interp_expr_bind' [StoreLCtx _] [StoreLCtx _]).
+    { rewrite bin_log_related_unseal; iApply "IH1"; by iFrame "#". }
     iIntros ([v v']) "#Hvv".
-    iApply (interp_expr_bind' [StoreRCtx _] [StoreRCtx _]); first by iApply "IH2"; iFrame "#".
+    iApply (interp_expr_bind' [StoreRCtx _] [StoreRCtx _]).
+    { rewrite bin_log_related_unseal; by iApply "IH2"; by iFrame "#". }
     iIntros ([w w']) "#Hww".
     iIntros (j K) "Hj /=".
     iDestruct "Hvv" as ([l l']) "[% Hinv]"; simplify_eq/=.
@@ -497,13 +559,17 @@ Section fundamental.
     Γ ⊨ e3 ≤log≤ e3' : τ -∗
     Γ ⊨ CAS e1 e2 e3 ≤log≤ CAS e1' e2' e3' : TBool.
   Proof.
+    rewrite {4}bin_log_related_unseal.
     iIntros (Heqτ) "#IH1 #IH2 #IH3".
     iIntros (Δ vvs) "!# #(Hs & HΓ)".
-    iApply (interp_expr_bind' [CasLCtx _ _] [CasLCtx _ _]); first by iApply "IH1"; iFrame "#".
+    iApply (interp_expr_bind' [CasLCtx _ _] [CasLCtx _ _]).
+    { rewrite bin_log_related_unseal; iApply "IH1"; by iFrame "#". }
     iIntros ([v v']) "#Hvv".
-    iApply (interp_expr_bind' [CasMCtx _ _] [CasMCtx _ _]); first by iApply "IH2"; iFrame "#".
+    iApply (interp_expr_bind' [CasMCtx _ _] [CasMCtx _ _]).
+    { rewrite bin_log_related_unseal; iApply "IH2"; by iFrame "#". }
     iIntros ([w w']) "#Hww".
-    iApply (interp_expr_bind' [CasRCtx _ _] [CasRCtx _ _]); first by iApply "IH3"; iFrame "#".
+    iApply (interp_expr_bind' [CasRCtx _ _] [CasRCtx _ _]).
+    { rewrite bin_log_related_unseal; iApply "IH3"; by iFrame "#". }
     iIntros ([u u']) "#Huu".
     iIntros (j K) "Hj /=".
     iDestruct "Hvv" as ([l l']) "[% Hinv]"; simplify_eq/=.
@@ -536,10 +602,13 @@ Section fundamental.
     Γ ⊨ e2 ≤log≤ e2' : TInt -∗
     Γ ⊨ FAA e1 e2 ≤log≤ FAA e1' e2' : TInt.
   Proof.
+    rewrite {3}bin_log_related_unseal.
     iIntros "#IH1 #IH2" (Δ vvs) "!# #(Hs & HΓ)".
-    iApply (interp_expr_bind' [FAALCtx _] [FAALCtx _]); first by iApply "IH1"; iFrame "#".
+    iApply (interp_expr_bind' [FAALCtx _] [FAALCtx _]).
+    { rewrite bin_log_related_unseal; iApply "IH1"; by iFrame "#". }
     iIntros ([v v']) "#Hvv".
-    iApply (interp_expr_bind' [FAARCtx _] [FAARCtx _]); first by iApply "IH2"; iFrame "#".
+    iApply (interp_expr_bind' [FAARCtx _] [FAARCtx _]).
+    { rewrite bin_log_related_unseal; iApply "IH2"; by iFrame "#". }
     iIntros ([w w']) "#Hww".
     iIntros (j K) "Hj /=".
     iDestruct "Hvv" as ([l l']) "[% Hinv]"; simplify_eq/=.

@@ -248,6 +248,7 @@ Section CG_Counter.
   Lemma FG_CG_counter_refinement :
     ⊢ [] ⊨ FG_counter ≤log≤ CG_counter : TProd (TArrow TUnit TUnit) (TArrow TUnit TInt).
   Proof.
+    rewrite bin_log_related_unseal.
     iIntros (Δ [|??]) "!# #(Hspec & HΓ)"; iIntros (j K) "Hj"; last first.
     { iDestruct (interp_env_length with "HΓ") as %[=]. }
     iClear "HΓ". cbn -[FG_counter CG_counter].
