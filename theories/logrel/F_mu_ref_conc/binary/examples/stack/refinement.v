@@ -21,6 +21,7 @@ Section Stack_refinement.
            (TArrow (TArrow (TVar 0) TUnit) TUnit)).
   Proof.
     (* executing the preambles *)
+    rewrite bin_log_related_unseal.
     iIntros (Δ [|??]) "!# #[Hspec HΓ]"; iIntros (j K) "Hj"; last first.
     { iDestruct (interp_env_length with "HΓ") as %[=]. }
     iClear "HΓ". cbn -[FG_stack CG_stack].

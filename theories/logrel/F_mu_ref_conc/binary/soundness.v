@@ -33,6 +33,7 @@ Proof.
   iApply wp_fupd. iApply wp_wand_r.
   iSplitL.
   - iPoseProof ((Hlog _ _)) as "Hrel".
+    rewrite bin_log_related_unseal.
     iSpecialize ("Hrel" $! [] [] with "[]").
     { iSplit.
       - by iExists ([e'], ∅).
