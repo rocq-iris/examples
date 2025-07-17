@@ -211,14 +211,14 @@ Lemma marked_was_unmarked (G : Gmon) x v :
   ✓ ({[x := Excl v]} ⋅ G) → G !! x = None.
 Proof.
   intros H2; specialize (H2 x).
-  revert H2; rewrite lookup_op lookup_singleton. intros H2.
+  revert H2; rewrite lookup_op lookup_singleton_eq. intros H2.
     by rewrite (excl_validN_inv_l O _ _ (proj1 (cmra_valid_validN _) H2 O)).
 Qed.
 
 Lemma mark_update_lookup_base (G : Gmon) x v :
   ✓ ({[x := Excl v]} ⋅ G) → ({[x := Excl v]} ⋅ G) !! x = Some (Excl v).
 Proof.
-  intros H2; rewrite lookup_op lookup_singleton.
+  intros H2; rewrite lookup_op lookup_singleton_eq.
   erewrite marked_was_unmarked; eauto.
 Qed.
 
@@ -332,8 +332,8 @@ Section graph.
       first done; simpl.
     rewrite -!insert_singleton_op; trivial.
     replace (<[x:=Excl w]> G) with (<[x:=Excl w]> (<[x:=Excl m]> G))
-      by (by rewrite insert_insert).
-    eapply singleton_local_update; first (by rewrite lookup_insert);
+      by (by rewrite insert_insert_eq).
+    eapply singleton_local_update; first (by rewrite lookup_insert_eq);
     apply exclusive_local_update; done.
   Qed.
 
@@ -348,12 +348,12 @@ Section graph.
     destruct H1 as (u1 & u2 & Hu1 & Hu2 & H1);
       inversion Hu1; inversion Hu2; subst.
     destruct H1 as [[_ H11%leibniz_equiv]|H12]; simpl in *.
-    + by rewrite -H11 delete_singleton right_id_L.
+    + by rewrite -H11 delete_singleton_eq right_id_L.
     + apply prod_included in H12; destruct H12 as [_ H12]; simpl in *.
-      rewrite -insert_singleton_op ?insert_delete_insert; last by rewrite lookup_delete.
+      rewrite -insert_singleton_op ?insert_delete_eq; last by rewrite lookup_delete_eq.
       apply: map_eq => i. apply leibniz_equiv, equiv_dist => n.
       destruct (decide (x = i)); subst;
-        rewrite ?lookup_insert ?lookup_insert_ne //.
+        rewrite ?lookup_insert_eq ?lookup_insert_ne //.
       apply singleton_included_l in H12. destruct H12 as [y [H31 H32]].
       rewrite H31 (Some_included_exclusive _ _ H32); try done.
       destruct H2 as [H21 H22]; simpl in H22.
@@ -372,7 +372,7 @@ Section graph.
     iIntros (Hx) "(Hg & Ha)".
     assert (Hid : x ∈ dom (of_graph g G)) by (by rewrite of_graph_dom).
     revert Hid; rewrite elem_of_dom /is_Some. intros [y Hy].
-    rewrite /heap_owns -{1}(insert_id _ _ _ Hy) -insert_delete_insert.
+    rewrite /heap_owns -{1}(insert_id _ _ _ Hy) -insert_delete_eq.
     rewrite big_sepM_insert; [|apply lookup_delete_None; auto].
     iDestruct "Ha" as "[H $]". iFrame "Hg". iExists _; eauto.
   Qed.
@@ -385,7 +385,7 @@ Section graph.
     ⊢ heap_owns (of_graph g G) markings.
   Proof.
     iIntros "[Ha Hl]". iDestruct "Hl" as (u) "[Hu Hl]". iDestruct "Hu" as %Hu.
-    rewrite /heap_owns -{2}(insert_id _ _ _ Hu) -insert_delete_insert.
+    rewrite /heap_owns -{2}(insert_id _ _ _ Hu) -insert_delete_eq.
     rewrite big_sepM_insert; [|apply lookup_delete_None; auto]. by iFrame "Ha".
   Qed.
 
@@ -416,7 +416,7 @@ Lemma delete_marked g G x w :
   delete x (of_graph g G) = delete x (of_graph g ((x [↦] w) ⋅ G)).
 Proof.
   apply: map_eq => i. destruct (decide (i = x)).
-  - subst; by rewrite ?lookup_delete.
+  - subst; by rewrite ?lookup_delete_eq.
   - rewrite ?lookup_delete_ne //= /of_graph /of_graph_elem ?map_lookup_imap
       ?lookup_omap; case _ : (g !! i) => [v|] //=.
     by rewrite lookup_op lookup_singleton_ne //= left_id_L.
@@ -505,10 +505,10 @@ Local Ltac in_dom_Gmon_graph :=
 
 Lemma get_left_singleton x vl vr :
   get_left (Gmon_graph (x [↦] (vl, vr))) x = vl.
-Proof. rewrite /get_left /Gmon_graph lookup_omap lookup_singleton; done. Qed.
+Proof. rewrite /get_left /Gmon_graph lookup_omap lookup_singleton_eq; done. Qed.
 Lemma get_right_singleton x vl vr :
   get_right (Gmon_graph (x [↦] (vl, vr))) x = vr.
-Proof. rewrite /get_right /Gmon_graph lookup_omap lookup_singleton; done. Qed.
+Proof. rewrite /get_right /Gmon_graph lookup_omap lookup_singleton_eq; done. Qed.
 
 Lemma graph_in_dom_op (G G' : Gmon) x :
   ✓ (G ⋅ G') → x ∈ dom G → x ∉ dom G'.
@@ -695,7 +695,7 @@ Lemma update_valid (G : Gmon) x v w : ✓ ((x [↦] v) ⋅ G) → ✓ ((x [↦] 
 Proof.
   intros Hvl i; specialize (Hvl i); revert Hvl.
   rewrite ?lookup_op. destruct (decide (i = x)).
-  - subst; rewrite ?lookup_singleton; case _ : (G !! x); done.
+  - subst; rewrite ?lookup_singleton_eq; case _ : (G !! x); done.
   - rewrite ?lookup_singleton_ne //=.
 Qed.
 
@@ -741,7 +741,7 @@ Proof.
   - move => /(_ _ Hu) Hgw i.
     rewrite /get_left /get_right /Gmon_graph lookup_omap.
     destruct (decide (i = x)); subst.
-    + by rewrite Hu lookup_singleton; simpl.
+    + by rewrite Hu lookup_singleton_eq; simpl.
     + rewrite lookup_singleton_ne; auto. by case _ : (g !! i) => [[[?|] [?|]]|].
   - intros Hg w Hw; specialize (Hg x). destruct v as [v1 v2]; simpl. revert Hg.
     rewrite Hu in Hw; inversion Hw; subst.

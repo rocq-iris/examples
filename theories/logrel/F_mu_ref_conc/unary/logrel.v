@@ -171,7 +171,7 @@ Section logrel.
     destruct (lookup_lt_is_Some_2 vs x) as [v Hv].
     { by rewrite -Hlen; apply lookup_lt_Some with τ. }
     iExists v; iSplit; first done. iApply (big_sepL_elem_of with "HΓ").
-    apply elem_of_list_lookup_2 with x.
+    apply list_elem_of_lookup_2 with x.
     rewrite lookup_zip_with; by simplify_option_eq.
   Qed.
 

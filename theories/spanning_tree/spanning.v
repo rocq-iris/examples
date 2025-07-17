@@ -110,7 +110,7 @@ Section Helpers.
   Proof.
     move => Hgx /(_ x).
     rewrite /get_left /get_right /Gmon_graph Hgx ?lookup_omap ?lookup_op
-      ?lookup_delete ?right_id_L ?lookup_singleton /=;
+      ?lookup_delete_eq ?right_id_L ?lookup_singleton_eq /=;
       destruct w; destruct u; done.
   Qed.
 
@@ -183,7 +183,7 @@ Section Helpers.
     clear Hil1'. simpl. rewrite Heq.
     iMod (update_graph _ _ _ w' with "[Hi1 Hx]") as
         "[Hi1 Hx]"; try by iFrame.
-    { by rewrite lookup_delete. }
+    { by rewrite lookup_delete_eq. }
     rewrite -delete_marked. erewrite (delete_marked _ _ _ w').
     assert (HvG : ✓ ({[x := Excl w']} ⋅ delete x G)).
     { eapply update_valid; eauto. }

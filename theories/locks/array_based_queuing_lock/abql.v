@@ -204,7 +204,7 @@ Section array_model.
   Lemma insert_list_with_one (i : nat) l :
     <[i:=false]> (list_with_one l i) = replicate l false.
   Proof.
-    by rewrite /list_with_one list_insert_insert insert_replicate.
+    by rewrite /list_with_one list_insert_insert_eq insert_replicate.
   Qed.
 
   (* The repeat code behaves similar to the replicate function *)
@@ -446,7 +446,7 @@ Section proof.
     { subst. rewrite length_fmap. apply Nat.mod_upper_bound. lia. }
     wp_apply (wp_load_offset with "isArr"); first apply Hsome.
     iIntros "isArr".
-    apply list_lookup_fmap_inv in Hsome as (x & -> & xsLookup).
+    apply list_lookup_fmap_Some_1 in Hsome as (x & -> & xsLookup).
     destruct x.
     - rewrite /issued.
       iDestruct (valid_ticket_range with "Ticket Auth") as "([% %] & Ticket & Auth)".

@@ -251,7 +251,7 @@ Section atomic_snapshot.
         iExists l1'new, T', x2, (v'' + 1)%Z.
         iFrame.
         iPureIntro. split.
-        * apply: lookup_insert.
+        * apply: lookup_insert_eq.
         * intros t' Hv. destruct (decide (t' = (v'' + 1)%Z)) as [-> | Hn]; first done.
           assert (dom T' = {[(v'' + 1)%Z]} ∪ dom T) as Hd. {
             apply leibniz_equiv. rewrite dom_insert. done.

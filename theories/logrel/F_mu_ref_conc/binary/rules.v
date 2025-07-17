@@ -81,7 +81,7 @@ Section conversions.
     cut (∀ i, to_tpool_go i tp !! (i + j) = Excl <$> tp !! j).
     { intros help. apply (help 0). }
     revert j. induction tp as [|e tp IH]=> //= -[|j] i /=.
-    - by rewrite Nat.add_0_r lookup_insert.
+    - by rewrite Nat.add_0_r lookup_insert_eq.
     - by rewrite -Nat.add_succ_comm lookup_insert_ne; last lia.
   Qed.
   Lemma tpool_lookup_Some tp j e : to_tpool tp !! j = Excl' e → tp !! j = Some e.
@@ -93,7 +93,7 @@ Section conversions.
     to_tpool (<[j:=e]> tp) = <[j:=Excl e]> (to_tpool tp).
   Proof.
     intros. apply: map_eq=> i. destruct (decide (i = j)) as [->|].
-    - by rewrite tpool_lookup lookup_insert list_lookup_insert.
+    - by rewrite tpool_lookup lookup_insert_eq list_lookup_insert_eq.
     - rewrite tpool_lookup lookup_insert_ne // list_lookup_insert_ne //.
       by rewrite tpool_lookup.
   Qed.
@@ -110,7 +110,7 @@ Section conversions.
     intros. apply: map_eq=> i.
     destruct (lt_eq_lt_dec i (length tp)) as [[?| ->]|?].
     - rewrite lookup_insert_ne; last lia. by rewrite !tpool_lookup lookup_app_l.
-    - by rewrite lookup_insert tpool_lookup lookup_app_r // Nat.sub_diag.
+    - by rewrite lookup_insert_eq tpool_lookup lookup_app_r // Nat.sub_diag.
     - rewrite lookup_insert_ne; last lia.
       rewrite !tpool_lookup ?lookup_ge_None_2 ?length_app //=;
          change (ofe_car exprO) with expr; lia.
@@ -267,7 +267,7 @@ Section cfg.
       inversion Hexs; simpl in *; subst.
       rewrite -!fill_app.
       eapply step_insert_no_fork; eauto.
-      { apply list_lookup_insert. apply lookup_lt_is_Some; eauto. }
+      { apply list_lookup_insert_eq. apply lookup_lt_is_Some; eauto. }
   Qed.
 
 

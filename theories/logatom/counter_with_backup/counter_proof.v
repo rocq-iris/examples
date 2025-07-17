@@ -190,7 +190,7 @@ Section counter_proof.
       iExists Ψ. iFrame "I'". rewrite !bool_decide_decide.
       destruct decide, decide; [| | lia |].
       + iFrame.
-      + assert (n = k) as -> by lia. rewrite lookup_delete in Hel. naive_solver.
+      + assert (n = k) as -> by lia. rewrite lookup_delete_eq in Hel. naive_solver.
       + iFrame.
   Qed.
 
@@ -239,16 +239,16 @@ Section counter_proof.
       iModIntro. iIntros ([γ1' γ2'] Hel'). iDestruct 1 as (Ψ) "(I' & Hvar & Hcred)".
       iExists Ψ. iFrame "I'". rewrite !bool_decide_decide.
       destruct decide, decide; [iFrame| | lia | iFrame].
-      assert (S n = k) as Heq by lia. rewrite Heq lookup_delete in Hel.
+      assert (S n = k) as Heq by lia. rewrite Heq lookup_delete_eq in Hel.
       naive_solver.
-    - eapply delete_notin in Hlook. rewrite -Hlook. iModIntro. iFrame.
+    - eapply delete_id in Hlook. rewrite -Hlook. iModIntro. iFrame.
       iApply (big_sepM_impl with "Hgets"). iModIntro.
       iIntros (k γ' Hel). iDestruct 1 as (O') "(Hmap & Hset)".
       iFrame. iApply (big_sepS_impl with "Hset").
       iModIntro. iIntros ([γ1' γ2'] Hel'). iDestruct 1 as (Ψ) "(I' & Hvar & Hcred)".
       iFrame "I'". rewrite !bool_decide_decide.
       destruct decide, decide; [iFrame| | lia | iFrame].
-      assert (S n = k) as Heq by lia. rewrite Heq lookup_delete in Hel.
+      assert (S n = k) as Heq by lia. rewrite Heq lookup_delete_eq in Hel.
       naive_solver.
   Qed.
 
@@ -320,7 +320,7 @@ Section counter_proof.
     { rewrite /pred_infinite. intros xs. pose (γ1 := fresh (xs ++ (fst <$> elements O))).
       exists γ1; split.
       - intros γ2. intros Hel. eapply (infinite_is_fresh (xs ++ (elements O).*1)).
-        eapply elem_of_app; right. eapply elem_of_list_fmap_1_alt; first eapply elem_of_elements, Hel.
+        eapply elem_of_app; right. eapply list_elem_of_fmap_2'; first eapply elem_of_elements, Hel.
         done.
       - intros Hel. eapply (infinite_is_fresh (xs ++ (elements O).*1)).
         eapply elem_of_app; left. eapply Hel. }
