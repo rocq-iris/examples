@@ -81,7 +81,6 @@ Proof.
   intros Hvl; apply set_eq=> i. rewrite !elem_of_dom lookup_omap.
   specialize (Hvl i). split.
   - revert Hvl; case _ : (G !! i) => [[]|] //=; eauto.
-    intros _ [? Hgi]; inversion Hgi.
   - intros Hgi; revert Hgi Hvl. intros [[] Hgi]; rewrite Hgi; inversion 1; eauto.
 Qed.
 
