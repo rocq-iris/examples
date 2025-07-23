@@ -180,7 +180,7 @@ Section contents.
            end;
     (* Normalize away equalities. *)
     repeat match goal with
-           | H : _ ≡{_}≡ _ |-  _ => apply (discrete_iff _ _) in H
+           | H : _ ≡{_}≡ _ |-  _ => apply (discrete_iff _ _ _) in H
            | _ => progress simplify_eq
            end;
     (* repeatedly apply congruence lemmas and use the equalities in the hypotheses. *)
