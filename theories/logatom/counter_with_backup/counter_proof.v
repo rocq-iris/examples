@@ -3,7 +3,7 @@ From iris.base_logic Require Import ghost_map ghost_var mono_nat.
 From iris.bi.lib Require Import fractional.
 From iris.base_logic Require Import invariants.
 From iris.program_logic Require Import atomic.
-From iris.proofmode Require Import tactics.
+From iris.proofmode Require Import proofmode.
 From iris.heap_lang Require Import proofmode notation atomic_heap.
 From iris_examples.logatom.counter_with_backup Require Import counter_spec.
 From iris.prelude Require Import options.
