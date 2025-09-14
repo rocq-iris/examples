@@ -1,4 +1,5 @@
 From stdpp Require Import tactics.
+From iris.algebra Require Export stepindex_finite.
 From iris.bi Require Import bi.
 From iris.prelude Require Import options.
 
