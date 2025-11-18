@@ -13,7 +13,6 @@ Definition clProp_emp : clProp := clProp_pure True.
 Definition clProp_sep : clProp → clProp → clProp := clProp_and.
 Definition clProp_wand : clProp → clProp → clProp := clProp_impl.
 Definition clProp_persistently (P : clProp) : clProp := P.
-Definition clProp_plainly (P : clProp) : clProp := P.
 Definition clProp_later (P : clProp) : clProp := P.
 
 Local Existing Instance entails_po.
@@ -106,18 +105,6 @@ Canonical Structure clPropI : bi :=
      bi_bi_persistently_mixin := clProp_bi_persistently_mixin;
      bi_bi_later_mixin := clProp_bi_later_mixin |}.
 
-Lemma clProp_plainly_mixin : BiPlainlyMixin clPropI clProp_plainly.
-Proof.
-  split; try done.
-  - solve_proper.
-  - (* P ⊢ ■ emp *)
-    intros P. by apply pure_intro.
-  - (* ■ P ∗ Q ⊢ ■ P *)
-    intros P Q. apply and_elim_l.
-Qed.
-Global Instance clProp_plainlyC : BiPlainly clPropI :=
-  {| bi_plainly_mixin := clProp_plainly_mixin |}.
-
 (** extra BI instances *)
 
 Global Instance clProp_affine : BiAffine clPropI | 0.
@@ -126,12 +113,7 @@ Proof. intros P. exact: pure_intro. Qed.
 many lemmas that have [BiAffine] as a premise. *)
 Global Hint Immediate clProp_affine : core.
 
-Global Instance clProp_plain (P : clProp) : Plain P | 0.
-Proof. done. Qed.
 Global Instance clProp_persistent (P : clProp) : Persistent P.
-Proof. done. Qed.
-
-Global Instance clProp_plainly_exist_1 : BiPlainlyExist clPropI.
 Proof. done. Qed.
 
 Module clProp.

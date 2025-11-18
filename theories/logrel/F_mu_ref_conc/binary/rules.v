@@ -166,7 +166,7 @@ Section cfg.
   Lemma pointstoS_agree l q1 q2 v1 v2 : l ↦ₛ{q1} v1 -∗ l ↦ₛ{q2} v2 -∗ ⌜v1 = v2⌝.
   Proof.
     apply entails_wand, wand_intro_r.
-    rewrite /heapS_pointsto -own_op own_valid uPred.discrete_valid. f_equiv.
+    rewrite /heapS_pointsto -own_op own_valid internal_cmra_valid_discrete. f_equiv.
     rewrite auth_frag_op_valid -pair_op singleton_op -pair_op.
     rewrite pair_valid singleton_valid pair_valid to_agree_op_valid_L.
     by intros [_ [_ [=]]].
@@ -179,7 +179,7 @@ Section cfg.
   Qed.
   Lemma pointstoS_valid l q v : l ↦ₛ{q} v -∗ ✓ q.
   Proof.
-    rewrite /heapS_pointsto own_valid !discrete_valid auth_frag_valid.
+    rewrite /heapS_pointsto own_valid !internal_cmra_valid_discrete auth_frag_valid.
     by apply entails_wand, pure_mono=> -[_] /singleton_valid [??].
   Qed.
   Lemma pointstoS_valid_2 l q1 q2 v1 v2 :

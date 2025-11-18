@@ -58,7 +58,7 @@ Proof.
   iDestruct 1 as (x) "[#Hγ Hx]"; iDestruct 1 as (x') "[#Hγ' Hx']".
   iAssert (▷ (x ≡ x'))%I as "Hxx".
   { iCombine "Hγ" "Hγ'" as "Hγ2". iClear "Hγ Hγ'".
-    rewrite own_valid csum_validI /= agree_validI agree_equivI later_equivI /=.
+    rewrite own_valid csum_validI /= agree_op_invI agree_equivI later_equivI /=.
     rewrite -{2}[x]oFunctor_map_id -{2}[x']oFunctor_map_id.
     assert (HF : oFunctor_map F (cid, cid) ≡ oFunctor_map F (iProp_fold (Σ:=Σ) ◎
         iProp_unfold, iProp_fold (Σ:=Σ) ◎ iProp_unfold)).

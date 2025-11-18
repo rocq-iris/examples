@@ -80,7 +80,7 @@ Section proof.
     bag_contents γb X -∗ bag_contents γb Y -∗ ⌜X = Y⌝.
   Proof.
     rewrite /bag_contents. apply bi.entails_wand, bi.wand_intro_r.
-    rewrite -own_op own_valid uPred.discrete_valid.
+    rewrite -own_op own_valid internal_cmra_valid_discrete.
     f_equiv=> /=. rewrite -pair_op.
     by intros [_ ?%to_agree_op_inv_L].
   Qed.
