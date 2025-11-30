@@ -577,10 +577,9 @@ Section proof.
       (* Combine the left and right we have into a both. *)
       iDestruct (left_right_to_both with "Left Right") as "Both".
       iDestruct (ticket_i_gt_zero with "Issued Auth") as "(% & Issued & Auth)".
-      iMod (own_update with "[Issued Auth Locked]") as "Hγ".
+      iMod (own_update_2 with "Auth [Issued Locked]") as "[Locked Auth]".
       { apply frame_update_lemma_discard_ticket. }
-      { rewrite own_op own_op. iFrame. }
-      iDestruct "Hγ" as "[Locked Auth]".
+      { rewrite own_op. iFrame. }
       iDestruct (invitation_split_one with "Invs") as "[Invs Inv]"; first done.
       iMod ("Close" with "[nextPts Invs Auth isArr Both R Locked]") as "_".
       { iNext. iExists (o + 1), (i - 1), (list_with_one cap ((o + 1) `mod` cap)).
