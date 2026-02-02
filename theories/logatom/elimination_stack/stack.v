@@ -84,7 +84,8 @@ Section stack.
       end.
 
   (** * Proof *)
-  Context `{!heapGS Σ, !stackG Σ, !atomic_heapGS Σ} (N : namespace).
+  Context `{!heapGS Σ, !stackG Σ, !atomic_heapGS Σ}
+    (N : namespace).
   Notation iProp := (iProp Σ).
 
   Let offerN := N .@ "offer".
@@ -142,7 +143,7 @@ Section stack.
   Local Hint Extern 0 (environments.envs_entails _ (offer_inv _ _ _ _)) => unfold offer_inv : core.
 
   Definition stack_push_au γs v Q : iProp :=
-    AU <{ ∃∃ l, stack_content γs l }> @ ⊤∖↑N, ∅ <{ stack_content γs (v::l), COMM Q }>.
+    AU <{ ∃∃ l, stack_content γs l }> @ ⊤ ∖ (↑N ∪ ↑atomic_heapN), ∅ <{ stack_content γs (v::l), COMM Q }>.
 
   Definition is_offer (γs : gname) (offer_rep : option (val * loc)) :=
     match offer_rep with
@@ -168,43 +169,45 @@ Section stack.
   Local Hint Extern 0 (environments.envs_entails _ (stack_inv _ _ _)) => unfold stack_inv : core.
 
   Definition is_stack (γs : gname) (s : val) : iProp :=
-    (∃ head offer : loc, ⌜s = (#head, #offer)%V⌝ ∗ inv stackN (stack_inv γs head offer))%I.
+    (⌜N ## atomic_heapN⌝ ∗ heap_inv ∗
+     ∃ head offer : loc, ⌜s = (#head, #offer)%V⌝ ∗ inv stackN (stack_inv γs head offer))%I.
   Global Instance is_stack_persistent γs s : Persistent (is_stack γs s) := _.
 
   (** Proofs. *)
   Lemma new_stack_spec :
+    N ## atomic_heapN →
+    heap_inv -∗
     {{{ True }}} new_stack #() {{{ γs s, RET s; is_stack γs s ∗ stack_content γs [] }}}.
   Proof.
-    iIntros (Φ) "_ HΦ". wp_lam. wp_pures.
-    wp_apply alloc_spec; first done. iIntros (head) "Hhead". wp_pures.
-    wp_apply alloc_spec; first done. iIntros (offer) "Hoffer". wp_pures.
+    iIntros "%HN #Hheap %Φ _ !> HΦ". wp_lam. wp_pures.
+    wp_apply alloc_spec; [done..|]. iIntros (head) "Hhead". wp_pures.
+    wp_apply alloc_spec; [done..|]. iIntros (offer) "Hoffer". wp_pures.
     iMod (own_alloc (● Excl' [] ⋅ ◯ Excl' [])) as (γs) "[Hs● Hs◯]".
     { apply auth_both_valid_discrete. split; done. }
     iMod (inv_alloc stackN _ (stack_inv γs head offer) with "[-HΦ Hs◯]").
     { iNext. iExists None, None, _. iFrame. done. }
-    iApply "HΦ". iFrame "Hs◯". iModIntro. iExists _, _. auto.
+    iApply "HΦ". by iFrame "∗#%".
   Qed.
 
   Lemma push_spec γs s (v : val) :
     is_stack γs s -∗
     <<{ ∀∀ l : list val, stack_content γs l }>>
-      push s v @ ↑N
+      push s v @ (↑N ∪ ↑atomic_heapN)
     <<{ stack_content γs (v::l) | RET #() }>>.
   Proof.
-    iIntros "#Hinv". iIntros (Φ) "AU".
-    iDestruct "Hinv" as (head offer) "[% #Hinv]". subst s.
+    iIntros "#(%HN & Hheap & %head & %offer & [-> #Hinv]) %Φ AU".
     iLöb as "IH".
     wp_lam. wp_pures.
     (* Load the old head. *)
-    awp_apply load_spec without "AU".
+    awp_apply load_spec without "AU"; first done.
     iInv stackN as (stack_rep offer_rep l) "(Hs● & >H↦ & Hrem)".
     iAaccIntro with "H↦"; first by eauto 10 with iFrame.
     iIntros "?". iSplitL; first by eauto 10 with iFrame.
     iIntros "!> AU". clear offer_rep l.
     (* Go on. *)
-    wp_pures. wp_apply alloc_spec; first done. iIntros (head_new) "Hhead_new".
+    wp_pures. wp_apply alloc_spec; [done..|]. iIntros (head_new) "Hhead_new".
     (* CAS to change the head. *)
-    wp_pures. awp_apply cas_spec; [by destruct stack_rep|].
+    wp_pures. awp_apply cas_spec; [by destruct stack_rep|done|].
     iInv stackN as (stack_rep' offer_rep l) "(>Hs● & >H↦ & Hlist & Hoffer)".
     iAaccIntro with "H↦"; first by eauto 10 with iFrame.
     iIntros "H↦".
@@ -225,9 +228,9 @@ Section stack.
       iModIntro. iSplitR "AU"; first by eauto 8 with iFrame.
       clear stack_rep stack_rep' offer_rep l head_new.
       wp_if.
-      wp_apply alloc_spec; first done. iIntros (st_loc) "Hoffer_st".
+      wp_apply alloc_spec; [done..|]. iIntros (st_loc) "Hoffer_st".
       (* Make the offer *)
-      wp_pures. awp_apply store_spec.
+      wp_pures. awp_apply store_spec; first done.
       iInv stackN as (stack_rep offer_rep l) "(Hs● & >H↦ & Hlist & >Hoffer↦ & Hoffer)".
       iAaccIntro with "Hoffer↦"; first by eauto 10 with iFrame.
       iMod (own_alloc (Excl ())) as (γo) "Htok"; first done.
@@ -238,7 +241,7 @@ Section stack.
         rewrite /is_offer /=. iExists _, _. iFrame "Hoinv". done. }
       clear stack_rep offer_rep l. iIntros "!>".
       (* Retract the offer. *)
-      wp_pures. awp_apply store_spec.
+      wp_pures. awp_apply store_spec; first done.
       iInv stackN as (stack_rep offer_rep l) "(Hs● & >H↦ & Hlist & >Hoffer↦ & Hoffer)".
       iAaccIntro with "Hoffer↦"; first by eauto 10 with iFrame.
       iIntros "?". iSplitR "Htok".
@@ -247,7 +250,7 @@ Section stack.
       wp_pure credit:"Hlc". wp_pures.
       clear stack_rep offer_rep l.
       (* See if someone took it. *)
-      awp_apply cas_spec; [done|].
+      awp_apply cas_spec; [done..|].
       iInv offerN as (offer_st) "[>Hst↦ Hst]".
       iAaccIntro with "Hst↦"; first by eauto 10 with iFrame.
       iIntros "Hst↦". destruct offer_st; simpl.
@@ -271,15 +274,14 @@ Section stack.
   Lemma pop_spec γs (s : val) :
     is_stack γs s -∗
     <<{ ∀∀ l, stack_content γs l }>>
-      pop s @ ↑N
+      pop s @ (↑N ∪ ↑atomic_heapN)
     <<{ stack_content γs (tail l)
       | RET match l with [] => NONEV | v :: _ => SOMEV v end }>>.
   Proof.
-    iIntros "#Hinv". iIntros (Φ) "AU".
-    iDestruct "Hinv" as (head offer) "[% #Hinv]". subst s.
+    iIntros "#(%HN & Hheap & %head & %offer & [-> #Hinv]) %Φ AU".
     iLöb as "IH". wp_lam. wp_pures.
     (* Load the old head *)
-    awp_apply load_spec.
+    awp_apply load_spec; first done.
     iInv stackN as (stack_rep offer_rep l) "(>Hs● & >H↦ & Hlist & Hrem)".
     iAaccIntro with "H↦"; first by eauto 10 with iFrame.
     iIntros "?". destruct l as [|v l]; simpl.
@@ -297,10 +299,12 @@ Section stack.
       iSplitR "AU Htail"; first by eauto 15 with iFrame.
       clear offer_rep l.
       iIntros "!>". wp_match.
-      wp_apply (atomic_wp_seq $! (load_spec _) with "Htail").
+      iPoseProof (load_spec with "Hheap") as "H".
+      wp_apply (atomic_wp_seq with "H Htail").
+      iClear "H".
       iIntros "_". wp_pures.
       (* CAS to change the head *)
-      awp_apply cas_spec; [done|].
+      awp_apply cas_spec; [done..|].
       iInv stackN as (stack_rep offer_rep l) "(>Hs● & >H↦ & Hlist & Hrem)".
       iAaccIntro with "H↦"; first by eauto 10 with iFrame.
       iIntros "H↦". change (InjRV #tail) with (stack_elem_to_val (Some tail)).
@@ -326,7 +330,7 @@ Section stack.
         iIntros "!>". wp_if. iClear (rep stack_rep offer_rep l tail v) "Htail".
         wp_proj.
         (* Load the offer pointer. *)
-        awp_apply load_spec.
+        awp_apply load_spec; first done.
         iInv stackN as (stack_rep offer_rep l) "(>Hs● & >H↦ & Hlist & >Hoff↦ & #Hoff)".
         iAaccIntro with "Hoff↦"; first by eauto 10 with iFrame.
         iIntros "Hoff↦". iSplitR "AU"; first by eauto 10 with iFrame.
@@ -335,7 +339,7 @@ Section stack.
         clear l stack_rep.
         wp_pure credit:"Hlc". wp_pures.
         (* CAS to accept the offer. *)
-        awp_apply cas_spec; [done|]. simpl.
+        awp_apply cas_spec; [done..|]. simpl.
         iDestruct "Hoff" as (Qoff γo) "#Hoinv".
         iInv offerN as (offer_st) "[>Hoff↦ Hoff]".
         iAaccIntro with "Hoff↦"; first by eauto 10 with iFrame.

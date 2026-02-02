@@ -1,9 +1,10 @@
 From iris.program_logic Require Import atomic.
 From iris.heap_lang Require Import proofmode notation.
+From iris.heap_lang.lib Require Import atomic_heap.
 From iris.prelude Require Import options.
 
 (** A general logically atomic interface for a stack. *)
-Record atomic_stack {Σ} `{!heapGS Σ} := AtomicStack {
+Record atomic_stack {Σ} `{!heapGS Σ, !atomic_heap, !atomic_heapGS Σ} := AtomicStack {
   (* -- operations -- *)
   new_stack : val;
   push : val;
@@ -22,20 +23,22 @@ Record atomic_stack {Σ} `{!heapGS Σ} := AtomicStack {
     stack_content γs l1 -∗ stack_content γs l2 -∗ False;
   (* -- operation specs -- *)
   new_stack_spec N :
+    N ## atomic_heapN →
+    heap_inv -∗
     {{{ True }}} new_stack #() {{{ γs s, RET s; is_stack N γs s ∗ stack_content γs [] }}};
-  push_spec N γs s (v : val) :
+  push_spec N  γs s (v : val) :
     is_stack N γs s -∗
     <<{ ∀∀ l : list val, stack_content γs l }>>
-      push s v @ ↑N
+      push s v @ (↑N ∪ ↑atomic_heapN)
     <<{ stack_content γs (v::l) | RET #() }>>;
   pop_spec N γs s :
     is_stack N γs s -∗
     <<{ ∀∀ l : list val, stack_content γs l }>>
-      pop s @ ↑N
+      pop s @ (↑N ∪ ↑atomic_heapN)
     <<{ stack_content γs (tail l)
       | RET match l with [] => NONEV | v :: _ => SOMEV v end }>>;
 }.
-Global Arguments atomic_stack _ {_}.
+Global Arguments atomic_stack _ {_ _ _}.
 
 Global Existing Instances
   is_stack_persistent stack_content_timeless

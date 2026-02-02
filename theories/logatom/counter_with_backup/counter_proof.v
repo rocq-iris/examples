@@ -90,7 +90,7 @@ Section counter_proof.
   Context `{!heapGS Σ}
           `{!atomic_heap, !atomic_heapGS Σ}
           `{!counterG Σ}.
-  Context (N: namespace).
+  Context (N : namespace).
   Import atomic_heap.notation.
 
   (** ** Invariants *)
@@ -105,12 +105,12 @@ Section counter_proof.
 
   (** Invariant for transfer of atomic update (helping) of [get] *)
   Definition get_inv γs (γ1 γ2 : gname) (n : nat) (Φ : val → iProp Σ) : iProp Σ :=
-    ((AU <{ ∃∃ n: nat, value γs n }> @ ⊤ ∖ ↑N, ∅ <{ value γs n, COMM (Φ #n) }> ∗ ghost_var γ1 (1/2) true ∗ £ 1) ∨
+    ((AU <{ ∃∃ n: nat, value γs n }> @ ⊤ ∖ (↑N ∪ ↑atomic_heapN), ∅ <{ value γs n, COMM (Φ #n) }> ∗ ghost_var γ1 (1/2) true ∗ £ 1) ∨
      (ghost_var γ1 (1/2) false ∗ Φ #n) ∨ (ghost_var γ1 (1/2) false ∗ own γ2 (Excl ()))).
 
   (** Invariant for transfer of atomic update (helping) of [put] *)
   Definition put_inv γs (γ1 γ2 : gname) (n : nat) (Φ : val → iProp Σ): iProp Σ :=
-    ((AU <{ ∃∃ n: nat, value γs n }> @ ⊤ ∖ ↑N, ∅ <{ value γs (n + 1), COMM (Φ #n) }> ∗ ghost_var γ1 (1/2) true ∗ £ 1) ∨
+    ((AU <{ ∃∃ n: nat, value γs n }> @ ⊤ ∖ (↑N ∪ ↑atomic_heapN), ∅ <{ value γs (n + 1), COMM (Φ #n) }> ∗ ghost_var γ1 (1/2) true ∗ £ 1) ∨
      (ghost_var γ1 (1/2) false ∗ Φ #n) ∨ (ghost_var γ1 (1/2) false ∗ own γ2 (Excl ()))).
 
   (** The part of the main counter invariant that controls execution of [put]s *)
@@ -141,21 +141,23 @@ Section counter_proof.
 
   (** Assertion that [c] represents a counter [γs] *)
   Definition is_counter γs (c: val): iProp Σ :=
+    ⌜N ## atomic_heapN⌝ ∗ heap_inv ∗
     ∃ (b p: loc) (γ_prim γ_get γ_put: gname), ⌜c = (#b, #p)%V⌝ ∗ inv mainN (counter_inv γs γ_prim γ_get γ_put b p).
 
   (** ** Lemmas about the invariant that will be used by the main proofs *)
   Lemma logically_execute_put γ_cnt γ_ex P n n_p :
+    N ## atomic_heapN →
     n < n_p →
     counter_inv_puts (γ_cnt, γ_ex) P n n_p -∗
     counter_int γ_cnt n -∗
     counter_int γ_cnt n -∗
-    counter_int γ_cnt n ={⊤ ∖ ↑mainN}=∗
+    counter_int γ_cnt n ={⊤ ∖ ↑atomic_heapN ∖ ↑mainN}=∗
     counter_inv_puts (γ_cnt, γ_ex) P (S n) n_p ∗
     counter_int γ_cnt (S n) ∗
     counter_int γ_cnt (S n) ∗
     counter_int γ_cnt (S n).
   Proof.
-    rewrite /counter_inv_puts. iIntros (Hlt) "Hmap Hc1 Hc2 Hc3".
+    rewrite /counter_inv_puts. iIntros (HN Hlt) "Hmap Hc1 Hc2 Hc3".
     iDestruct "Hmap" as "(%Hdom & Hmap)".
     assert (n ∈ dom P) as Hdom'.
     { rewrite -Hdom. eapply elem_of_list_to_set, elem_of_seq. lia. }
@@ -195,10 +197,11 @@ Section counter_proof.
   Qed.
 
   Lemma logicall_execute_gets_set γ_cnt γ_ex n O :
-    (⊢ (counter_int γ_cnt (S n) ∗ [∗ set] p ∈ O, ∃ Φ, inv getN (get_inv (γ_cnt, γ_ex) p.1 p.2 (S n) Φ) ∗  ghost_var p.1 (1 / 2) true) ={⊤∖↑mainN}=∗
+    N ## atomic_heapN →
+    (⊢ (counter_int γ_cnt (S n) ∗ [∗ set] p ∈ O, ∃ Φ, inv getN (get_inv (γ_cnt, γ_ex) p.1 p.2 (S n) Φ) ∗  ghost_var p.1 (1 / 2) true) ={⊤ ∖ ↑atomic_heapN ∖ ↑mainN}=∗
     counter_int γ_cnt (S n) ∗ [∗ set] p ∈ O, ∃ Φ, inv getN (get_inv (γ_cnt, γ_ex) p.1 p.2 (S n) Φ) ∗  ghost_var p.1 (1 / 2) false)%I.
   Proof.
-    induction (set_wf O) as [O _ IH].
+    intros HN. induction (set_wf O) as [O _ IH].
     iIntros "Hset". destruct (decide (O = ∅)) as [->|[i Hi]%set_choose_L].
     - rewrite !big_sepS_empty. done.
     - rewrite !(big_sepS_delete _ O) //.
@@ -220,10 +223,11 @@ Section counter_proof.
   Qed.
 
   Lemma logically_execute_gets γ_cnt γ_ex G n :
-    counter_inv_gets (γ_cnt, γ_ex) G n ∗ counter_int γ_cnt (S n) ={⊤ ∖ ↑mainN}=∗
+    N ## atomic_heapN →
+    counter_inv_gets (γ_cnt, γ_ex) G n ∗ counter_int γ_cnt (S n) ={⊤ ∖ ↑atomic_heapN ∖ ↑mainN}=∗
     counter_inv_gets (γ_cnt, γ_ex) G (S n) ∗ counter_int γ_cnt (S n).
   Proof.
-    rewrite /counter_inv_gets.
+    intros HN. rewrite /counter_inv_gets.
     iIntros "[Hgets Hc]".
     destruct (G !! (S n)) as [γ|] eqn: Hlook.
     - rewrite !(big_sepM_delete _ G) //.
@@ -231,7 +235,7 @@ Section counter_proof.
       rewrite bool_decide_decide; destruct decide; last lia.
       rewrite bool_decide_decide; destruct decide; first lia.
       iDestruct "Hget" as (O) "[Hmap Hset]".
-      iMod (logicall_execute_gets_set with "[$Hc $Hset]") as "[Hc Hset]".
+      iMod (logicall_execute_gets_set with "[$Hc $Hset]") as "[Hc Hset]"; first done.
       iModIntro. iFrame.
       iApply (big_sepM_impl with "Hgets"). iModIntro.
       iIntros (k γ' Hel). iDestruct 1 as (O') "(Hmap & Hset)".
@@ -253,25 +257,26 @@ Section counter_proof.
   Qed.
 
   Lemma logically_execute_gets_and_puts γ_cnt γ_ex P G n_b n n_p:
+    N ## atomic_heapN →
     n_b ≤ n ≤ n_p →
     counter_inv_puts (γ_cnt, γ_ex) P n_b n_p -∗
     counter_inv_gets (γ_cnt, γ_ex) G n_b -∗
     counter_int γ_cnt n_b -∗
     counter_int γ_cnt n_b -∗
-    counter_int γ_cnt n_b ={⊤ ∖ ↑mainN}=∗
+    counter_int γ_cnt n_b ={⊤ ∖ ↑atomic_heapN ∖ ↑mainN}=∗
     counter_inv_puts (γ_cnt, γ_ex) P n n_p ∗
     counter_inv_gets (γ_cnt, γ_ex) G n ∗
     counter_int γ_cnt n ∗
     counter_int γ_cnt n ∗
     counter_int γ_cnt n.
   Proof.
-    intros [Hle1 Hle2].
+    intros HN [Hle1 Hle2].
     induction Hle1 as [|n Hle1 IH].
     - by iIntros "$ $ $ $ $".
     - iIntros "Hputs Hgets Hc1 Hc2 Hc3".
       iMod (IH with "Hputs Hgets Hc1 Hc2 Hc3") as "(Hputs & Hgets & Hc1 & Hc2 & Hc3)"; first lia; clear IH.
-      iMod (logically_execute_put with "Hputs Hc1 Hc2 Hc3") as "(Hputs & Hc1 & Hc2 & Hc3)"; first lia.
-      iMod (logically_execute_gets with "[$Hgets $Hc1]") as "(Hgets & Hc1)".
+      iMod (logically_execute_put with "Hputs Hc1 Hc2 Hc3") as "(Hputs & Hc1 & Hc2 & Hc3)"; [done|lia|].
+      iMod (logically_execute_gets with "[$Hgets $Hc1]") as "(Hgets & Hc1)"; first done.
       iModIntro. iFrame.
   Qed.
 
@@ -305,7 +310,7 @@ Section counter_proof.
 
   Lemma counter_inv_inner_register_get Φ E γs γ_prim γ_get γ_put γ b p G P n_b n_p :
     n_b < n_p →
-    AU <{ ∃∃ n: nat, value γs n }> @ ⊤ ∖ ↑N, ∅ <{ value γs n, COMM (Φ #n) }> -∗
+    AU <{ ∃∃ n: nat, value γs n }> @ ⊤ ∖ (↑N ∪ ↑atomic_heapN), ∅ <{ value γs n, COMM (Φ #n) }> -∗
     £ 1 -∗
     n_p ↪[ γ_get ]□ γ -∗
     counter_inv_inner γs γ_prim γ_get γ_put b p G P n_b n_p ={E}=∗
@@ -346,7 +351,7 @@ Section counter_proof.
 
   Lemma counter_inv_inner_register_put Φ E γs γ_prim γ_get γ_put b p G P n_b n_p :
     n_b ≤ n_p →
-    AU <{ ∃∃ n: nat, value γs n }> @ ⊤ ∖ ↑N, ∅ <{ value γs (n + 1), COMM (Φ #n) }> -∗
+    AU <{ ∃∃ n: nat, value γs n }> @ ⊤ ∖ (↑N ∪ ↑atomic_heapN), ∅ <{ value γs (n + 1), COMM (Φ #n) }> -∗
     £ 1 -∗
     b ↦ #n_b -∗
     p ↦ #(S n_p) -∗
@@ -469,16 +474,18 @@ Section counter_proof.
 
   (** ** Proving the actual specs for the counter operations *)
   (** *** Specs for the helper functions *)
-  Lemma backup_thread_spec γ_cnt γ_ex γ_prim γ_get γ_put n (b p : loc):
+  Lemma backup_thread_spec γ_cnt γ_ex γ_prim γ_get γ_put n (b p : loc) :
+    N ## atomic_heapN →
+    heap_inv -∗
     inv mainN (counter_inv (γ_cnt, γ_ex) γ_prim γ_get γ_put b p) -∗
     counter_int γ_cnt n -∗
     counter_int γ_cnt n -∗
     WP backup_thread (#b, #p)%V {{ _, True }}.
   Proof.
-    iIntros "#I". iRevert (n). iLöb as "IH". iIntros (n) "Cnt Cnt2".
+    iIntros (HN) "#Hheap #I". iRevert (n). iLöb as "IH". iIntros (n) "Cnt Cnt2".
     rewrite {2}/backup_thread.
     wp_pure credit:"Hone". wp_pures.
-    awp_apply load_spec.
+    awp_apply (load_spec with "Hheap").
     iInv "I" as (G P n_b n_p) "(>%Hn & >Hb & >Hp & >Hcnt & >Hprim & Hrest)".
     iAaccIntro with "Hp".
     { iIntros "?". iModIntro. rewrite /counter_inv /counter_inv_inner. by iFrame. }
@@ -487,15 +494,15 @@ Section counter_proof.
     iModIntro. iSplitR "Cnt Cnt2 Hone".
     { iNext. rewrite /counter_inv /counter_inv_inner. iExists G, P, n, n_p. eauto with iFrame. }
     wp_pures.
-    awp_apply store_spec. clear -Hn.
-    rewrite difference_empty_L.
+    awp_apply (store_spec with "Hheap"). clear - HN Hn.
     iInv "I" as (G P n_b n_p') "(>% & >Hb & >Hp & >Hcnt & >Hprim & Hrest)".
     iDestruct (mono_nat_auth_own_agree with "Hcnt Cnt") as %[_ ->].
     iDestruct (mono_nat_lb_own_valid with "Hprim Hn_p") as %[_ Hle].
     iAaccIntro with "Hb".
     { iIntros "Hb". iFrame. iPureIntro. lia. }
     iIntros "Hb". iMod (lc_fupd_elim_later with "Hone Hrest") as "(HG & #Hlook & HP & Hgets & Hputs)".
-    iMod (logically_execute_gets_and_puts _ _ _ _ _ n_p with "Hputs Hgets Cnt Cnt2 Hcnt") as "(Hputs & Hgets & Cnt & Cnt2 & Hcnt)"; first (split; by eauto).
+    iMod (logically_execute_gets_and_puts _ _ _ _ _ n_p with "Hputs Hgets Cnt Cnt2 Hcnt") as "(Hputs & Hgets & Cnt & Cnt2 & Hcnt)";
+      [done | split; by eauto |].
     iModIntro. iSplitR "Cnt Cnt2".
     { iNext. rewrite /counter_inv /counter_inv_inner.
       iExists G, P, _, _. eauto with iFrame. }
@@ -504,12 +511,14 @@ Section counter_proof.
 
 
   Lemma await_backup_spec (γ_cnt γ_ex γ_prim γ_get γ_put : gname) (b p : loc) (n : nat) :
+    N ## atomic_heapN →
+    heap_inv -∗
     inv mainN (counter_inv (γ_cnt, γ_ex) γ_prim γ_get γ_put b p) -∗
     WP (await_backup #b #n) {{ _, mono_nat_lb_own γ_cnt n }}.
   Proof.
-    iIntros"#I". iLöb as "IH".
+    iIntros (HN) "#Hheap #I". iLöb as "IH".
     rewrite /await_backup. wp_pures.
-    awp_apply load_spec. iInv "I" as (G P n_b n_p) "(>Hle & >Hb & >Hp & >Hcnt & >Hprim & >HG &>#Hlook & >HP & Hget & Hput)".
+    awp_apply (load_spec with "Hheap"). iInv "I" as (G P n_b n_p) "(>Hle & >Hb & >Hp & >Hcnt & >Hprim & >HG &>#Hlook & >HP & Hget & Hput)".
     iAaccIntro with "Hb".
     { iIntros "Hb !>". rewrite right_id. iExists G, P, n_b, n_p.
      rewrite /counter_inv_inner. eauto with iFrame. }
@@ -527,13 +536,14 @@ Section counter_proof.
 
   (** *** Proof of [get] *)
   Lemma get_spec γs (c : val) :
-    is_counter γs c -∗ <<{ ∀∀ (n : nat), value γs n }>> (get c) @ ↑N <<{ value γs n | RET #n}>>.
+    is_counter γs c -∗
+    <<{ ∀∀ (n : nat), value γs n }>> (get c) @ (↑N ∪ ↑atomic_heapN) <<{ value γs n | RET #n}>>.
   Proof.
-    iIntros "Counter". iIntros (Φ) "AU". destruct γs as [γ_cnt γ_ex].
-    iDestruct "Counter" as (b p γ_prim γ_get γ_put) "(-> & #I)".
+    iIntros "(%HN & #Hheap & %b & %p & %γ_prim & %γ_get & %γ_put & -> & #I) %Φ AU".
+    destruct γs as [γ_cnt γ_ex].
     rewrite /get.
     wp_pure credit:"Hone". wp_pure credit:"Hone'".
-    awp_apply load_spec.
+    awp_apply (load_spec with "Hheap").
     iInv "I" as (G P n_b n_p) "(>% & >Hb & >Hp & Hrest)".
     iAaccIntro with "Hp".
     { iIntros "Hp". iModIntro. iFrame. eauto. }
@@ -565,12 +575,13 @@ Section counter_proof.
 
   (** *** Proof of [get_backup] *)
   Lemma get_backup_spec γs (c: val) :
-    is_counter γs c -∗ <<{ ∀∀ (n: nat), value γs n }>> (get_backup c) @ ↑N <<{ value γs n | RET #n}>>.
+    is_counter γs c -∗
+    <<{ ∀∀ (n: nat), value γs n }>> (get_backup c) @ (↑N ∪ ↑atomic_heapN) <<{ value γs n | RET #n}>>.
   Proof.
-    iIntros "Counter". iIntros (Φ) "AU". destruct γs as [γ_cnt γ_ex].
-    iDestruct "Counter" as (b p γ_prim γ_get γ_put) "(-> & #I)".
+    iIntros "(%HN & #Hheap & %b & %p & %γ_prim & %γ_get & %γ_put & -> & #I) %Φ AU".
+    destruct γs as [γ_cnt γ_ex].
     rewrite /get_backup. wp_pure credit:"Hone". wp_pure credit:"Hone'". wp_pures.
-    awp_apply load_spec.
+    awp_apply (load_spec with "Hheap").
     iInv "I" as (G P n_b n_p) "(>% & >Hb & >Hp & Hrest)".
     iAaccIntro with "Hb".
     { iIntros "Hb". iModIntro. by iFrame. }
@@ -586,12 +597,13 @@ Section counter_proof.
 
   (** *** Proof of [increment] *)
   Lemma increment_spec γs (c: val) :
-    is_counter γs c -∗ <<{ ∀∀ (n: nat), value γs n }>> (increment c) @ ↑N <<{ value γs (n + 1) | RET #n}>>.
+    is_counter γs c -∗
+    <<{ ∀∀ (n: nat), value γs n }>> (increment c) @ (↑N ∪ ↑atomic_heapN) <<{ value γs (n + 1) | RET #n}>>.
   Proof.
-    iIntros "Counter". iIntros (Φ) "AU". destruct γs as [γ_cnt γ_ex].
-    iDestruct "Counter" as (b p γ_prim γ_get γ_put) "(-> & #I)".
+    iIntros "(%HN & #Hheap & %b & %p & %γ_prim & %γ_get & %γ_put & -> & #I) %Φ AU".
+    destruct γs as [γ_cnt γ_ex].
     rewrite /increment. wp_pure credit:"Hone". wp_pure credit:"Hone'". wp_pures.
-    awp_apply faa_spec.
+    awp_apply (faa_spec with "Hheap").
     iInv "I" as (G P n_b n_p) "(>% & >Hb & >Hp & Hrest)".
     iAaccIntro with "Hp".
     { iIntros "Hp". iModIntro. by iFrame. }
@@ -602,7 +614,7 @@ Section counter_proof.
     iModIntro. iSplitL "Hinner"; first by rewrite /counter_inv; iNext; iExists G, _, n_b, (S n_p).
     wp_pure credit:"Hone". wp_pure credit:"Hone'". wp_pures.
     wp_bind (await_backup _ _). replace (n_p + 1)%Z with (S n_p : Z) by lia.
-    iApply wp_wand; first by iApply (await_backup_spec with "I").
+    iApply wp_wand; first by iApply (await_backup_spec with "Hheap I").
     iIntros (u) "#Hmon".
     iMod (counter_inv_extract_put_post with "[Hone Hone'] Htok I Hlook' I' Hmon").
     { rewrite (lc_succ 1). iFrame. }
@@ -611,12 +623,14 @@ Section counter_proof.
 
   (** *** Proof of [new_counter] *)
   Lemma new_counter_spec :
-  {{{ True }}} new_counter #() {{{ c γs, RET c; is_counter γs c ∗ value γs 0 }}}.
+    N ## atomic_heapN →
+    heap_inv -∗
+    {{{ True }}} new_counter #() {{{ c γs, RET c; is_counter γs c ∗ value γs 0 }}}.
   Proof.
-    iIntros (Φ) "_ HΦ". rewrite /new_counter. wp_pures.
-    wp_bind (ref _)%E. wp_apply alloc_spec; first done.
+    iIntros "%HN #Hheap %Φ _ !> HΦ". rewrite /new_counter. wp_pures.
+    wp_bind (ref _)%E. wp_apply (alloc_spec with "Hheap"); first done.
     iIntros (b) "Hb". wp_pures.
-    wp_apply alloc_spec; first done.
+    wp_apply (alloc_spec with "Hheap"); first done.
     iIntros (p) "Hp". wp_pures.
     iMod (ghost_map_alloc (∅ : gmap nat (gname * gname))) as (γ_put) "[HP _]".
     iMod (ghost_map_alloc (∅ : gmap nat gname)) as (γ_get) "[HG _]".
@@ -630,9 +644,9 @@ Section counter_proof.
       rewrite /counter_inv_gets /counter_inv_puts !big_sepM_empty dom_empty_L //. }
     wp_bind (Fork _).
     iApply (wp_fork with "[C2 C3]").
-    { iNext. wp_pures. iApply (backup_thread_spec with "I C2 C3"). }
+    { iNext. wp_pures. by iApply (backup_thread_spec with "Hheap I C2 C3"). }
     iNext. wp_pures. iModIntro. iApply ("HΦ" $! (#b, #p)%V (γ_cnt, γ_ex)).
-    iFrame. iExists b, p, γ_prim, γ_get, γ_put. iSplit; done.
+    by iFrame "%#∗".
   Qed.
 End counter_proof.
 
