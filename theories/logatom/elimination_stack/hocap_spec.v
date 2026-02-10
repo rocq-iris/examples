@@ -65,7 +65,7 @@ There is one differences to the [abstract_bag] spec:
 This spec uses the "authoritative" variant of HoCAP specs.
 See below for the "predicate"-based alternative *)
 Module hocap_auth.
-Record stack {Σ} `{!heapGS Σ} := AtomicStack {
+Record stack {Σ} `{!heapGS Σ, !atomic_heap, !atomic_heapGS Σ} := AtomicStack {
   (* -- operations -- *)
   new_stack : val;
   push : val;
@@ -94,19 +94,22 @@ Record stack {Σ} `{!heapGS Σ} := AtomicStack {
     |==> stack_content_frag γs l' ∗ stack_content_auth γs l';
   (* -- operation specs -- *)
   new_stack_spec N :
+    N ## atomic_heapN →
+    heap_inv -∗
     {{{ True }}} new_stack #() {{{ γs s, RET s; is_stack N γs s ∗ stack_content_frag γs [] }}};
   push_spec N γs s (v : val) (Φ : val → iProp Σ) :
     is_stack N γs s -∗
-    (∀ l, stack_content_auth γs l ={⊤∖↑N}=∗ stack_content_auth γs (v::l) ∗ Φ #()) -∗
+    (∀ l, stack_content_auth γs l ={⊤ ∖ (↑N ∪ ↑atomic_heapN)}=∗
+          stack_content_auth γs (v::l) ∗ Φ #()) -∗
     WP push s v {{ Φ }};
   pop_spec N γs s (Φ : val → iProp Σ) :
     is_stack N γs s -∗
-    (∀ l, stack_content_auth γs l ={⊤∖↑N}=∗
+    (∀ l, stack_content_auth γs l ={⊤ ∖ (↑N ∪ ↑atomic_heapN)}=∗
           match l with [] => stack_content_auth γs [] ∗ Φ NONEV
                 | v :: l' => stack_content_auth γs l' ∗ Φ (SOMEV v) end) -∗
     WP pop s {{ Φ }};
 }.
-Global Arguments stack _ {_}.
+Global Arguments stack _ {_ _ _}.
 
 Global Existing Instances
   is_stack_persistent stack_content_frag_timeless stack_content_auth_timeless
@@ -118,7 +121,7 @@ End hocap_auth.
 instead of an authoritative element, thereby departing even further from the
 HoCAP paper.  This style matches [concurrent_stacks.spec]. *)
 Module hocap_pred.
-Record stack {Σ} `{!heapGS Σ} := AtomicStack {
+Record stack {Σ} `{!heapGS Σ, !atomic_heap, !atomic_heapGS Σ} := AtomicStack {
   (* -- operations -- *)
   new_stack : val;
   push : val;
@@ -130,19 +133,21 @@ Record stack {Σ} `{!heapGS Σ} := AtomicStack {
   is_stack_ne N v n : Proper (pointwise_relation _ (dist n) ==> dist n) (is_stack N v);
   (* -- operation specs -- *)
   new_stack_spec N P :
+    N ## atomic_heapN →
+    heap_inv -∗
     {{{ ▷ P [] }}} new_stack #() {{{ s, RET s; is_stack N s P }}};
   push_spec N s P (v : val) (Φ : val → iProp Σ) :
     is_stack N s P -∗
-    (∀ l, ▷ P l ={⊤∖↑N}=∗ ▷ P (v::l) ∗ Φ #()) -∗
+    (∀ l, ▷ P l ={⊤ ∖ (↑N ∪ ↑atomic_heapN)}=∗ ▷ P (v::l) ∗ Φ #()) -∗
     WP push s v {{ Φ }};
   pop_spec N s P (Φ : val → iProp Σ) :
     is_stack N s P -∗
-    (∀ l, ▷ P l ={⊤∖↑N}=∗
+    (∀ l, ▷ P l ={⊤ ∖ (↑N ∪ ↑atomic_heapN)}=∗
           match l with [] => ▷ P [] ∗ Φ NONEV
                 | v :: l' => ▷ P l' ∗ Φ (SOMEV v) end) -∗
     WP pop s {{ Φ }};
 }.
-Global Arguments stack _ {_}.
+Global Arguments stack _ {_ _ _}.
 
 Global Existing Instances is_stack_persistent.
 
@@ -162,12 +167,12 @@ tada.is_stack := hocap_auth.is_stack
 tada.stack_content := hocap_auth.stack_content_frag
 *)
 Section hocap_auth_tada.
-  Context `{!heapGS Σ} (stack: hocap_auth.stack Σ).
+  Context `{!heapGS Σ, !atomic_heap, !atomic_heapGS Σ} (stack: hocap_auth.stack Σ).
 
   Lemma tada_push N γs s (v : val) :
     stack.(hocap_auth.is_stack) N γs s -∗
     <<{ ∀∀ l : list val, stack.(hocap_auth.stack_content_frag) γs l }>>
-      stack.(hocap_auth.push) s v @ ↑N
+      stack.(hocap_auth.push) s v @ (↑N ∪ ↑atomic_heapN)
     <<{ stack.(hocap_auth.stack_content_frag) γs (v::l) | RET #() }>>.
   Proof.
     iIntros "Hstack". iIntros (Φ) "HΦ".
@@ -182,7 +187,7 @@ Section hocap_auth_tada.
   Lemma tada_pop N γs (s : val) :
     stack.(hocap_auth.is_stack) N γs s -∗
     <<{ ∀∀ l : list val, stack.(hocap_auth.stack_content_frag) γs l }>>
-      stack.(hocap_auth.pop) s @ ↑N
+      stack.(hocap_auth.pop) s @ (↑N ∪ ↑atomic_heapN)
     <<{ stack.(hocap_auth.stack_content_frag) γs (tail l)
       | RET match l with [] => NONEV | v :: _ => SOMEV v end }>>.
   Proof.
@@ -211,11 +216,12 @@ Roughly:
 hocap_pred.is_stack P := tada.is_stack * inv (∃ l, tada.stack_content l * P l)
 *)
 Section tada_hocap_pred.
-  Context `{!heapGS Σ} (stack: tada.atomic_stack Σ).
+  Context `{!heapGS Σ, !atomic_heap, !atomic_heapGS Σ} (stack: tada.atomic_stack Σ).
   Implicit Type P : list val → iProp Σ.
 
   Definition hocap_pred_is_stack N v P : iProp Σ :=
-    (∃ γs, stack.(tada.is_stack) (N .@ "stack") γs v ∗
+    (⌜N ## atomic_heapN⌝ ∗
+     ∃ γs, stack.(tada.is_stack) (N .@ "stack") γs v ∗
      inv (N .@ "wrapper") (∃ l, stack.(tada.stack_content) γs l ∗ P l))%I.
 
   Global Instance hocap_pred_is_stack_ne N v n :
@@ -223,27 +229,30 @@ Section tada_hocap_pred.
   Proof. solve_proper. Qed.
 
   Lemma hocap_pred_new_stack N P :
+    N ## atomic_heapN →
+    heap_inv -∗
     {{{ ▷ P [] }}}
       stack.(tada.new_stack) #()
     {{{ s, RET s; hocap_pred_is_stack N s P }}}.
   Proof.
-    iIntros (Φ) "HP HΦ". iApply wp_fupd. iApply tada.new_stack_spec; first done.
+    iIntros "%HN #Hheap %Φ !> HP HΦ". iApply wp_fupd.
+    iApply (tada.new_stack_spec _ (N .@ "stack") with "Hheap [//]"); first solve_ndisj.
     iIntros "!>" (γs s) "[Hstack Hcont]".
-    iApply "HΦ". rewrite /hocap_pred_is_stack. iExists γs. iFrame.
+    iApply "HΦ". rewrite /hocap_pred_is_stack. iFrame "%∗".
     iApply inv_alloc. eauto with iFrame.
   Qed.
 
   Lemma hocap_pred_push N s P (v : val) (Φ : val → iProp Σ) :
     hocap_pred_is_stack N s P -∗
-    (∀ l, ▷ P l ={⊤∖↑N}=∗ ▷ P (v::l) ∗ Φ #()) -∗
+    (∀ l, ▷ P l ={⊤ ∖ (↑N ∪ ↑atomic_heapN)}=∗ ▷ P (v::l) ∗ Φ #()) -∗
     WP stack.(tada.push) s v {{ Φ }}.
   Proof.
-    iIntros "#Hstack Hupd". iDestruct "Hstack" as (γs) "[Hstack Hinv]".
+    iIntros "#Hstack Hupd". iDestruct "Hstack" as (HN γs) "[Hstack Hinv]".
     awp_apply (tada.push_spec with "Hstack").
     iInv "Hinv" as (l) "[>Hcont HP]".
     iAaccIntro with "Hcont"; first by eauto 10 with iFrame.
     iIntros "Hcont".
-    iMod (fupd_mask_subseteq (⊤ ∖ ↑N)) as "Hclose"; first solve_ndisj.
+    iMod (fupd_mask_subseteq (⊤ ∖ (↑N ∪ ↑atomic_heapN))) as "Hclose"; first solve_ndisj.
     iMod ("Hupd" with "HP") as "[HP HΦ]".
     iMod "Hclose" as "_". iIntros "!>".
     eauto with iFrame.
@@ -251,20 +260,20 @@ Section tada_hocap_pred.
 
   Lemma hocap_pred_pop N s P (Φ : val → iProp Σ) :
     hocap_pred_is_stack N s P -∗
-    (∀ l, ▷ P l ={⊤∖↑N}=∗
+    (∀ l, ▷ P l ={⊤ ∖ (↑N ∪ ↑atomic_heapN)}=∗
           match l with [] => ▷ P [] ∗ Φ NONEV
                 | v :: l' => ▷ P l' ∗ Φ (SOMEV v) end) -∗
     WP stack.(tada.pop) s {{ Φ }}.
   Proof.
-    iIntros "#Hstack Hupd". iDestruct "Hstack" as (γs) "[Hstack Hinv]".
+    iIntros "#Hstack Hupd". iDestruct "Hstack" as (HN γs) "[Hstack Hinv]".
     awp_apply (tada.pop_spec with "Hstack").
     iInv "Hinv" as (l) "[>Hcont HP]".
     iAaccIntro with "Hcont"; first by eauto 10 with iFrame.
     iIntros "Hcont". destruct l.
-    - iMod (fupd_mask_subseteq (⊤ ∖ ↑N)) as "Hclose"; first solve_ndisj.
+    - iMod (fupd_mask_subseteq (⊤ ∖ (↑N ∪ ↑atomic_heapN))) as "Hclose"; first solve_ndisj.
       iMod ("Hupd" with "HP") as "[HP HΦ]".
       iMod "Hclose" as "_". iIntros "!>"; eauto with iFrame.
-    - iMod (fupd_mask_subseteq (⊤ ∖ ↑N))  as "Hclose"; first solve_ndisj.
+    - iMod (fupd_mask_subseteq (⊤ ∖ (↑N ∪ ↑atomic_heapN)))  as "Hclose"; first solve_ndisj.
       iMod ("Hupd" with "HP") as "[HP HΦ]".
       iMod "Hclose" as "_". iIntros "!>"; eauto with iFrame.
   Qed.
@@ -273,7 +282,6 @@ Section tada_hocap_pred.
     {| hocap_pred.new_stack_spec := hocap_pred_new_stack;
        hocap_pred.push_spec := hocap_pred_push;
        hocap_pred.pop_spec := hocap_pred_pop |}.
-
 End tada_hocap_pred.
 
 (** From a hocap_pred stack, we can implement a hocap_auth stack by adding an
@@ -296,7 +304,7 @@ Global Instance subG_hocapΣ {Σ} : subG hocapΣ Σ → hocapG Σ.
 Proof. solve_inG. Qed.
 
 Section hocap_pred_auth.
-  Context `{!heapGS Σ} `{!hocapG Σ} (stack: hocap_pred.stack Σ).
+  Context `{!heapGS Σ, !atomic_heap, !atomic_heapGS Σ} `{!hocapG Σ} (stack: hocap_pred.stack Σ).
 
   Definition hocap_name : Type := gname.
   Implicit Types γs : hocap_name.
@@ -308,21 +316,24 @@ Section hocap_pred_auth.
     stack.(hocap_pred.is_stack) N v (hocap_auth_stack_content_auth γs).
 
   Lemma hocap_auth_new_stack N :
+    N ## atomic_heapN →
+    heap_inv -∗
     {{{ True }}}
       stack.(hocap_pred.new_stack) #()
     {{{ γs s, RET s; hocap_auth_is_stack N γs s ∗ hocap_auth_stack_content_frag γs [] }}}.
   Proof.
-    iIntros (Φ) "_ HΦ". iApply wp_fupd.
+    iIntros "%HN #Hheap %Φ _ !> HΦ". iApply wp_fupd.
     iMod (own_alloc (● Excl' [] ⋅ ◯ Excl' [])) as (γs) "[Hs● Hs◯]".
     { apply auth_both_valid_discrete. split; done. }
-    iApply (hocap_pred.new_stack_spec _ _ (hocap_auth_stack_content_auth γs) with "[Hs● //]").
+    iApply (hocap_pred.new_stack_spec _ _ (hocap_auth_stack_content_auth γs)
+             with "Hheap [Hs● //]"); first done.
     iIntros "!>" (s) "#Hstack". iApply "HΦ".
     rewrite /hocap_auth_is_stack. by iFrame.
   Qed.
 
   Lemma hocap_auth_push N γs s (v : val) (Φ : val → iProp Σ) :
     hocap_auth_is_stack N γs s -∗
-    (∀ l, hocap_auth_stack_content_auth γs l ={⊤∖↑N}=∗
+    (∀ l, hocap_auth_stack_content_auth γs l ={⊤ ∖ (↑N ∪ ↑atomic_heapN)}=∗
       hocap_auth_stack_content_auth γs (v::l) ∗ Φ #()) -∗
     WP stack.(hocap_pred.push) s v {{ Φ }}.
   Proof.
@@ -333,7 +344,7 @@ Section hocap_pred_auth.
 
   Lemma hocap_auth_pop N γs s (Φ : val → iProp Σ) :
     hocap_auth_is_stack N γs s -∗
-    (∀ l, hocap_auth_stack_content_auth γs l ={⊤∖↑N}=∗
+    (∀ l, hocap_auth_stack_content_auth γs l ={⊤ ∖ (↑N ∪ ↑atomic_heapN)}=∗
           match l with [] => hocap_auth_stack_content_auth γs [] ∗ Φ NONEV
                 | v :: l' => hocap_auth_stack_content_auth γs l' ∗ Φ (SOMEV v) end) -∗
     WP stack.(hocap_pred.pop) s {{ Φ }}.
