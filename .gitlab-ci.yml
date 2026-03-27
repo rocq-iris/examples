@@ -89,7 +89,6 @@ trigger-iris.dev:
     STDPP_REPO: "iris/stdpp"
     IRIS_REPO: "iris/iris"
     OPAM_PINS: "coq version $NIGHTLY_COQ   git+https://gitlab.mpi-sws.org/$STDPP_REPO#$STDPP_REV   git+https://gitlab.mpi-sws.org/$IRIS_REPO#$IRIS_REV"
-    UPDATE_OPAM_DEPS: "1"
   except:
   only:
     refs:
