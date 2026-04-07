@@ -99,35 +99,35 @@ Section counter_proof.
   Definition putN := N .@ "put".
   Definition mainN := N .@ "main".
 
-  Definition counter_int γ_cnt n := (mono_nat_auth_own γ_cnt (1/4) n)%I.
+  Definition counter_int γ_cnt n := (mono_nat_auth_own_frac γ_cnt (1/4) n)%I.
 
-  Definition value '(γ_cnt, γ_ex) n := (mono_nat_auth_own γ_cnt (1/4) n ∗ own γ_ex (Excl ()))%I.
+  Definition value '(γ_cnt, γ_ex) n := (mono_nat_auth_own_frac γ_cnt (1/4) n ∗ own γ_ex (Excl ()))%I.
 
   (** Invariant for transfer of atomic update (helping) of [get] *)
   Definition get_inv γs (γ1 γ2 : gname) (n : nat) (Φ : val → iProp Σ) : iProp Σ :=
-    ((AU <{ ∃∃ n: nat, value γs n }> @ ⊤ ∖ (↑N ∪ ↑atomic_heapN), ∅ <{ value γs n, COMM (Φ #n) }> ∗ ghost_var γ1 (1/2) true ∗ £ 1) ∨
-     (ghost_var γ1 (1/2) false ∗ Φ #n) ∨ (ghost_var γ1 (1/2) false ∗ own γ2 (Excl ()))).
+    ((AU <{ ∃∃ n: nat, value γs n }> @ ⊤ ∖ (↑N ∪ ↑atomic_heapN), ∅ <{ value γs n, COMM (Φ #n) }> ∗ ghost_var_frac γ1 (1/2) true ∗ £ 1) ∨
+     (ghost_var_frac γ1 (1/2) false ∗ Φ #n) ∨ (ghost_var_frac γ1 (1/2) false ∗ own γ2 (Excl ()))).
 
   (** Invariant for transfer of atomic update (helping) of [put] *)
   Definition put_inv γs (γ1 γ2 : gname) (n : nat) (Φ : val → iProp Σ): iProp Σ :=
-    ((AU <{ ∃∃ n: nat, value γs n }> @ ⊤ ∖ (↑N ∪ ↑atomic_heapN), ∅ <{ value γs (n + 1), COMM (Φ #n) }> ∗ ghost_var γ1 (1/2) true ∗ £ 1) ∨
-     (ghost_var γ1 (1/2) false ∗ Φ #n) ∨ (ghost_var γ1 (1/2) false ∗ own γ2 (Excl ()))).
+    ((AU <{ ∃∃ n: nat, value γs n }> @ ⊤ ∖ (↑N ∪ ↑atomic_heapN), ∅ <{ value γs (n + 1), COMM (Φ #n) }> ∗ ghost_var_frac γ1 (1/2) true ∗ £ 1) ∨
+     (ghost_var_frac γ1 (1/2) false ∗ Φ #n) ∨ (ghost_var_frac γ1 (1/2) false ∗ own γ2 (Excl ()))).
 
   (** The part of the main counter invariant that controls execution of [put]s *)
   Definition counter_inv_puts γs P n_b n_p : iProp Σ :=
     (⌜list_to_set (seq 0 n_p) = dom P⌝ ∗
-    [∗ map] n ↦ p ∈ P, ∃ Φ, inv putN (put_inv γs (fst p) (snd p) n Φ) ∗ ghost_var (fst p) (1/2) (bool_decide (n_b ≤ n): bool))%I.
+    [∗ map] n ↦ p ∈ P, ∃ Φ, inv putN (put_inv γs (fst p) (snd p) n Φ) ∗ ghost_var_frac (fst p) (1/2) (bool_decide (n_b ≤ n): bool))%I.
 
   (** The part of the main counter invariant that controls execution of [get]s *)
   Definition counter_inv_gets γs G n_b : iProp Σ:=
    ([∗ map] n ↦ γ ∈ G, ∃ (O: gset (gname * gname)), ghost_map_auth γ 1 (gset_to_gmap () O) ∗
-        [∗ set] p ∈ O, ∃ Φ, inv getN (get_inv γs (fst p) (snd p) n Φ) ∗ ghost_var (fst p) (1/2) (bool_decide (n_b < n): bool))%I.
+        [∗ set] p ∈ O, ∃ Φ, inv getN (get_inv γs (fst p) (snd p) n Φ) ∗ ghost_var_frac (fst p) (1/2) (bool_decide (n_b < n): bool))%I.
 
   (** The core of the main counter invariant, controlling all the authoritative ghost state *)
   Definition counter_inv_inner γs (γ_prim γ_get γ_put : gname) (b p : loc) (G : gmap nat gname) (P : gmap nat (gname * gname)) (n_b n_p : nat) : iProp Σ :=
     ⌜n_b ≤ n_p⌝ ∗ b ↦ #n_b ∗ p ↦ #n_p ∗
     (* ghost state controlling the primary and backup values *)
-    counter_int (fst γs) n_b ∗ mono_nat_auth_own γ_prim 1 n_p ∗
+    counter_int (fst γs) n_b ∗ mono_nat_auth_own_frac γ_prim 1 n_p ∗
     (* ghost state for providing ghost names for individual set/get operations *)
     ghost_map_auth γ_get 1 G ∗ ([∗ map] n ↦ γ ∈ G, n ↪[γ_get]□ γ) ∗ ghost_map_auth γ_put 1 P ∗
     (* control of [get] operations *)
@@ -198,8 +198,8 @@ Section counter_proof.
 
   Lemma logicall_execute_gets_set γ_cnt γ_ex n O :
     N ## atomic_heapN →
-    (⊢ (counter_int γ_cnt (S n) ∗ [∗ set] p ∈ O, ∃ Φ, inv getN (get_inv (γ_cnt, γ_ex) p.1 p.2 (S n) Φ) ∗  ghost_var p.1 (1 / 2) true) ={⊤ ∖ ↑atomic_heapN ∖ ↑mainN}=∗
-    counter_int γ_cnt (S n) ∗ [∗ set] p ∈ O, ∃ Φ, inv getN (get_inv (γ_cnt, γ_ex) p.1 p.2 (S n) Φ) ∗  ghost_var p.1 (1 / 2) false)%I.
+    (⊢ (counter_int γ_cnt (S n) ∗ [∗ set] p ∈ O, ∃ Φ, inv getN (get_inv (γ_cnt, γ_ex) p.1 p.2 (S n) Φ) ∗  ghost_var_frac p.1 (1 / 2) true) ={⊤ ∖ ↑atomic_heapN ∖ ↑mainN}=∗
+    counter_int γ_cnt (S n) ∗ [∗ set] p ∈ O, ∃ Φ, inv getN (get_inv (γ_cnt, γ_ex) p.1 p.2 (S n) Φ) ∗  ghost_var_frac p.1 (1 / 2) false)%I.
   Proof.
     intros HN. induction (set_wf O) as [O _ IH].
     iIntros "Hset". destruct (decide (O = ∅)) as [->|[i Hi]%set_choose_L].
@@ -356,7 +356,7 @@ Section counter_proof.
     b ↦ #n_b -∗
     p ↦ #(S n_p) -∗
     counter_int (fst γs) n_b -∗
-    mono_nat_auth_own γ_prim 1 n_p -∗
+    mono_nat_auth_own_frac γ_prim 1 n_p -∗
     ghost_map_auth γ_get 1 G -∗
     ([∗ map] n↦γ ∈ G, n ↪[ γ_get ]□ γ) -∗
     ghost_map_auth γ_put 1 P -∗

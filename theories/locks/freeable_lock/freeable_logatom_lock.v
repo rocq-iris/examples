@@ -38,9 +38,9 @@ Section tada.
   
 
   Definition tada_lock_state (γ : tada_lock_name) (s : state) : iProp Σ :=
-    ghost_var γ.(tada_lock_name_state) (3/4) s ∗
+    ghost_var_frac γ.(tada_lock_name_state) (3/4) s ∗
     if s is Locked then
-      l.(locked) γ.(tada_lock_name_lock) ∗ ghost_var γ.(tada_lock_name_state) (1/4) Locked
+      l.(locked) γ.(tada_lock_name_lock) ∗ ghost_var_frac γ.(tada_lock_name_state) (1/4) Locked
     else True.
 
   Local Definition acquire_AU γ (Q : iProp Σ) : iProp Σ :=
@@ -66,14 +66,14 @@ Section tada.
       ghost_map_auth γ.(tada_lock_name_map) 1 loans ∗
       ⌜map_fold sum_loans q loans = 1%Qp⌝ ∗
       [∗ map] i ↦ l ∈ loans, ∃ Q, acquire_AU γ Q ∗ saved_prop_own l.2 DfracDiscarded Q) ∨
-    (ghost_map_auth γ.(tada_lock_name_map) 1 ∅ ∗ ghost_var γ.(tada_lock_name_state) (3/4) Locked).
+    (ghost_map_auth γ.(tada_lock_name_map) 1 ∅ ∗ ghost_var_frac γ.(tada_lock_name_state) (3/4) Locked).
 
   Local Definition tada_lock_loan (γ : tada_lock_name) (q : frac) (Q : iProp Σ) : iProp Σ :=
     ∃ i γx, i ↪[γ.(tada_lock_name_map)] (q, γx) ∗ saved_prop_own γx DfracDiscarded Q.
 
   Definition tada_is_lock (γ : tada_lock_name) (lk : val) : iProp Σ :=
     l.(is_lock) γ.(tada_lock_name_lock) lk
-      (ghost_var γ.(tada_lock_name_state) (1/4) Free) ∗
+      (ghost_var_frac γ.(tada_lock_name_state) (1/4) Free) ∗
     inv N (tada_lock_inv γ).
 
   Global Instance tada_is_lock_persistent γ lk : Persistent (tada_is_lock γ lk).
@@ -82,7 +82,7 @@ Section tada.
   Proof. destruct s; apply _. Qed.
 
   Local Lemma tada_lock_state_exclusive' γ (s1 s2 : state) :
-    tada_lock_state γ s1 -∗ ghost_var γ.(tada_lock_name_state) (3/4) s2 -∗ False.
+    tada_lock_state γ s1 -∗ ghost_var_frac γ.(tada_lock_name_state) (3/4) s2 -∗ False.
   Proof.
     iIntros "[Hvar1 _] Hvar2".
     iCombine "Hvar1 Hvar2" gives %[Hval _].
