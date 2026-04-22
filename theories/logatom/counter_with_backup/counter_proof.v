@@ -412,7 +412,7 @@ Section counter_proof.
     iDestruct "Hel" as (Ψ) "(I' & Hgv & Hcred)".
     rewrite {1 2}bool_decide_decide.
     destruct (decide (n_b' < n_p)).
-    { iPoseProof (mono_nat_lb_own_valid with "Hcnt Hlb") as "[_ %]".
+    { iPoseProof (mono_nat_auth_lb_own_valid with "Hcnt Hlb") as "[_ %]".
       lia. }
     iInv "Hinv" as "Hi" "Hclose'".
     iMod (lc_fupd_elim_later with "Hone' Hi") as "[AU|[Post|Done]]".
@@ -453,7 +453,7 @@ Section counter_proof.
     iDestruct "Hput" as (Ψ) "(I' & Hgv & Hcred)".
     rewrite {1 2}bool_decide_decide.
     destruct (decide).
-    { iPoseProof (mono_nat_lb_own_valid with "Hcnt Hlb") as "[_ %]".
+    { iPoseProof (mono_nat_auth_lb_own_valid with "Hcnt Hlb") as "[_ %]".
       lia. }
     iInv "Hinv" as "Hi" "Hclose'".
     iMod (lc_fupd_elim_later with "Hone' Hi") as "[AU|[Post|Done]]".
@@ -497,7 +497,7 @@ Section counter_proof.
     awp_apply (store_spec with "Hheap"). clear - HN Hn.
     iInv "I" as (G P n_b n_p') "(>% & >Hb & >Hp & >Hcnt & >Hprim & Hrest)".
     iDestruct (mono_nat_auth_own_agree with "Hcnt Cnt") as %[_ ->].
-    iDestruct (mono_nat_lb_own_valid with "Hprim Hn_p") as %[_ Hle].
+    iDestruct (mono_nat_auth_lb_own_valid with "Hprim Hn_p") as %[_ Hle].
     iAaccIntro with "Hb".
     { iIntros "Hb". iFrame. iPureIntro. lia. }
     iIntros "Hb". iMod (lc_fupd_elim_later with "Hone Hrest") as "(HG & #Hlook & HP & Hgets & Hputs)".
