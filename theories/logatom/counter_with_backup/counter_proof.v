@@ -120,7 +120,7 @@ Section counter_proof.
 
   (** The part of the main counter invariant that controls execution of [get]s *)
   Definition counter_inv_gets γs G n_b : iProp Σ:=
-   ([∗ map] n ↦ γ ∈ G, ∃ (O: gset (gname * gname)), ghost_map_auth γ 1 (gset_to_gmap () O) ∗
+   ([∗ map] n ↦ γ ∈ G, ∃ (O: gset (gname * gname)), ghost_map_auth_frac γ 1 (gset_to_gmap () O) ∗
         [∗ set] p ∈ O, ∃ Φ, inv getN (get_inv γs (fst p) (snd p) n Φ) ∗ ghost_var_frac (fst p) (1/2) (bool_decide (n_b < n): bool))%I.
 
   (** The core of the main counter invariant, controlling all the authoritative ghost state *)
@@ -129,7 +129,7 @@ Section counter_proof.
     (* ghost state controlling the primary and backup values *)
     counter_int (fst γs) n_b ∗ mono_nat_auth_own_frac γ_prim 1 n_p ∗
     (* ghost state for providing ghost names for individual set/get operations *)
-    ghost_map_auth γ_get 1 G ∗ ([∗ map] n ↦ γ ∈ G, n ↪[γ_get]□ γ) ∗ ghost_map_auth γ_put 1 P ∗
+    ghost_map_auth_frac γ_get 1 G ∗ ([∗ map] n ↦ γ ∈ G, n ↪[γ_get]□ γ) ∗ ghost_map_auth_frac γ_put 1 P ∗
     (* control of [get] operations *)
     counter_inv_gets γs G n_b ∗
     (* control of [put] operations *)
@@ -357,9 +357,9 @@ Section counter_proof.
     p ↦ #(S n_p) -∗
     counter_int (fst γs) n_b -∗
     mono_nat_auth_own_frac γ_prim 1 n_p -∗
-    ghost_map_auth γ_get 1 G -∗
+    ghost_map_auth_frac γ_get 1 G -∗
     ([∗ map] n↦γ ∈ G, n ↪[ γ_get ]□ γ) -∗
-    ghost_map_auth γ_put 1 P -∗
+    ghost_map_auth_frac γ_put 1 P -∗
     counter_inv_gets γs G n_b -∗
     counter_inv_puts γs P n_b n_p ={E}=∗
     ∃ γ1 γ2, counter_inv_inner γs γ_prim γ_get γ_put b p G (<[n_p := (γ1, γ2)]> P) n_b (S n_p) ∗ n_p ↪[γ_put]□ (γ1, γ2) ∗ inv putN (put_inv γs γ1 γ2 n_p Φ) ∗ own γ2 (Excl ()).

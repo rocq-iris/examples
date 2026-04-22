@@ -63,10 +63,10 @@ Section tada.
   Local Definition tada_lock_inv (γ : tada_lock_name) : iProp Σ :=
     (∃ q (loans : gmap positive (frac * gname)),
       l.(own_lock) γ.(tada_lock_name_lock) q ∗
-      ghost_map_auth γ.(tada_lock_name_map) 1 loans ∗
+      ghost_map_auth_frac γ.(tada_lock_name_map) 1 loans ∗
       ⌜map_fold sum_loans q loans = 1%Qp⌝ ∗
       [∗ map] i ↦ l ∈ loans, ∃ Q, acquire_AU γ Q ∗ saved_prop_own l.2 DfracDiscarded Q) ∨
-    (ghost_map_auth γ.(tada_lock_name_map) 1 ∅ ∗ ghost_var_frac γ.(tada_lock_name_state) (3/4) Locked).
+    (ghost_map_auth_frac γ.(tada_lock_name_map) 1 ∅ ∗ ghost_var_frac γ.(tada_lock_name_state) (3/4) Locked).
 
   Local Definition tada_lock_loan (γ : tada_lock_name) (q : frac) (Q : iProp Σ) : iProp Σ :=
     ∃ i γx, i ↪[γ.(tada_lock_name_map)] (q, γx) ∗ saved_prop_own γx DfracDiscarded Q.
