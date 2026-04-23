@@ -8,7 +8,7 @@ dev-repo: "git+https://gitlab.mpi-sws.org/iris/examples.git"
 synopsis: "A collection of case studies for Iris -- not meant to be used as a dependency of anything"
 
 depends: [
-  "rocq-iris-heap-lang" { (= "dev.2026-04-22.3.1e8e0a54") | (= "dev") }
+  "rocq-iris-heap-lang" { (= "dev.2026-04-23.0.bd2447e3") | (= "dev") }
   "coq-autosubst" { = "dev" }
 ]
 conflicts: [
