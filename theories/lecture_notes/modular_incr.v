@@ -7,6 +7,7 @@ From iris.algebra Require Import agree frac frac_auth.
 From iris.prelude Require Import options.
 
 From iris.bi.lib Require Import fractional.
+From iris.base_logic.lib Require Import invariants.
 
 From iris.heap_lang.lib Require Import par.
 
