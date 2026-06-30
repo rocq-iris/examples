@@ -400,7 +400,7 @@ Section cfg.
   Lemma step_faa E j K l m e2 k:
     to_val e2 = Some (#nv k) → nclose specN ⊆ E →
     spec_ctx ∗ j ⤇ fill K (FAA (Loc l) e2) ∗ l ↦ₛ (#nv m)
-    ={E}=∗ j ⤇ fill K (#n m) ∗ l ↦ₛ #nv (m + k).
+    ={E}=∗ j ⤇ fill K (#n m) ∗ l ↦ₛ (#nv (m + k)).
   Proof.
     iIntros (??) "(#Hinv & Hj & Hl)"; subst. iDestruct "Hinv" as (ρ) "Hinv".
     rewrite /spec_ctx /tpool_pointsto /heapS_pointsto.

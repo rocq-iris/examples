@@ -122,7 +122,7 @@ Section lang_rules.
   Lemma wp_FAA E l m e2 k :
     IntoVal e2 (#nv k) →
     {{{ ▷ l ↦ᵢ (#nv m) }}} FAA (Loc l) e2 @ E
-    {{{ RET (#nv m); l ↦ᵢ #nv (m + k) }}}.
+    {{{ RET (#nv m); l ↦ᵢ (#nv (m + k)) }}}.
   Proof.
     iIntros (<- Φ) ">Hl HΦ".
     iApply wp_lift_atomic_base_step_no_fork; auto.

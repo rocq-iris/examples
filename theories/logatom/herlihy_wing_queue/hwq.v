@@ -14,7 +14,7 @@ Notation "new_array: sz" :=
   (AllocN sz%E NONEV) (at level 80) : expr_scope.
 
 Notation "e1 <[[ e2 ]]>" :=
-  (BinOp OffsetOp e1%E e2%E) (at level 8) : expr_scope.
+  (BinOp OffsetOp e1%E e2%E) (at level 1) : expr_scope.
 
 (** * Implementation of the queue operations ********************************)
 
