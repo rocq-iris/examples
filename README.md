@@ -6,7 +6,7 @@ Some example verification demonstrating the use of Iris.
 
 This version is known to compile with:
 
- - Rocq 9.1.0
+ - Rocq 9.2.0
  - A development version of [Iris](https://gitlab.mpi-sws.org/iris/iris)
  - A development version of [Autosubst](https://github.com/coq-community/autosubst)
 
