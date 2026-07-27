@@ -69,7 +69,7 @@ build-rocq.9.2.0-mr:
     MANGLE_NAMES: "1"
     DENY_WARNINGS: "1"
 
-trigger-iris.timing:
+trigger-timing:
   <<: *template
   variables:
     OPAM_PINS: "rocq-core version 9.2.0   git+https://gitlab.mpi-sws.org/$IRIS_REPO#$IRIS_REV"
@@ -83,7 +83,7 @@ trigger-iris.timing:
     variables:
     - $TIMING_AD_HOC_ID == null
 
-trigger-iris.dev:
+trigger-nightly:
   <<: *template
   variables:
     STDPP_REPO: "iris/stdpp"
