@@ -101,7 +101,7 @@ trigger-nightly:
 
 notify_on_schedule_failure:
   stage: notify
-  needs: [ trigger-iris.dev ]
+  needs: [ trigger-nightly ]
   tags:
   - fp
   variables:
