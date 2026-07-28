@@ -11,6 +11,8 @@
 # Needs Rocq 9.2 at least for Scheme Rewrite; it is unclear whether the warning
 # is also used for other schemes.
 -arg "-w -missing-scheme"
+# Need Rocq 9.3 for the rw tactic.
+-arg "-w -rewrite-rw"
 
 theories/barrier/proof.v
 theories/barrier/specification.v
