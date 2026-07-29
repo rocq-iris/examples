@@ -57,6 +57,7 @@ build-rocq.9.2.0:
     MANGLE_NAMES: "1"
     # Rocq bench needs an opam package
     OPAM_PKG: "1"
+    OPAM_PKG_ALT_SOURCE_REPO: "https://github.com/rocq-iris/examples.git"
   tags:
   - fp-timing
 
