@@ -4,7 +4,7 @@
 *.vio
 *.v.d
 .coqdeps.d
-.Makefile.coq.d
+.Makefile.rocq.d
 *.glob
 *.cache
 *.aux
@@ -12,8 +12,8 @@
 .\#*
 *~
 *.bak
-Makefile.coq
-Makefile.coq.conf
+Makefile.rocq
+Makefile.rocq.conf
 .coq-native/
 builddep
 _opam
