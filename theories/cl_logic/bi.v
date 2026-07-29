@@ -13,7 +13,7 @@ Definition clProp_emp : clProp := clProp_pure True.
 Definition clProp_sep : clProp → clProp → clProp := clProp_and.
 Definition clProp_wand : clProp → clProp → clProp := clProp_impl.
 Definition clProp_persistently (P : clProp) : clProp := P.
-Definition clProp_later (P : clProp) : clProp := P.
+Definition clProp_later (P : clProp) : clProp := clProp_pure True.
 
 Local Existing Instance entails_po.
 
@@ -73,7 +73,7 @@ Qed.
 Lemma clProp_bi_persistently_mixin :
   BiPersistentlyMixin
     clProp_entails clProp_emp clProp_and
-    (@clProp_exist) clProp_sep clProp_persistently.
+    clProp_sep clProp_persistently.
 Proof.
   split.
   - solve_proper.
@@ -85,8 +85,6 @@ Proof.
     done.
   - (* (∀ a, <pers> (Ψ a)) ⊢ <pers> (∀ a, Ψ a) *)
     done.
-  - (* <pers> (∃ a, Ψ a) ⊢ ∃ a, <pers> (Ψ a) *)
-    done.
   - (* <pers> P ∗ Q ⊢ <pers> P *)
     apply and_elim_l.
   - (* <pers> P ∧ Q ⊢ P ∗ Q *)
@@ -97,13 +95,21 @@ Lemma clProp_bi_later_mixin :
   BiLaterMixin
     clProp_entails clProp_pure clProp_or clProp_impl
     (@clProp_forall) (@clProp_exist) clProp_sep clProp_persistently clProp_later.
-Proof. by eapply bi_later_mixin_id, clProp_bi_mixin. Qed.
+Proof.
+  eapply bi_later_mixin_True;
+    [done..|apply clProp_bi_mixin|apply clProp_bi_persistently_mixin].
+Qed.
 
 Canonical Structure clPropI : bi :=
   {| bi_ofe_mixin := ofe_mixin_of clProp;
      bi_bi_mixin := clProp_bi_mixin;
      bi_bi_persistently_mixin := clProp_bi_persistently_mixin;
      bi_bi_later_mixin := clProp_bi_later_mixin |}.
+
+Global Instance clProp_persistently_forall : BiPersistentlyForall clPropI.
+Proof. done. Qed.
+Global Instance clProp_persistently_exist : BiPersistentlyExist clPropI.
+Proof. done. Qed.
 
 (** extra BI instances *)
 
