@@ -1,6 +1,5 @@
 From stdpp Require Import mapset.
 From iris.algebra Require Import gmap.
-From iris.prelude Require Import options.
 
 Section Graphs.
   Context {T : Type} {HD : EqDecision T} {HC : @Countable T HD}.

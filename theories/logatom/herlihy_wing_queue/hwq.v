@@ -6,7 +6,6 @@ From iris.program_logic Require Export atomic.
 From iris.heap_lang.lib Require Import arith diverge.
 From iris.heap_lang Require Import proofmode notation par.
 From iris_examples.logatom.herlihy_wing_queue Require Import spec.
-From iris.prelude Require Import options.
 
 (** * Some array-related notations ******************************************)
 

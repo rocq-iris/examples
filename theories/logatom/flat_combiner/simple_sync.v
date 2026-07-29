@@ -5,7 +5,6 @@ From iris.heap_lang Require Export lang proofmode notation.
 From iris.heap_lang.lib Require Import spin_lock.
 From iris.algebra Require Import frac.
 From iris_examples.logatom.flat_combiner Require Import sync.
-From iris.prelude Require Import options.
 Import uPred.
 
 Local Existing Instance spin_lock.

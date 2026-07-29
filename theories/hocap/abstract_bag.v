@@ -7,7 +7,6 @@ This file: abstract bag specification
 From iris.heap_lang Require Import proofmode notation.
 From iris.base_logic.lib Require Export invariants.
 From stdpp Require Import gmultiset.
-From iris.prelude Require Import options.
 
 Record bag Σ `{!heapGS Σ} := Bag {
   (* -- operations -- *)

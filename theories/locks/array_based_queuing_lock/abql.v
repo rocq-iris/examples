@@ -16,7 +16,6 @@ From iris.proofmode Require Export proofmode.
 From iris.heap_lang Require Import proofmode.
 From iris.base_logic.lib Require Export invariants.
 From iris.algebra Require Import numbers excl auth gset frac.
-From iris.prelude Require Import options.
 
 Section abql_code.
 

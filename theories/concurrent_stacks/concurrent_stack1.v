@@ -2,7 +2,6 @@ From iris.base_logic.lib Require Import invariants.
 From iris.program_logic Require Export weakestpre.
 From iris.heap_lang Require Import notation proofmode.
 From iris_examples.concurrent_stacks Require Import specs.
-From iris.prelude Require Import options.
 
 (** Stack 1: No helping, bag spec. *)
 

@@ -1,7 +1,6 @@
 From iris_examples.logrel.stlc Require Export fundamental.
 From iris.proofmode Require Import proofmode.
 From iris.program_logic Require Import adequacy.
-From iris.prelude Require Import options.
 
 Lemma wp_soundness `{irisGS stlc_lang Σ} e τ : [] ⊢ₜ e : τ → ⊢ WP e {{ ⟦ τ ⟧ }}.
 Proof.

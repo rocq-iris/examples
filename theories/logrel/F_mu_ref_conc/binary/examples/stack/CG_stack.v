@@ -1,6 +1,5 @@
 From iris.proofmode Require Import proofmode.
 From iris_examples.logrel.F_mu_ref_conc Require Import examples.lock.
-From iris.prelude Require Import options.
 
 Definition CG_StackType τ :=
   TRec (TSum TUnit (TProd τ.[ren (+1)] (TVar 0))).

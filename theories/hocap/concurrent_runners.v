@@ -7,7 +7,6 @@ From iris.bi.lib Require Import fractional.
 From iris.algebra Require Import cmra agree frac csum excl.
 From iris.heap_lang.lib Require Import assert.
 From iris_examples.hocap Require Export abstract_bag shared_bag lib.oneshot.
-From iris.prelude Require Import options.
 
 (** RA describing the evolution of a task *)
 (** INIT = task has been initiated

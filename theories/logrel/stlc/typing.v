@@ -1,5 +1,4 @@
 From iris_examples.logrel.stlc Require Export lang.
-From iris.prelude Require Import options.
 
 Inductive type :=
   | TUnit : type

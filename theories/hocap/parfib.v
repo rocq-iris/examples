@@ -11,7 +11,6 @@ From iris.heap_lang Require Import proofmode notation.
 From iris.algebra Require Import cmra agree frac csum excl.
 From iris.heap_lang.lib Require Import lock spin_lock.
 From iris_examples.hocap Require Import abstract_bag shared_bag concurrent_runners.
-From iris.prelude Require Import options.
 
 Section contents.
   Context `{heapGS Σ, !oneshotG Σ, !saG Σ}.

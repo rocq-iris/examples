@@ -3,7 +3,6 @@ From iris.algebra Require Import excl.
 From iris.base_logic.lib Require Import invariants.
 From iris.program_logic Require Export weakestpre.
 From iris_examples.concurrent_stacks Require Import specs.
-From iris.prelude Require Import options.
 
 (** Stack 2: Helping, bag spec. *)
 

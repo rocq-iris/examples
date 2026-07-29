@@ -4,7 +4,6 @@ From iris.algebra Require Import excl agree csum.
 From iris.heap_lang Require Import notation par proofmode.
 From iris.proofmode Require Import proofmode.
 From iris_examples.barrier Require Import proof specification.
-From iris.prelude Require Import options.
 
 Definition one_shotR (Σ : gFunctors) (F : oFunctor) :=
   csumR (exclR unitO) (agreeR $ laterO $ oFunctor_apply F (iPropO Σ)).

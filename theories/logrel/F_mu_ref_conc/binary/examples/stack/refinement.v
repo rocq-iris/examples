@@ -5,7 +5,6 @@ From iris_examples.logrel.F_mu_ref_conc.binary.examples Require Import lock.
 From iris_examples.logrel.F_mu_ref_conc.binary.examples.stack Require Import
   CG_stack FG_stack stack_rules.
 From iris.proofmode Require Import proofmode.
-From iris.prelude Require Import options.
 
 Definition stackN : namespace := nroot .@ "stack".
 

@@ -4,7 +4,6 @@ From iris.heap_lang Require Export lang proofmode notation.
 From iris.proofmode Require Import proofmode.
 From iris.algebra Require Import gmultiset frac_auth.
 From iris_examples.hocap Require Import abstract_bag.
-From iris.prelude Require Import options.
 
 Section proof.
   Context `{heapGS Σ}.

@@ -9,7 +9,6 @@ From iris.algebra Require Import excl auth list.
 From iris.base_logic.lib Require Import invariants.
 From iris.program_logic Require Import atomic.
 From iris.heap_lang Require Import proofmode notation.
-From iris.prelude Require Import options.
 
 
 (** * Definition of the functions *******************************************)

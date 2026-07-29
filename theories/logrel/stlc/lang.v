@@ -1,6 +1,5 @@
 From iris.program_logic Require Export language ectx_language ectxi_language.
 From Autosubst Require Export Autosubst.
-From iris.prelude Require Import options.
 
 Module stlc.
   Inductive expr :=

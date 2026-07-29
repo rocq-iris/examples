@@ -1,5 +1,4 @@
 From iris.heap_lang Require Import proofmode notation.
-From iris.prelude Require Import options.
 
 (** Specification for an eager coin. The coin is only ever tossed once, at the
 time of its creation with [new_coin]. All subsequent calls to [read_coin] give

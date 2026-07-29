@@ -2,7 +2,6 @@ From iris.proofmode Require Import proofmode.
 From iris_examples.logrel.stlc Require Import rules.
 From iris.program_logic Require Import lifting.
 From iris_examples.logrel.stlc Require Export logrel.
-From iris.prelude Require Import options.
 
 Definition log_typed `{irisGS stlc_lang Σ}
            (Γ : list type) (e : expr) (τ : type) : iProp Σ :=

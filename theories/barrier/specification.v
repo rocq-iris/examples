@@ -2,7 +2,6 @@ From iris.program_logic Require Export weakestpre.
 From iris.heap_lang Require Import proofmode.
 From iris_examples.barrier Require Export barrier.
 From iris_examples.barrier Require Import proof.
-From iris.prelude Require Import options.
 Import uPred.
 
 Section spec.

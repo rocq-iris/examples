@@ -27,7 +27,6 @@ From iris.heap_lang.lib Require Import par.
 
 (* The following line imports some Coq configuration we commonly use in Iris
    projects, mostly with the goal of catching common mistakes. *)
-From iris.prelude Require Import options.
 
 (* We define our terms. The Iris Coq library defines many notations for
    programming language constructs, e.g., lambdas, allocation, accessing and so

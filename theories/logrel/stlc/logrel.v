@@ -1,7 +1,6 @@
 From iris.program_logic Require Export weakestpre.
 From iris.proofmode Require Export proofmode.
 From iris_examples.logrel.stlc Require Export lang typing.
-From iris.prelude Require Import options.
 
 Reserved Notation "⟦ τ ⟧" (at level 0, τ at level 70).
 Reserved Notation "⟦ τ ⟧ₑ" (at level 0, τ at level 70).

@@ -9,7 +9,6 @@
 
 (* Contains definitions of the weakest precondition assertion, and its basic rules. *)
 From iris.program_logic Require Export weakestpre.
-From iris.prelude Require Import options.
 
 (* Instantiation of Iris with the particular language. The notation file
    contains many shorthand notations for the programming language constructs, and

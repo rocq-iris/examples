@@ -1,7 +1,6 @@
 From iris.program_logic Require Import atomic.
 From iris.heap_lang Require Import proofmode notation.
 From iris.heap_lang.lib Require Import atomic_heap.
-From iris.prelude Require Import options.
 
 (** A general logically atomic interface for a stack. *)
 Record atomic_stack {Σ} `{!heapGS Σ, !atomic_heap, !atomic_heapGS Σ} := AtomicStack {

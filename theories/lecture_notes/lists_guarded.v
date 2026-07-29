@@ -20,7 +20,6 @@ From iris.heap_lang Require Import proofmode.
 
 (* The following line imports some Coq configuration we commonly use in Iris
    projects, mostly with the goal of catching common mistakes. *)
-From iris.prelude Require Import options.
 
 (*  ---------------------------------------------------------------------- *)
 

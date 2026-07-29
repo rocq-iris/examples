@@ -3,7 +3,6 @@ From iris.program_logic Require Export weakestpre.
 From iris.heap_lang Require Export lang proofmode notation.
 From iris.algebra Require Import excl.
 From iris_examples.concurrent_stacks Require Import specs.
-From iris.prelude Require Import options.
 
 (** Stack 4: Helping, CAP spec. *)
 

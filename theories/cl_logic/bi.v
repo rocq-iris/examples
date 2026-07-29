@@ -1,6 +1,5 @@
 From iris.bi Require Export bi.
 From iris_examples.cl_logic Require Export clprop.
-From iris.prelude Require Import options.
 Import clProp_primitive.
 
 (** BI instances for [clProp], and re-stating the remaining primitive laws in

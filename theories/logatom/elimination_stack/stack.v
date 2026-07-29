@@ -5,7 +5,6 @@ From iris.program_logic Require Import atomic.
 From iris.proofmode Require Import proofmode.
 From iris.heap_lang Require Import proofmode notation atomic_heap.
 From iris_examples.logatom.elimination_stack Require Import spec.
-From iris.prelude Require Import options.
 
 (** * Implement a concurrent stack with helping on top of an arbitrary atomic
 heap. *)

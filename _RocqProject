@@ -1,11 +1,11 @@
 -Q theories iris_examples
 # We sometimes want to locally override notation, and there is no good way to do that with scopes.
--arg -w -arg -notation-overridden
+-arg "-w -notation-overridden"
 # Cannot use non-canonical projections as it causes massive unification failures
 # (https://github.com/coq/coq/issues/6294).
--arg -w -arg -redundant-canonical-projection
+-arg "-w -redundant-canonical-projection"
 # Warning is often incorrect, see https://gitlab.mpi-sws.org/iris/stdpp/-/issues/216
--arg -w -arg -notation-incompatible-prefix
+-arg "-w -notation-incompatible-prefix"
 # Needs Rocq 9.2.
 -arg "-w -notation-for-abbreviation"
 # Needs Rocq 9.2 at least for Scheme Rewrite; it is unclear whether the warning
@@ -13,6 +13,11 @@
 -arg "-w -missing-scheme"
 # Need Rocq 9.3 for the rw tactic.
 -arg "-w -rewrite-rw"
+
+# Overwrite some default Rocq options
+-arg "-set 'Default Goal Selector=!'"
+-arg "-set 'Default Proof Using=Type'"
+-arg "-set 'Suggest Proof Using'"
 
 theories/barrier/proof.v
 theories/barrier/specification.v

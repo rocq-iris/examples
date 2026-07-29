@@ -5,7 +5,6 @@ From iris.program_logic Require Export weakestpre.
 From iris.heap_lang Require Export notation lang.
 From iris.proofmode Require Export proofmode.
 From iris.heap_lang Require Import proofmode.
-From iris.prelude Require Import options.
 
 
 (*  ---------------------------------------------------------------------- *)

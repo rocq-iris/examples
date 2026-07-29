@@ -1,7 +1,6 @@
 From stdpp Require Import namespaces.
 From iris.program_logic Require Export weakestpre.
 From iris.heap_lang Require Export proofmode notation.
-From iris.prelude Require Import options.
 
 (** General (CAP-style) spec for a concurrent bag ("per-element spec") *)
 Record concurrent_bag {Σ} `{!heapGS Σ} := ConcurrentBag {

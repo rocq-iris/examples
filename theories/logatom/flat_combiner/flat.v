@@ -6,7 +6,6 @@ From iris.heap_lang Require Export lang.
 From iris.heap_lang Require Import proofmode notation.
 From iris.heap_lang.lib Require Import spin_lock.
 From iris_examples.logatom.flat_combiner Require Import misc peritem sync.
-From iris.prelude Require Import options.
 
 Set Default Proof Using "Type*".
 

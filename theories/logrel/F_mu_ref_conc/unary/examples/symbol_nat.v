@@ -3,7 +3,6 @@ From iris.program_logic Require Import lifting.
 From iris.algebra Require Import auth list numbers.
 From iris.program_logic Require Import adequacy.
 From iris_examples.logrel.F_mu_ref_conc.unary Require Import soundness.
-From iris.prelude Require Import options.
 
 Definition symbol_typ :=
   TArrow

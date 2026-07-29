@@ -2,7 +2,6 @@ From iris.base_logic Require Export invariants.
 From iris.program_logic Require Export weakestpre.
 From iris.heap_lang Require Export lang proofmode notation.
 From iris_examples.proph Require Import one_shot_proph.
-From iris.prelude Require Import options.
 
 (** This demonstrates the common pattern of knowing that an execution is
 "doomed" due to a clearly incorrect prophecy, but still having to play along and

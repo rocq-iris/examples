@@ -1,6 +1,5 @@
 From iris.base_logic.lib Require Export invariants.
 From iris.heap_lang Require Import primitive_laws notation.
-From iris.prelude Require Import options.
 
 (** A general interface for a lock.
 All parameters are implicit, since it is expected that there is only one

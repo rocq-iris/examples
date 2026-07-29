@@ -4,7 +4,6 @@ From iris.heap_lang Require Export lang proofmode notation.
 From iris.heap_lang.lib Require Export nondet_bool.
 From iris_examples.proph Require Import eager_coin_spec.
 From iris_examples.proph.lib Require Import one_shot_proph.
-From iris.prelude Require Import options.
 
 (* Lazy implementation of the eager specification. The value of the coin is
 unknown at the time of the creation of the coin. As a consequence, we rely on

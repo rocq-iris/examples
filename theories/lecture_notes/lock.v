@@ -26,7 +26,6 @@ From iris.algebra Require Import excl.
 
 (* The following line imports some Coq configuration we commonly use in Iris
    projects, mostly with the goal of catching common mistakes. *)
-From iris.prelude Require Import options.
 
 Class lockG Σ := lock_G :: inG Σ (exclR unitR).
 

@@ -5,7 +5,6 @@ From iris.program_logic Require Export weakestpre.
 From iris.heap_lang Require Export lang proofmode notation.
 From iris.proofmode Require Import proofmode.
 From iris.algebra Require Import numbers frac_auth.
-From iris.prelude Require Import options.
 
 From iris_examples.lecture_notes Require Import modular_incr.
 

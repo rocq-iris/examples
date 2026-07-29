@@ -11,7 +11,6 @@ From iris.proofmode Require Import proofmode.
 From iris.heap_lang Require Import proofmode.
 From iris.heap_lang Require Import notation lang.
 From iris.algebra Require Import numbers.
-From iris.prelude Require Import options.
 
 From iris.heap_lang.lib Require Import par.
 

@@ -1,7 +1,6 @@
 From iris.program_logic Require Import atomic.
 From iris.heap_lang Require Import proofmode notation.
 From iris.heap_lang.lib Require Import atomic_heap.
-From iris.prelude Require Import options.
 
 (** * A general logically atomic interface for an atomic counter. *)
 Record atomic_counter {Σ} `{!heapGS Σ, !atomic_heap, !atomic_heapGS Σ} := AtomicCounter {

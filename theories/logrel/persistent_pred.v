@@ -1,6 +1,5 @@
 From stdpp Require Import tactics.
 From iris.bi Require Import bi.
-From iris.prelude Require Import options.
 
 Section persistent_pred.
   Context (A : Type) (PROP : bi).

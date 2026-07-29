@@ -11,7 +11,6 @@ From iris.heap_lang Require Import proofmode notation.
 From iris.algebra Require Import cmra agree frac.
 From iris.heap_lang.lib Require Import lock spin_lock.
 From iris_examples.hocap Require Import abstract_bag.
-From iris.prelude Require Import options.
 
 (** Fine-grained bag implementation using CAS *)
 Definition newBag : val := λ: <>,

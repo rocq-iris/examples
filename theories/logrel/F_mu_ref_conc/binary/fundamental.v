@@ -2,7 +2,6 @@ From iris.algebra Require Import list.
 From iris.proofmode Require Import proofmode.
 From iris.program_logic Require Export lifting.
 From iris_examples.logrel.F_mu_ref_conc.binary Require Export logrel rules.
-From iris.prelude Require Import options.
 
 Section bin_log_def.
   Context `{heapIG Σ, cfgSG Σ}.

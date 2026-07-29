@@ -3,7 +3,6 @@ From iris.heap_lang Require Export lang proofmode notation.
 From iris.heap_lang.lib Require Import spin_lock.
 From iris.algebra Require Import agree frac.
 From iris_examples.logatom.flat_combiner Require Import sync misc.
-From iris.prelude Require Import options.
 
 (** The simple syncer spec in [sync.v] implies a logically atomic spec. *)
 

@@ -15,7 +15,6 @@ From iris.program_logic Require Export weakestpre.
 From iris.heap_lang Require Import proofmode.
 From iris.heap_lang Require Import notation lang.
 From iris.heap_lang.lib Require Import par.
-From iris.prelude Require Import options.
 
 (* In the file sfra.v, the "S-F" transition system resource algebra from example 8.16 is implemented,
    along with some lemmas that will be useful here.

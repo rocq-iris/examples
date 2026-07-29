@@ -3,7 +3,6 @@ From iris.program_logic Require Import lifting.
 From iris.proofmode Require Import proofmode.
 From iris_examples.logrel.F_mu_ref_conc.unary Require Export logrel.
 From iris_examples.logrel.F_mu_ref_conc Require Export rules.
-From iris.prelude Require Import options.
 
 Definition log_typed `{heapIG Σ} (Γ : list type) (e : expr) (τ : type) : iProp Σ :=
   □ ∀ Δ vs, ⟦ Γ ⟧* Δ vs -∗ ⟦ τ ⟧ₑ Δ e.[env_subst vs].

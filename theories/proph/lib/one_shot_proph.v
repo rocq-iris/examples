@@ -2,7 +2,6 @@ From iris.proofmode Require Import proofmode.
 From iris.program_logic Require Export weakestpre.
 From iris.heap_lang Require Export lang.
 From iris.heap_lang Require Import proofmode notation.
-From iris.prelude Require Import options.
 
 Definition val_of_list (vs : list (val * val)) : val :=
   match vs with

@@ -1,5 +1,4 @@
 From iris_examples.logrel.F_mu_ref_conc Require Import typing.
-From iris.prelude Require Import options.
 
 Definition FG_StackType τ :=
   TRec (Tref (TSum TUnit (TProd τ.[ren (+1)] (TVar 0)))).

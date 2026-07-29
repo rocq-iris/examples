@@ -6,7 +6,6 @@ From iris.program_logic Require Import atomic.
 From iris.proofmode Require Import proofmode.
 From iris.heap_lang Require Import proofmode notation atomic_heap.
 From iris_examples.logatom.counter_with_backup Require Import counter_spec.
-From iris.prelude Require Import options.
 
 (** * Implementation of the concurrent counter spec with logical atomicity, using unsolicited helping *)
 (** For a detailed explanation of the proof, we refer to the technical documentation. *)

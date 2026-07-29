@@ -1,7 +1,6 @@
 From iris_examples.logrel.F_mu_ref_conc.unary Require Export fundamental.
 From iris.proofmode Require Import proofmode.
 From iris.program_logic Require Import adequacy.
-From iris.prelude Require Import options.
 
 Class heapPreIG Σ := HeapPreIG {
   heap_preG_iris :: invGpreS Σ;

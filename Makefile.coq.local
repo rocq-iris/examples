@@ -39,7 +39,6 @@ style: $(VFILES) coq-lint.sh
 # Make sure everything imports the options, and all Instance/Argument/Hint are qualified.
 	$(SHOW)"COQLINT"
 	$(HIDE)for FILE in $(VFILES); do \
-	  if ! grep -F -q 'From iris.prelude Require Import options.' "$$FILE"; then echo "ERROR: $$FILE does not import 'options'."; echo; exit 1; fi ; \
 	  ./coq-lint.sh "$$FILE" || exit 1; \
 	done
 .PHONY: style

@@ -3,7 +3,6 @@ From iris.proofmode Require Export proofmode.
 From iris.program_logic Require Import ectx_lifting.
 From iris_examples.logrel.stlc Require Export lang.
 From stdpp Require Import fin_maps.
-From iris.prelude Require Import options.
 
 Section stlc_rules.
   (** STLC is somewhat unusual in that we quantify over an arbitrary [irisGS] --

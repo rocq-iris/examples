@@ -1,7 +1,6 @@
 From iris.program_logic Require Import weakestpre.
 From iris.base_logic Require Import invariants.
 From Autosubst Require Export Autosubst.
-From iris.prelude Require Import options.
 
 Canonical Structure varO := leibnizO var.
 

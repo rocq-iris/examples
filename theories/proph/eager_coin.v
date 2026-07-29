@@ -3,7 +3,6 @@ From iris.program_logic Require Export weakestpre.
 From iris.heap_lang Require Export lang proofmode notation.
 From iris.heap_lang.lib Require Export nondet_bool.
 From iris_examples.proph Require Import eager_coin_spec.
-From iris.prelude Require Import options.
 
 (* Simple implementation of the eager specification. *)
 

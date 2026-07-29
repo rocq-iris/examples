@@ -6,7 +6,6 @@ From iris.algebra Require Import list.
 From iris_examples.logrel Require Export persistent_pred.
 From iris_examples.logrel.F_mu_ref_conc.binary Require Export rules.
 From iris_examples.logrel.F_mu_ref_conc Require Export typing.
-From iris.prelude Require Import options.
 Import uPred.
 
 Definition logN : namespace := nroot .@ "logN".

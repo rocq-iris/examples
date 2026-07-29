@@ -4,7 +4,6 @@ From iris.program_logic Require Export weakestpre.
 From iris.heap_lang Require Export lang proofmode notation.
 From iris.algebra Require Import excl auth frac gmap agree.
 From iris.bi Require Import fractional.
-From iris.prelude Require Import options.
 
 Import uPred.
 

@@ -1,6 +1,5 @@
 From iris.program_logic Require Import atomic.
 From iris.heap_lang Require Import proofmode notation.
-From iris.prelude Require Import options.
 
 (** Specifying snapshots with histories
     Implementing atomic pair snapshot data structure from Sergey et al. (ESOP 2015) *)

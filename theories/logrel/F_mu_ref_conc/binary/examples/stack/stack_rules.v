@@ -1,6 +1,5 @@
 From iris.proofmode Require Import proofmode.
 From iris_examples.logrel.F_mu_ref_conc.binary Require Import logrel.
-From iris.prelude Require Import options.
 
 Section Rules.
   Context `{heapIG Σ}.

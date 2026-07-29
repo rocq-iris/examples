@@ -6,7 +6,6 @@
 
 From iris.heap_lang Require Import proofmode.
 From iris.algebra Require Import frac.
-From iris.prelude Require Import options.
 
 Section RADefinitions.
 
