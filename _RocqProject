@@ -14,10 +14,11 @@
 # Need Rocq 9.3 for the rw tactic.
 -arg "-w -rewrite-rw"
 
-# Overwrite some default Rocq options
--arg "-set 'Default Goal Selector=!'"
--arg "-set 'Default Proof Using=Type'"
--arg "-set 'Suggest Proof Using'"
+# Overwrite some default Rocq options.
+# (Needs separate arg flags to avoid ProofGeneral bugs.)
+-arg "-set" -arg "'Default Goal Selector=!'"
+-arg "-set" -arg "'Default Proof Using=Type'"
+-arg "-set" -arg "'Suggest Proof Using'"
 
 theories/barrier/proof.v
 theories/barrier/specification.v
