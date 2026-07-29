@@ -21,8 +21,8 @@ clean: Makefile.coq
 .PHONY: clean
 
 # Create Coq Makefile.
-Makefile.coq: _CoqProject Makefile
-	"$(COQBIN)rocq" makefile -f _CoqProject -o Makefile.coq $(EXTRA_COQFILES)
+Makefile.coq: _RocqProject Makefile
+	"$(COQBIN)rocq" makefile -f _RocqProject -o Makefile.coq $(EXTRA_COQFILES)
 
 # Install build-dependencies
 OPAMFILES=$(wildcard *.opam)
@@ -52,4 +52,4 @@ build-dep: builddep
 
 # Some files that do *not* need to be forwarded to Makefile.coq.
 # ("::" lets Makefile.local overwrite this.)
-Makefile Makefile.local _CoqProject $(OPAMFILES):: ;
+Makefile Makefile.local _RocqProject $(OPAMFILES):: ;
