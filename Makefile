@@ -6,7 +6,7 @@ all: Makefile.rocq
 # Permit local customization
 -include Makefile.local
 
-# Forward most targets to Coq makefile (with some trick to make this phony)
+# Forward most targets to Rocq makefile (with some trick to make this phony)
 %: Makefile.rocq phony
 	@#echo "Forwarding $@"
 	+@$(MAKE) -f Makefile.rocq $@
@@ -20,7 +20,7 @@ clean: Makefile.rocq
 	rm -f Makefile.rocq .lia.cache builddep/*
 .PHONY: clean
 
-# Create Coq Makefile.
+# Create Rocq Makefile.
 Makefile.rocq: _RocqProject Makefile
 	"$(COQBIN)rocq" makefile -f _RocqProject -o Makefile.rocq $(EXTRA_COQFILES)
 
