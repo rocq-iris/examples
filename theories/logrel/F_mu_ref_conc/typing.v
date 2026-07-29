@@ -14,10 +14,10 @@ Inductive type :=
   | TExist (τ : {bind 1 of type})
   | Tref (τ : type).
 
-Global Instance Ids_type : Ids type. derive. Defined.
-Global Instance Rename_type : Rename type. derive. Defined.
-Global Instance Subst_type : Subst type. derive. Defined.
-Global Instance SubstLemmas_typer : SubstLemmas type. derive. Qed.
+Global Instance Ids_type : Ids type. Proof. derive. Defined.
+Global Instance Rename_type : Rename type. Proof. derive. Defined.
+Global Instance Subst_type : Subst type. Proof. derive. Defined.
+Global Instance SubstLemmas_typer : SubstLemmas type. Proof. derive. Qed.
 
 Definition binop_res_type (op : binop) : type :=
   match op with

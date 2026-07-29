@@ -56,10 +56,10 @@ Module F_mu_ref_conc.
   | CAS (e0 : expr) (e1 : expr) (e2 : expr)
   (* Fetch and add for fine-grained concurrency *)
   | FAA (e1 : expr) (e2 : expr).
-  Global Instance Ids_expr : Ids expr. derive. Defined.
-  Global Instance Rename_expr : Rename expr. derive. Defined.
-  Global Instance Subst_expr : Subst expr. derive. Defined.
-  Global Instance SubstLemmas_expr : SubstLemmas expr. derive. Qed.
+  Global Instance Ids_expr : Ids expr. Proof. derive. Defined.
+  Global Instance Rename_expr : Rename expr. Proof. derive. Defined.
+  Global Instance Subst_expr : Subst expr. Proof. derive. Defined.
+  Global Instance SubstLemmas_expr : SubstLemmas expr. Proof. derive. Qed.
 
   (* Notation for bool and nat *)
   Notation "#♭ b" := (Bool b) (at level 20).

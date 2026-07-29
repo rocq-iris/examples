@@ -18,10 +18,10 @@ Module stlc.
     | InjR (e : expr)
     | Case (e0 : expr) (e1 : {bind expr}) (e2 : {bind expr}).
 
-  Global Instance Ids_expr : Ids expr. derive. Defined.
-  Global Instance Rename_expr : Rename expr. derive. Defined.
-  Global Instance Subst_expr : Subst expr. derive. Defined.
-  Global Instance SubstLemmas_expr : SubstLemmas expr. derive. Qed.
+  Global Instance Ids_expr : Ids expr. Proof. derive. Defined.
+  Global Instance Rename_expr : Rename expr. Proof. derive. Defined.
+  Global Instance Subst_expr : Subst expr. Proof. derive. Defined.
+  Global Instance SubstLemmas_expr : SubstLemmas expr. Proof. derive. Qed.
 
   Inductive val :=
     | LamV (e : {bind 1 of expr})
