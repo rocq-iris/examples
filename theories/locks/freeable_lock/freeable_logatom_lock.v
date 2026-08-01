@@ -53,7 +53,7 @@ Section tada.
     intros n ???. eapply atomic_update_ne.
     - solve_proper.
     - solve_proper.
-    - intros [state ?] ?. rewrite /tele_app //=.
+    - intros [state []] []. simpl. done.
   Qed.
 
   Local Definition sum_loans (i : positive) (l : frac * gname) (state : frac) :=
