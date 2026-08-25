@@ -15,10 +15,9 @@
 -arg "-w -rewrite-rw"
 
 # Overwrite some default Rocq options.
-# (Needs separate arg flags to avoid ProofGeneral bugs.)
--arg "-set" -arg "'Default Goal Selector=!'"
--arg "-set" -arg "'Default Proof Using=Type'"
--arg "-set" -arg "'Suggest Proof Using'"
+-arg "-set 'Default Goal Selector=!'"
+-arg "-set 'Default Proof Using=Type'"
+-arg "-set 'Suggest Proof Using'"
 
 theories/barrier/proof.v
 theories/barrier/specification.v
